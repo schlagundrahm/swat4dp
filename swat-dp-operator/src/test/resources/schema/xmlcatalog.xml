@@ -1,0 +1,4 @@
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+	<public publicId="http://www.w3.org/1999/XSL/Transform" uri="./schema-for-xslt20.xsd"/>
+	<public publicId="http://schemas.xmlsoap.org/soap/envelope/" uri="./soap-envelope-1.1.xsd" />
+</catalog>

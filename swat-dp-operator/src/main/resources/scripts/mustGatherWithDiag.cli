@@ -1,0 +1,25 @@
+default
+echo show clock
+show clock
+echo show load
+show load
+echo show cpu
+show cpu
+echo show throughput
+show throughput
+echo show tcp
+show tcp
+echo show int
+show int
+echo -- Diagnostics --
+diag
+echo show mem
+show mem
+echo show mem details
+show mem details
+echo show connections
+show connections
+echo show handles
+show handles
+echo show activity 50
+show activity 50

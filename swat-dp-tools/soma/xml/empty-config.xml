@@ -1,0 +1,3 @@
+<datapower-configuration version="3">
+        <configuration domain="@domain.name@" />
+</datapower-configuration>

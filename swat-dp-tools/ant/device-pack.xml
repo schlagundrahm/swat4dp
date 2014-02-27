@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- ================================================================================================= -->
+<!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
+<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- ================================================================================================= -->
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.8.2 or above. -->
+<!-- ====================================================================== -->
+<project name="swat-dp-tools.device-pack" default="info" basedir=".">
+
+	<dirname file="${ant.file.swat-dp-tools.device-pack}" property="ant_device-pack.dir" />
+	<import file="${ant_device-pack.dir}/taskdefs.xml" />
+	<import file="${ant_device-pack.dir}/validate.xml" />
+
+	<!-- ================================= 
+          target: info 
+         ================================= -->
+	<target name="info">
+		<echo message="Macros for devices for swat-dp-tools" />
+	</target>
+
+	<!-- = = = = = = = = = = = = = = = = =
+	      macrodef: device-prepare-import-dirs-macro          
+	     = = = = = = = = = = = = = = = = = -->
+	<macrodef name="device-prepare-import-dirs-macro">
+		<attribute name="device" />
+		<sequential>
+			<property name="relative-import-dir" value="dist/import/@{device}" />
+			<property name="import-dir" value="${swat.dp.devices}/${relative-import-dir}" />
+			<property name="files-dir" value="${import-dir}/master/common" />
+			<property name="xcfg-dir" value="${import-dir}/xcfg/common" />
+			<property name="pack-dir" value="${import-dir}/pack" />
+			<property name="zip-dir" value="${swat.dp.devices}/dist" />
+
+			<delete dir="${import-dir}" />
+			<delete file="${zip-dir}/default-@{device}.zip" />
+
+			<mkdir dir="${files-dir}" />
+			<mkdir dir="${xcfg-dir}" />
+			<mkdir dir="${pack-dir}" />
+		</sequential>
+	</macrodef>
+
+	<!-- = = = = = = = = = = = = = = = = =
+	      macrodef: device-pack-macro
+	     = = = = = = = = = = = = = = = = = -->
+	<macrodef name="device-pack-macro">
+		<attribute name="device" />
+		<sequential>
+			<echo message="Start building the import-package for the domain default for device @{device}..." />
+
+			<!-- Pack all files into the structure needed for deplyoment -->
+			<device-pack2compare-macro device="@{device}" />
+
+			<!-- create files.xml -->
+			<createfilesconfig createDpConfig="true"
+			                   domain="default"
+			                   comment="Domain default for Device @{device}"
+			                   targetdir="${import-dir}"
+			                   targetfile="files.xml">
+				<fileset dir="${files-dir}">
+					<include name="**/*" />
+					<exclude name="**/*.xcfg" />
+					<exclude name="**/README" />
+					<exclude name="**/readme.txt" />
+				</fileset>
+			</createfilesconfig>
+
+			<!-- validating public keys i.e certificates if there are any -->
+			<validate-certs-macro source-dir="${files-dir}" />
+						
+			<validate-config-macro source-dir="${relative-import-dir}/xcfg/common" />
+
+			<!-- Combine the file files.xml and the additional .xcfg files into one export file -->
+			<combine-xcfg-files-macro input="${import-dir}/files.xml"
+			                          output="${import-dir}/export.xml"
+			                          xcfg-selection-expr="file:///${basedir}/${relative-import-dir}/xcfg/common/?select=*.xcfg" />
+			<delete file="${import-dir}/files.xml" />
+
+			<!-- Verify, that replacement tokens are all good -->
+			<verify-filter-xcfg-files-macro src-file="${import-dir}/export.xml" />
+
+			<!-- Pack the content to prepare for the final zip-file -->
+			<echo message="Copying to pack the zip-file..." />
+			<copy todir="${pack-dir}" filtering="false" verbose="true" overwrite="true">
+				<fileset dir="${files-dir}" />
+				<fileset dir="${import-dir}">
+					<filename name="export.xml" />
+				</fileset>
+			</copy>
+
+			<!-- Pack the final zip-file -->
+			<zip destfile="${zip-dir}/default-@{device}.zip" basedir="${pack-dir}" />
+
+			<echo message="Done building the import-package for the domain default for device @{device} in folder ${zip-dir}." />
+		</sequential>
+	</macrodef>
+
+	<!-- = = = = = = = = = = = = = = = = =
+	      macrodef: device-pack2compare-macro          
+	     = = = = = = = = = = = = = = = = = -->
+	<macrodef name="device-pack2compare-macro">
+		<attribute name="device" />
+		<sequential>
+			<!-- TODO check use of domain.name -->
+			<echo message="Start preparing the comparison file-structure for the domain default for device @{device}..." />
+
+			<!-- Prepare all temporary directories for the pack -->
+			<device-prepare-import-dirs-macro device="@{device}" />
+
+			<!-- Load the device specific properties -->
+			<property file="config/@{device}.properties" />
+
+			<!-- Initialize passwords needed -> results in pws.filter.file -->
+			<init-device-passwords-macro device="@{device}" />
+
+			<!-- Define content filterset -->
+			<filterset id="content.filter" onmissingfiltersfile="ignore">
+				<filtersfile file="build.properties" />
+				<filtersfile file="config/@{device}.properties" />
+				<filtersfile file="${pws.filter.file}" />
+			</filterset>
+
+			<!-- Copy and filter the local files (common and device-specific) -->
+			<copy-files-content-macro src-dir="master/common"
+			                          dst-dir="${files-dir}"
+			                          filter="content.filter"
+			                          label="common" />
+			<copy-files-content-macro src-dir="master/@{device}"
+			                          dst-dir="${files-dir}"
+			                          filter="content.filter"
+			                          label="device-specific" />
+
+			<!-- Copy and filter the additional .xcfg files (common and device-specific) -->
+			<copy-xcfg-content-macro src-dir="xcfg/common"
+			                         dst-dir="${xcfg-dir}"
+			                         filter="content.filter"
+			                         label="common" />
+			<copy-xcfg-content-macro src-dir="xcfg/@{device}"
+			                         dst-dir="${xcfg-dir}"
+			                         filter="content.filter"
+			                         label="device-specific" />
+
+			<!-- Check if some of the files have to be combined for the comparison -->
+			<combine-prefix-xcfg-files-macro prefix="default-01-network" />
+			<combine-prefix-xcfg-files-macro prefix="default-02-radius" />
+			<combine-prefix-xcfg-files-macro prefix="default-03-dns" />
+			<combine-prefix-xcfg-files-macro prefix="default-04-time" />
+			<combine-prefix-xcfg-files-macro prefix="default-05-snmp" />
+			<combine-prefix-xcfg-files-macro prefix="default-06-system" />
+			<combine-prefix-xcfg-files-macro prefix="default-07-cert" />
+			<combine-prefix-xcfg-files-macro prefix="default-08-disk" />
+			<combine-prefix-xcfg-files-macro prefix="default-09-nfs" />
+			<combine-prefix-xcfg-files-macro prefix="default-10-crypto" />
+			<combine-prefix-xcfg-files-macro prefix="default-20-log" />
+			<combine-prefix-xcfg-files-macro prefix="default-30-rbm" />
+			<combine-prefix-xcfg-files-macro prefix="default-40-mgmt" />
+			<combine-prefix-xcfg-files-macro prefix="default-50-lbg" />
+			<combine-prefix-xcfg-files-macro prefix="default-60-slm" />
+			<combine-prefix-xcfg-files-macro prefix="default-70-misc" />
+			<combine-prefix-xcfg-files-macro prefix="default-80-domain" />
+
+			<!-- Remove temporarily needed pws.filter.file -->
+			<delete file="${pws.filter.file}" />
+			
+			<!-- run schema validation on xcfg files -->
+			<validate-config-macro source-dir="${xcfg-dir}" />
+
+			<echo message="Done preparing the comparison file-structure for the domain default on device @{device} in folder ${import-dir}." />
+		</sequential>
+	</macrodef>
+</project>

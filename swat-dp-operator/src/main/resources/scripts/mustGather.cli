@@ -1,0 +1,13 @@
+default
+echo show clock
+show clock
+echo show load
+show load
+echo show cpu
+show cpu
+echo show throughput
+show throughput
+echo show tcp
+show tcp
+echo show int
+show int

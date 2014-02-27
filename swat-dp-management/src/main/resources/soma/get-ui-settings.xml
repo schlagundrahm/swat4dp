@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dp:request xmlns:dp="http://www.datapower.com/schemas/management" domain="default">
+	<dp:get-file name="local:///UI-Message-XS40.xml" />
+</dp:request>
+
+
