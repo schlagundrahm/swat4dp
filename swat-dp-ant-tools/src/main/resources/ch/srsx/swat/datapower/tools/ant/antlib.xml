@@ -1,0 +1,6 @@
+<antlib>
+	<!-- Tasks -->
+	<taskdef name="compareconfig" classname="ch.srsx.swat.datapower.tools.ant.taskdefs.CompareConfig" onerror="ignore" />
+	<taskdef name="createfilesconfig" classname="ch.srsx.swat.datapower.tools.ant.taskdefs.CreateFilesConfig" onerror="ignore" />
+    <taskdef name="xslcoproc" classname="ch.srsx.swat.datapower.tools.ant.taskdefs.Coproc" onerror="ignore" />
+</antlib>

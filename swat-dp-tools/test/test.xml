@@ -1,0 +1,10 @@
+<request-uris>
+    <request-uri name="request-url-1" should="true">/sampleedu</request-uri>
+    <request-uri name="request-url-2" should="true">/sampleedu/</request-uri>
+    <request-uri name="request-url-3" should="true">/sampleedustatic</request-uri>
+    <request-uri name="request-url-4" should="true">/sampleedustatic/abcedu</request-uri>
+    <request-uri name="request-url-n1" should="false">/sample</request-uri>
+    <request-uri name="request-url-n2" should="false">/sample/</request-uri>
+    <request-uri name="request-url-n3" should="false">/sample/abeduc</request-uri>
+    <request-uri name="request-url-n4" should="false">/sample/abcedu</request-uri>
+</request-uris>

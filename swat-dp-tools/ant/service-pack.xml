@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- ================================================================================================= -->
+<!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
+<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- ================================================================================================= -->
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.8.2 or above. -->
+<!-- ====================================================================== -->
+<project name="swat-dp-tools.service-pack" default="info" basedir=".">
+
+	<dirname file="${ant.file.swat-dp-tools.service-pack}" property="ant_servicepack.dir" />
+	<import file="${ant_servicepack.dir}/taskdefs.xml" />
+	<import file="${ant_servicepack.dir}/chooser.xml" />
+	<import file="${ant_servicepack.dir}/validate.xml" />
+
+	<!-- ================================= 
+          target: info 
+         ================================= -->
+	<target name="info">
+		<echo message="Macros for services for swat-dp-tools" />
+	</target>
+
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: service-prepare-import-dirs-macro          
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="service-prepare-import-dirs-macro">
+		<attribute name="env" />
+		<sequential>
+			<property name="relative-import-dir" value="dist/import/@{env}" />
+			<property name="import-dir" value="${basedir}/${relative-import-dir}" />
+			<property name="files-dir" value="${import-dir}/master/common" />
+			<property name="xcfg-dir" value="${import-dir}/xcfg/common" />
+			<property name="pack-dir" value="${import-dir}/pack" />
+			<property name="zip-dir" value="${basedir}/dist" />
+
+			<delete dir="${import-dir}" />
+			<delete file="${zip-dir}/${service.name}-@{env}.zip" />
+
+			<mkdir dir="${files-dir}" />
+			<mkdir dir="${xcfg-dir}" />
+			<mkdir dir="${pack-dir}" />
+		</sequential>
+	</macrodef>
+
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: service-pack-macro          
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="service-pack-macro">
+		<attribute name="env" />
+		<sequential>
+			<echo message="Start building the import-package for the service ${service.name} for environment @{env}..." />
+
+			<!-- Pack all files into the structure needed for deplyoment -->
+			<service-pack2compare-macro env="@{env}" />
+
+			<!-- create files.xml -->
+			<createfilesconfig env="@{env}"
+			                   createDpConfig="true"
+			                   domain="${domain.name}"
+			                   comment="${service.summary}"
+			                   targetdir="${import-dir}"
+			                   targetfile="files.xml">
+				<fileset dir="${files-dir}">
+					<include name="**/*" />
+					<exclude name="**/*.xcfg" />
+					<exclude name="**/README" />
+					<exclude name="**/readme.txt" />
+				</fileset>
+			</createfilesconfig>
+
+			<!-- validating public keys i.e certificates if there are any -->
+			<validate-certs-macro source-dir="${files-dir}" />
+			
+			<!-- run schema validation on xcfg files -->
+			<validate-config-macro source-dir="${relative-import-dir}/xcfg/common" />
+
+			<!-- Combine the file files.xml and the additional .xcfg files into one 
+				export file -->
+			<combine-xcfg-files-macro input="${import-dir}/files.xml"
+			                          output="${import-dir}/export.xml"
+			                          xcfg-selection-expr="file:///${basedir}/${relative-import-dir}/xcfg/common/?select=*.xcfg" />
+			<delete file="${import-dir}/files.xml" />
+
+			<!-- Verify, that replacement tokens are all good -->
+			<verify-filter-xcfg-files-macro src-file="${import-dir}/export.xml" />
+
+			<!-- Pack the content to prepare for the final zip-file -->
+			<echo message="Copying to pack the zip-file..." />
+			<copy todir="${pack-dir}" filtering="false" verbose="true" overwrite="true">
+				<fileset dir="${files-dir}" />
+				<fileset dir="${import-dir}">
+					<filename name="export.xml" />
+				</fileset>
+			</copy>
+
+			<!-- Pack the final zip-file -->
+			<zip destfile="${zip-dir}/${service.name}-@{env}.zip" basedir="${pack-dir}" />
+
+			<echo message="Done building the import-package for the service ${service.name} for environment @{env} in folder ${zip-dir}." />
+		</sequential>
+	</macrodef>
+
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: service-pack2compare-macro          
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="service-pack2compare-macro">
+		<attribute name="env" />
+		<sequential>
+			<echo message="Start preparing the comparison file-structure for the service ${service.name} for environment @{env}..." />
+
+			<!-- Prepare all temporary directories for the pack -->
+			<service-prepare-import-dirs-macro env="@{env}" />
+
+			<!-- Load the service environment specific properties -->
+			<property file="config/@{env}.properties" />
+
+			<!-- Initialize passwords needed -> results in pws.filter.file -->
+			<init-env-passwords-macro env="@{env}" />
+
+			<!-- Define content filterset -->
+			<filterset id="content.filter" onmissingfiltersfile="ignore">
+				<filtersfile file="build.properties" />
+				<filtersfile file="config/@{env}.properties" />
+				<filtersfile file="${swat.dp.infra}/build.properties" />
+				<filtersfile file="${pws.filter.file}" />
+			</filterset>
+
+			<!-- Copy and filter the local files (common and env-specific) -->
+			<copy-files-content-macro src-dir="master/common"
+			                          dst-dir="${files-dir}"
+			                          filter="content.filter"
+			                          label="common" />
+			<copy-files-content-macro src-dir="master/@{env}"
+			                          dst-dir="${files-dir}"
+			                          filter="content.filter"
+			                          label="env-specific" />
+
+			<!-- Copy and filter the additional .xcfg files (common and env-specific) -->
+			<copy-xcfg-content-macro src-dir="xcfg/common"
+			                         dst-dir="${xcfg-dir}"
+			                         filter="content.filter"
+			                         label="common" />
+			<copy-xcfg-content-macro src-dir="xcfg/@{env}"
+			                         dst-dir="${xcfg-dir}"
+			                         filter="content.filter"
+			                         label="env-specific" />
+
+			<!-- Copy and filter the empty-config file for further processing -->
+			<copy todir="dist" filtering="true" verbose="true" overwrite="true">
+				<fileset file="${swat.dp.tools}/soma/xml/empty-config.xml" />
+				<filterset refid="content.filter" />
+			</copy>
+
+			<!-- Check if some of the files have to be combined for the comparison -->
+			<combine-prefix-xcfg-files-macro prefix="${service.name}-10-crypto" />
+			<combine-prefix-xcfg-files-macro prefix="${service.name}-15-fsh" />
+			<combine-prefix-xcfg-files-macro prefix="${service.name}-20-lbgs" />
+			<combine-prefix-xcfg-files-macro prefix="${service.name}-25-style-helper" />
+			<combine-prefix-xcfg-files-macro prefix="${service.name}-26-name-value-profiles" />
+			<combine-prefix-xcfg-files-macro prefix="${service.name}-60-aux-objects" />
+			<combine-prefix-xcfg-files-macro prefix="${service.name}-65-monitors" />
+			<combine-prefix-xcfg-files-macro prefix="${service.name}-80-service" />
+			<combine-prefix-xcfg-files-macro prefix="${service.name}-90-logtargets" />
+			<combine-prefix-xcfg-files-macro prefix="${service.name}-95-deployment-policies" />
+
+			<!-- Remove temporarily needed pws.filter.file -->
+			<delete file="${pws.filter.file}" />
+			
+			<!-- run schema validation on xcfg files -->
+			<validate-config-macro source-dir="${xcfg-dir}" />
+
+			<echo message="Done preparing the comparison file-structure for the service ${service.name} for environment @{env} in folder ${import-dir}." />
+		</sequential>
+	</macrodef>
+</project>
