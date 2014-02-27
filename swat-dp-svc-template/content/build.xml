@@ -1,0 +1,12 @@
+<project name="@service.project.name@" default="info" basedir=".">
+	<!-- The build.properties file defines the path to local jar files -->
+	<property file="build.properties" />
+
+	<property file="${swat.dp.infra}/build.properties" />
+	<property file="${swat.dp.infra}/settings/${user.name}.properties" />
+
+	<!-- Import the common tasks to all dp-administration -->
+	<import file="${swat.dp.tools}/macros.xml" />
+	<import file="${swat.dp.tools}/ant/service-macros.xml" />
+
+</project>

@@ -1,0 +1,368 @@
+<?xml version="1.0"?>
+<!--
+  Licensed Materials - Property of IBM
+  IBM WebSphere DataPower Appliances
+  Copyright IBM Corporation 2007,2009. All Rights Reserved.
+  US Government Users Restricted Rights - Use, duplication or disclosure
+  restricted by GSA ADP Schedule Contract with IBM Corp.
+-->
+<!--
+/*
+ *
+ *   Copyright (c) 2002-2004 DataPower Technology, Inc. All Rights Reserved
+ *
+ * THIS IS UNPUBLISHED PROPRIETARY TRADE SECRET SOURCE CODE OF DataPower
+ * Technology, Inc.
+ *
+ * The copyright above and this notice must be preserved in all copies of
+ * the source code. The copyright notice above does not evidence any actual
+ * or intended publication of such source code. This source code may not be
+ * copied, compiled, disclosed, distributed, demonstrated or licensed except
+ * as expressly authorized by DataPower Technology, Inc.
+ *
+ * Name:           AAAInfo.xsd
+ * Description:    AAA Information file schema
+ * Author:         Jonathan Wenocur
+ *
+ */
+-->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://www.datapower.com/AAAInfo"
+    xmlns:tns="http://www.datapower.com/AAAInfo"
+    attributeFormDefault="unqualified"
+    elementFormDefault="qualified">
+
+    <!-- The root element. -->
+    <xsd:element name="AAAInfo">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="FormatVersion" type="tns:dmUInt32" minOccurs="1" maxOccurs="1">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The version of the file format used in the AAAInfo file.  Allows for
+                            extensibility as the format changes over time.  This is a required
+                            element and must be the first child of the root element.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+
+                <xsd:element name="Filename" type="xsd:anyURI" minOccurs="0" maxOccurs="1">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The name/location of this file.  This is "convenience"
+                            information which may help with maintenance.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+
+                <xsd:element name="Summary" type="xsd:string" minOccurs="0" maxOccurs="1">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            General information about this file.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <!-- IMPORTANT: The order of Authenticate, MapCredentials, MapResource, and
+                         Authorize elements matters, they are checked in the order they appear
+                         in the file. For example, the policy defined by two Authenticate
+                         elements is applied in the order in which the elements appear in the
+                         file. -->
+                    <xsd:element name="Authenticate" type="tns:AuthenticateType" maxOccurs="unbounded">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Map extracted identity information into a credential string.
+                                There are one or more identity items as input, and they are
+                                mapped to a single credential as output.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+
+                    <xsd:element name="MapCredentials" type="tns:MapCredentialsType" maxOccurs="unbounded">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Map a credential string into an alternate credential string.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+
+                    <xsd:element name="MapResource" type="tns:MapResourceType" maxOccurs="unbounded">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Map extracted resource information into a resource string.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+
+                    <xsd:element name="Authorize" type="tns:AuthorizeType" maxOccurs="unbounded">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Map a credential string and a resource string into an access
+                                decision.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:choice>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:complexType name="AuthenticateType">
+        <xsd:sequence>
+            <xsd:choice>
+                <!-- This somewhat odd construct says that at least one of the 6 possible
+                     elements must occur once; no duplicate elements allowed; as long as there
+                     is at least one then any of the others can also occur once; and the
+                     elements must be in order (since it's a sequence). -->
+                <xsd:choice>
+                    <xsd:sequence>
+                        <!-- Though not expressed here in the schema, IPHost and IPNetwork are
+                             really mutually exclusive, and Password should only appear if there
+                             is a Username. -->
+                        <xsd:element ref="tns:IPHost" maxOccurs="1"/>
+                        <xsd:element ref="tns:IPNetwork" minOccurs="0" maxOccurs="1"/>
+                        <xsd:element ref="tns:Username" minOccurs="0" maxOccurs="1"/>
+                        <xsd:element ref="tns:Password" minOccurs="0" maxOccurs="1"/>
+                        <xsd:element ref="tns:DN" minOccurs="0" maxOccurs="1"/>
+                        <xsd:element ref="tns:CustomToken" minOccurs="0" maxOccurs="1"/>
+                    </xsd:sequence>
+                    <xsd:sequence>
+                        <xsd:element ref="tns:IPNetwork" maxOccurs="1"/>
+                        <xsd:element ref="tns:Username" minOccurs="0" maxOccurs="1"/>
+                        <xsd:element ref="tns:Password" minOccurs="0" maxOccurs="1"/>
+                        <xsd:element ref="tns:DN" minOccurs="0" maxOccurs="1"/>
+                        <xsd:element ref="tns:CustomToken" minOccurs="0" maxOccurs="1"/>
+                    </xsd:sequence>
+                    <xsd:sequence>
+                        <xsd:element ref="tns:Username" maxOccurs="1"/>
+                        <xsd:element ref="tns:Password" minOccurs="0" maxOccurs="1"/>
+                        <xsd:element ref="tns:DN" minOccurs="0" maxOccurs="1"/>
+                        <xsd:element ref="tns:CustomToken" minOccurs="0" maxOccurs="1"/>
+                    </xsd:sequence>
+                    <xsd:sequence>
+                        <xsd:element ref="tns:Password" maxOccurs="1"/>
+                        <xsd:element ref="tns:DN" minOccurs="0" maxOccurs="1"/>
+                        <xsd:element ref="tns:CustomToken" minOccurs="0" maxOccurs="1"/>
+                    </xsd:sequence>
+                    <xsd:sequence>
+                        <xsd:element ref="tns:DN" maxOccurs="1"/>
+                        <xsd:element ref="tns:CustomToken" minOccurs="0" maxOccurs="1"/>
+                    </xsd:sequence>
+                    <xsd:sequence>
+                        <xsd:element ref="tns:CustomToken" maxOccurs="1"/>
+                    </xsd:sequence>
+                </xsd:choice>
+
+                <!-- "Any" means any identity information is allowed, it's mutually exclusive of all
+                     of the other pieces of identity information. Its contents are currently
+                     ignored. -->
+                <xsd:element name="Any" type="xsd:string" maxOccurs="1"/>
+            </xsd:choice>
+
+            <!-- This is the output credential string. The credential associated with this
+                 identity as defined by the pieces of identity information. -->
+            <xsd:element name="OutputCredential" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="MapCredentialsType">
+        <xsd:sequence>
+            <!-- A regular expression defining the input credential name(s). -->
+            <xsd:element name="InputCredential" type="tns:dmPCRE"/>
+
+            <!-- The output credential being mapped to. -->
+            <xsd:element name="OutputCredential" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="MapResourceType">
+        <xsd:sequence>
+            <!-- This somewhat odd construct says that at least one of the 6 possible elements
+                 must occur once; no duplicate elements allowed; as long as there is at least
+                 one then any of the others can also occur once; and the elements must be in
+                 order (since it's a sequence). To create a default entry set the OriginalURL or
+                 TargetURL to match everything (these are regexps), and make sure the EI stage
+                 in AAA extracts that appropriate URL. -->
+            <xsd:choice>
+                <xsd:sequence>
+                    <xsd:element ref="tns:OriginalURL" maxOccurs="1"/>
+                    <xsd:element ref="tns:TargetURL" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element ref="tns:SOAPRequestNSURI" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element ref="tns:SOAPRequestOpName" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element ref="tns:HTTPMethod" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element ref="tns:XPathResult" minOccurs="0" maxOccurs="1"/>
+                </xsd:sequence>
+                <xsd:sequence>
+                    <xsd:element ref="tns:TargetURL" maxOccurs="1"/>
+                    <xsd:element ref="tns:SOAPRequestNSURI" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element ref="tns:SOAPRequestOpName" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element ref="tns:HTTPMethod" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element ref="tns:XPathResult" minOccurs="0" maxOccurs="1"/>
+                </xsd:sequence>
+                <xsd:sequence>
+                    <xsd:element ref="tns:SOAPRequestNSURI" maxOccurs="1"/>
+                    <xsd:element ref="tns:SOAPRequestOpName" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element ref="tns:HTTPMethod" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element ref="tns:XPathResult" minOccurs="0" maxOccurs="1"/>
+                </xsd:sequence>
+                <xsd:sequence>
+                    <xsd:element ref="tns:SOAPRequestOpName" maxOccurs="1"/>
+                    <xsd:element ref="tns:HTTPMethod" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element ref="tns:XPathResult" minOccurs="0" maxOccurs="1"/>
+                </xsd:sequence>
+                <xsd:sequence>
+                    <xsd:element ref="tns:HTTPMethod" maxOccurs="1"/>
+                    <xsd:element ref="tns:XPathResult" minOccurs="0" maxOccurs="1"/>
+                </xsd:sequence>
+                <xsd:sequence>
+                    <xsd:element ref="tns:XPathResult" minOccurs="0" maxOccurs="1"/>
+                </xsd:sequence>
+            </xsd:choice>
+
+            <!-- The name of the logical resource identified by the specified resource
+                 information. This is the single output from the mapping. -->
+            <xsd:element name="OutputResource" type="xsd:string" maxOccurs="1"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="AuthorizeType">
+        <xsd:sequence>
+            <!-- A regular expression defining the credential name(s). -->
+            <xsd:element name="InputCredential" type="tns:dmPCRE"/>
+
+            <!-- A regular expression defining the resource name(s). -->
+            <xsd:element name="InputResource" type="tns:dmPCRE"/>
+
+            <!-- Whether to allow or deny access to this resource based on this credential. -->
+            <xsd:element name="Access" type="tns:dmACEAccess" default="deny"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <!--
+         Referenced elements for AuthenticateType
+      -->
+    <!-- IPHost and IPNetwork are really mutually exclusive, though the schema doesn't enforce
+         this.. -->
+    <!-- The DNS Host Name or explicit IP address to match. -->
+    <xsd:element name="IPHost" type="tns:dmHostname"/>
+
+    <!-- The IP network to match. -->
+    <xsd:element name="IPNetwork" type="tns:dmIPNetAddress"/>
+
+    <!-- The username/password to match. Though these are separate elements the password should
+         never appear without the username. -->
+    <xsd:element name="Username" type="xsd:string"/>
+    <xsd:element name="Password" type="xsd:string"/>
+
+    <!-- The Distinguished Name to match.  Very lenient definition of a DN. -->
+    <xsd:element name="DN" type="xsd:string"/>
+
+    <!-- The custom token (string) produced by an XPath expression. -->
+    <xsd:element name="CustomToken" type="xsd:string"/>
+
+    <!--
+         Referenced elements for MapResourceType
+      -->
+    <!-- A regular expression defining the original URL from the request, which is the URL
+         before any URL rewriting is applied. -->
+    <xsd:element name="OriginalURL" type="tns:dmPCRE"/>
+
+    <!-- A regular expression defining the target URL from the request, which is the URL after
+         any URL rewriting is applied. -->
+    <xsd:element name="TargetURL" type="tns:dmPCRE"/>
+
+    <!-- The namespace of the first child element of the SOAP Body. -->
+    <xsd:element name="SOAPRequestNSURI" type="xsd:anyURI"/>
+
+    <!-- A regular expression defining the element name (local-name) of the first child of the
+         SOAP Body.-->
+    <xsd:element name="SOAPRequestOpName" type="xsd:string"/>
+
+    <!-- The HTTP Method of the request. -->
+    <xsd:element name="HTTPMethod" type="tns:dmEIHTTPMethod"/>
+
+    <!-- The result of applying an XPath expression. -->
+    <xsd:element name="XPathResult" type="tns:dmPCRE"/>
+
+    <!--
+         Datapower Management ("dm") types
+      -->
+    <xsd:simpleType name="dmUInt32">
+        <xsd:restriction base="xsd:positiveInteger">
+            <!-- 1 is the FormatVersion defined by this version of the schema -->
+            <xsd:enumeration value="1"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="dmHostname">
+        <!-- This is an IP address or a DNS hostname.  
+             The IP address can be a V4 or V6 notation.
+             @see webgui/js/dpFormUtil.js, which contains the similar enforcement for GUI input validation. 
+             However the pattern that a jave script uses is honored differently
+             by xslt jit, the schema defined defined here is similar as one found in a W3 spec
+             http://www.w3.org/TR/powder-xsd/. 
+             For IPV6 pattern, we specially allowed ipv4-compatible V6 format, but
+             it doesn't enforce the bad symantics for multiple "::"s in an IPV6 literal, 
+             such as "::FFFF:1:::" -->
+        <xsd:restriction base="xsd:string">
+            <!-- IPV4 -->
+            <xsd:pattern value="((([1-9]?\d|1\d{2}|2[0-4]\d|25[0-5])\.){3}([1-9]?\d|1\d{2}|2[0-4]\d|25[0-5]))"/> 
+            <!-- IPV6 addr, such as "::1", "::", "1::", "::FFFF:127.0.0.1" or "fe80::211:11ff:febb:ff31" -->
+            <xsd:pattern value="((([\da-fA-F]{1,4}|\:|)(\:|)){1,7}([\da-fA-F]{1,4}|\:))"/>
+            <!-- IPV6 contains V4 compatible address. -->
+            <xsd:pattern value="((([\da-fA-F]{1,4}|\:|)(\:|)){1,5}([\da-fA-F]{1,4}|)\:(([1-9]?\d|1\d{2}|2[0-4]\d|25[0-5])\.){3}([1-9]?\d|1\d{2}|2[0-4]\d|25[0-5]))"/>
+            <!-- Very lenient definition of a DNS name -->
+            <!--
+              ALERT: This DNS name actually accepts any text, it de-enforces the above patterns.
+              The drouter does NOT take a DNS name for AAAInfo IPHost element, so this DNS name pattern should
+              be removed.  -->
+            <xsd:pattern value="(.+)"/> 
+        </xsd:restriction>
+    </xsd:simpleType>
+
+
+    <xsd:simpleType name="dmIPNetAddress">
+        <!-- Only allow IPV6 CIDR notation or similar CIDR syntax for IPV6. Not 'a.b.c.d w.x.y.z' notation which the real
+             dmIPNetAddress allows. -->
+        <xsd:restriction base="xsd:string">
+            <!-- IPV4 -->
+            <xsd:pattern value="((([1-9]?\d|1\d{2}|2[0-4]\d|25[0-5])\.){3}([1-9]?\d|1\d{2}|2[0-4]\d|25[0-5])\/(\d|[1-2]\d|3[0-2]))"/> 
+            <!-- IPV6 addr, such as "::1", "::", "1::", "::FFFF:127.0.0.1" or "fe80::211:11ff:febb:ff31" -->
+            <xsd:pattern value="((([\da-fA-F]{1,4}|\:|)(\:|)){1,7}([\da-fA-F]{1,4}|\:)\/([1-9]?\d|1[01]\d|12[0-8]))"/>
+            <!-- IPV6 contains V4 compatible address. -->
+            <xsd:pattern value="((([\da-fA-F]{1,4}|\:|)(\:|)){1,5}([\da-fA-F]{1,4}|)\:(([1-9]?\d|1\d{2}|2[0-4]\d|25[0-5])\.){3}([1-9]?\d|1\d{2}|2[0-4]\d|25[0-5])\/([1-9]?\d|1[01]\d|12[0-8]))"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:complexType name="dmPCRE" mixed="true">
+        <!-- Very lenient definition of a PCRE , anything, text or element, is allowed. -->
+        <xsd:sequence>
+          <xsd:any namespace="##any" minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:simpleType name="dmEIHTTPMethod">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="any"/>
+            <xsd:enumeration value="None"/>
+            <xsd:enumeration value="OPTIONS"/>
+            <xsd:enumeration value="GET"/>
+            <xsd:enumeration value="HEAD"/>
+            <xsd:enumeration value="POST"/>
+            <xsd:enumeration value="PUT"/>
+            <xsd:enumeration value="DELETE"/>
+            <xsd:enumeration value="TRACE"/>
+            <xsd:enumeration value="CONNECT"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="dmACEAccess">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="allow"/>
+            <xsd:enumeration value="deny"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+</xsd:schema>

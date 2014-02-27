@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dp="http://www.datapower.com/schemas/management">
+    <soapenv:Body>
+        <dp:request domain="@domain.name@" xmlns:dp="http://www.datapower.com/schemas/management">
+            <dp:do-action>
+                <CryptoExport>
+                    <!-- object type is either 'key' or 'cert' -->
+                    <ObjectType>@crypto.object.type@</ObjectType>
+                    <ObjectName>@crypto.object.name@</ObjectName>
+                    <OutputFilename>@file.name@</OutputFilename>
+                    <!-- hsmkwk is currently the only machanism that is supported by DataPower -->
+                    <Mechanism>hsmkwk</Mechanism>
+                </CryptoExport>
+            </dp:do-action>
+        </dp:request>
+    </soapenv:Body>
+</soapenv:Envelope>
