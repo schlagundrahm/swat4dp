@@ -1,0 +1,12 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>ch.srsx.swat.datapower.tools</groupId>
+    <artifactId>swat-4-dp</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>swat-dp-service-templates</artifactId>
+  <packaging>pom</packaging>
+  <name>Swat4DP service templates</name>
+  <description>DataPower service project templates</description>
+</project>

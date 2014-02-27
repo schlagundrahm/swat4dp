@@ -1,0 +1,958 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.8.2 or above.        -->
+<!-- ====================================================================== -->
+
+<project name="swat-dp-operator"
+         default="info"
+         basedir="."
+         xmlns:dp="antlib:com.myarch.datapower">
+
+	<description>DataPower operator project (Swat4DPops) based on the dpbuddy Ant tasks and IBM's WAMT.</description>
+
+	<property environment="env" />
+
+	<!-- ====================================================================== -->
+	<!-- Import property files                                                  -->
+	<!-- ====================================================================== -->
+
+	<!-- Get global properties from build.properties -->
+	<property file="build.properties" />
+	
+
+	<!-- ====================================================================== -->
+	<!-- Help target                                                            -->
+	<!-- ====================================================================== -->
+
+	<target name="help">
+		<echo message="Swat4DP - Operator Module %VERSION%" />
+		<echo message="Please run: $ant -projecthelp" />
+	</target>
+
+	<target name="declare">
+
+		<!-- define the classpath for the additional tasks -->
+		<path id="dp.tools.classpath">
+			<pathelement location="${basedir}"/>
+			<fileset dir="${basedir}/lib" includes="*.jar" />
+		</path>
+
+		<!-- Task Definitions -->
+		<!-- declare antcontrib tasks -->
+		<taskdef resource="net/sf/antcontrib/antlib.xml"
+		         classpathref="dp.tools.classpath" />
+
+		<!-- declarre xml tasks -->
+		<taskdef name="xmltask"
+		         classname="com.oopsconsultancy.xmltask.ant.XmlTask"
+		         classpathref="dp.tools.classpath" />
+
+		<!-- declare additional tasks from the this project -->
+		<taskdef name="securebackup"
+		         classname="ch.srsx.swat.datapower.tools.ant.taskdefs.SecureBackup"
+		         classpathref="dp.tools.classpath" />
+		<taskdef name="securerestore"
+		         classname="ch.srsx.swat.datapower.tools.ant.taskdefs.SecureRestore"
+		         classpathref="dp.tools.classpath" />
+		<taskdef name="downloader"
+		         classname="ch.srsx.swat.datapower.tools.ant.taskdefs.Downloader"
+		         classpathref="dp.tools.classpath" />
+		
+		<!-- SRSX ant tasks -->
+				<taskdef resource="ch/srsx/tools/ant/antlib.xml" 
+				         classpathref="dp.tools.classpath" />
+
+		<!-- antform tasks -->
+		<taskdef resource="com/sardak/antform/taskdefs.properties"
+		         classpathref="dp.tools.classpath" />
+
+		<!-- myarch dpbuddy tasks -->
+		<!-- uri has to match the uri of the dp namespace prefix -->
+		<taskdef uri="antlib:com.myarch.datapower"
+		         resource="com/myarch/datapower/antlib.xml"
+				 classpathref="dp.tools.classpath" />
+
+		<!-- string util tasks -->
+		<taskdef name="stringutil"
+		         classname="ise.antelope.tasks.StringUtilTask"
+		         classpathref="dp.tools.classpath" />
+		
+		<!-- classloader tasks -->
+		<taskdef resource="net/jtools/classloadertask/antlib.xml"
+				 classpathref="dp.tools.classpath" />
+
+
+	</target>
+
+	<!-- ============== -->
+	<!-- Initialization -->
+	<!-- ============== -->
+	<target name="init" depends="declare">
+		<!-- Create the time stamp -->
+		<tstamp>
+			<format property="FILESTAMP" pattern="yyyyMMdd_HHmmss" />
+		</tstamp>
+
+		<!-- Get global environment properties -->
+		
+		<!-- Get user specific properties from <user.properties.file> -->
+		<if>
+			<isset property="user.properties.file" />
+			<then>
+				<property file="${user.properties.file}" />
+			</then>
+			<else>
+				<property file="${user.name}.properties" />
+			</else>
+		</if>
+		
+
+		<!-- File with DataPower connection information, such as URL, username -->
+		<loadproperties srcFile="dp.properties" />
+
+		<!-- Environment prefix refers to a group of the DataPower properties defined with this prefix
+			 See dp.properties for an example. This value will be used by all tasks in this build file unless it's
+			 overridden at a task level using envPrefix attribute -->
+		<!--property name="dp.env.prefix" value="dev" /-->
+		
+		<!-- add missing JARs -->
+		<if>
+			<not>
+				<available file="${ant.home}/lib/jsch-0.1.48.jar" type="file" />
+			</not>
+			<then>
+				<copy file="${basedir}/lib/jsch-0.1.48.jar" todir="${ant.home}/lib" />
+			</then>
+		</if>
+
+	</target>
+
+	<!-- ================================= 
+          target: info              
+         ================================= -->
+	<target name="info" depends="init" description="show project information">
+		<!-- Displays the properties for this run -->
+		<echo message="OS=${os.name}" />
+		<echo message="JDK=${ant.java.version}" />
+		<echo message="${ant.version}" />
+		<echo message="build file=${ant.file}" />
+		<echo message="project=${ant.project.name}" />
+		<echo message="" />
+
+		<echo message="********************************************" />
+		<echoproperties prefix="project" />
+		<echoproperties prefix="ant" />
+		<echoproperties prefix="java" />
+
+		<echo message="--------------------------------------------" />
+		<echoproperties prefix="env" />
+		<echo message="--------------------------------------------" />
+		<echoproperties prefix="dp" />
+
+		<echo message="********************************************" />
+		<echo message="USAGE: # ant -projecthelp" />
+	</target>
+
+	<!-- ================================= 
+	          target: direct-deployment     
+	     ================================= -->
+	<target name="mnt_deploy"
+	        depends="init"
+	        description="--> deploy DataPower configuration">
+		<property name="version" value="${project.version}" />
+
+		<antform title="DataPower Deployment">
+			<label>Provide version, preifx, user name and password in order to to a deployment.</label>
+			<selectionproperty label="Environment :"
+			                   property="dp.env"
+			                   values="${dp.env.list}" />
+			<fileSelectionProperty label="Select the config file : "
+			                       property="deploy.config"
+			                       tooltip="Name of the config file to be uploaded." />
+			<booleanProperty label="Overwrite Files?"
+			                 property="deploy.overwritefiles"
+			                 tooltip="overwrite existing files" />
+			<booleanProperty label="Overwrite Objects?"
+			                 property="deploy.overwriteobjects"
+			                 tooltip="overwrite existing objects" />
+			<booleanProperty label="Skip Common Crypto Objects?"
+			                 property="deploy.skipcrypto"
+			                 tooltip="ignore all common crypto objects" />
+			<booleanProperty label="Dry Run?"
+			                 property="deploy.dryrun"
+			                 tooltip="do not commit the import" />
+
+
+			<controlbar>
+				<button label="Cancel" type="cancel" />
+				<button label="Ok" type="ok" />
+			</controlbar>
+		</antform>
+
+		<selectDevice dp.env="${dp.env}" />
+
+		<if>
+			<istrue value="${deploy.skipcrypto}" />
+			<then>
+				<dp:import file="${deploy.config}"
+				           overwriteFiles="${deploy.overwritefiles}"
+				           overwriteObjects="${deploy.overwriteobjects}"
+				           deploymentPolicyName="SkipCommonCryptoObjects"
+				           dryRun="${deploy.dryrun}" />
+			</then>
+
+			<else>
+				<dp:import file="${deploy.config}"
+				           overwriteFiles="${deploy.overwritefiles}"
+				           overwriteObjects="${deploy.overwriteobjects}"
+				           dryRun="${deploy.dryrun}" />
+			</else>
+
+		</if>
+
+	</target>
+
+
+	<!-- ================================= 
+          target: exportConfig              
+         ================================= -->
+	<target name="bku_exportConfig"
+	        depends="init"
+	        description="--> export running configuration">
+
+
+		<property name="export.filename" value="${export.dir}/myexport.xml" />
+
+		<antform title="DataPower Configuration Management">
+			<label>Export configuration.</label>
+			<selectionproperty label="Environment :"
+			                   property="dp.env"
+			                   values="${dp.env.list}" />
+			<selectionproperty label="Application domain : "
+			                   property="dp.domain"
+			                   values="${dp.domain.list}" />
+			<textProperty label="Name patterns : "
+			              property="export.namepatterns"
+			              tooltip="Comma-delimited list of regular expression patterns." />
+			<textProperty label="File name : "
+			              property="export.filename"
+			              tooltip="Name of the file to save the exported configuration to." />
+			<booleanProperty label="all files?"
+			                 property="export.allfiles"
+			                 tooltip="If set to true, export all local files." />
+			<booleanProperty label="persisted?"
+			                 property="export.persisted"
+			                 tooltip="If set to true, export only the persisted configuration." />
+			<controlbar>
+				<button label="Cancel" type="cancel" />
+				<button label="Ok" type="ok" />
+			</controlbar>
+		</antform>
+
+		<selectDevice dp.env="${dp.env}" />
+
+		<!-- You can simply list regexps defining objects that you want to export without worrying about their types (classes) -->
+
+		<dp:export file="${export.filename}"
+		           namePatterns="${export.namepatterns}"
+		           persisted="${export.persisted}"
+		           allFiles="${export.allfiles}"
+		           domain="${dp.domain}">
+		</dp:export>
+	</target>
+
+
+	<!-- ================================= 
+          target: exportObject              
+         ================================= -->
+	<target name="bku_exportObject"
+	        depends="init"
+	        description="--> export a object from the running configuration">
+
+		<antform title="DataPower Configuration Management">
+			<label>Export object.</label>
+			<selectionproperty label="Environment :"
+			                   property="dp.env"
+			                   values="${dp.env.list}" />
+			<selectionproperty label="Application domain : "
+			                   property="dp.domain"
+			                   values="${dp.domain.list}" />
+			<textProperty label="Object name : "
+			              property="export.object.name"
+			              tooltip="Name of the object to be exported." />
+			<textProperty label="Class name : "
+			              property="export.class.name"
+			              tooltip="Name of the object class i.e. object type." />
+			<selectionproperty label="Export type"
+			                   property="export.type"
+			                   values="xml,zip"
+			                   tooltip="Specify the target file type of the export." />
+			<booleanProperty label="Include all files referenced by this object?"
+			                 property="export.reffiles"
+			                 tooltip="If set to true, export all referenced files." />
+			<booleanProperty label="Include referenced/required objects?"
+			                 property="export.refobjects"
+			                 tooltip="If set to true, export all referenced objects." />
+			<booleanProperty label="persisted?"
+			                 property="export.persisted"
+			                 tooltip="If set to true, export only the persisted configuration." />
+			<controlbar>
+				<button label="Cancel" type="cancel" />
+				<button label="Ok" type="ok" />
+			</controlbar>
+		</antform>
+
+		<selectDevice dp.env="${dp.env}" />
+
+		<property name="export.filename"
+		          value="${export.dir}/${export.object.name}-${export.class.name}.${export.type}" />
+
+		<!-- You can simply list regexps defining objects that you want to export without worrying about their types (classes) -->
+
+		<dp:export file="${export.filename}"
+		           persisted="${export.persisted}"
+		           domain="${dp.domain}">
+			<exportobject class="${export.class.name}"
+			              name="${export.object.name}"
+			              reffiles="${export.reffiles}"
+			              refobjects="${export.refobjects}"
+			              includeDebug="false" />
+		</dp:export>
+	</target>
+
+
+	<!-- ================================= 
+          target: backup              
+         ================================= -->
+	<target name="bku_exportDomain"
+	        depends="init"
+	        description="--> backup one or more domains">
+		<property name="backup.filename"
+		          value="${export.dir}/backup/backup.zip" />
+
+		<antform title="DataPower Configuration Management">
+			<label>Export a complete domain configuration.</label>
+			<selectionproperty label="Environment :"
+			                   property="dp.env"
+			                   values="${dp.env.list}" />
+			<textProperty label="Domain pattern : "
+			              property="backup.domainpattern"
+			              tooltip="Comma-delimited list of regular expression patterns defining what domains to back up." />
+			<textProperty label="File name : "
+			              property="backup.filename"
+			              tooltip="Name of the file to save the backup configuration to." />
+			<booleanProperty label="persisted?"
+			                 property="backup.persisted"
+			                 tooltip="If set to true, export only the persisted configuration." />
+			<booleanProperty label="append timestamp?"
+			                 property="backup.timestamp"
+			                 tooltip="If true, automatically append timestamp to the file name. The timestamp has the format 'yyyyMMdd_HHmmss'." />
+			<controlbar>
+				<button label="Cancel" type="cancel" />
+				<button label="Ok" type="ok" />
+			</controlbar>
+		</antform>
+
+		<selectDevice dp.env="${dp.env}" />
+
+		<dp:backup file="${backup.filename}"
+		           persisted="${backup.persisted}"
+		           domainPatterns="${backup.domainpattern}"
+		           appendTimestamp="${backup.timestamp}" />
+	</target>
+
+
+	<!-- ================================= 
+          target: securebackup              
+         ================================= -->
+	<target name="bku_securebackup"
+	        depends="init"
+	        description="--> creates a secure backup and stores the files on the backup server">
+
+		<property name="securebackup.port" value="${dp.mgmt.port}" />
+		<antform title="DataPower Configuration Management">
+			<label>Secure Backup</label>
+			<selectionproperty label="DataPower device :"
+			                   property="securebackup.hostname"
+			                   values="${dp.device.list}" />
+			<textProperty label="Port : "
+			              property="securebackup.port" />
+			<textProperty label="Password : "
+			              property="securebackup.password"
+			              password="true" />		
+			<fileSelectionProperty label="Seclect target directory : "
+			                       property="securebackup.targetdir"
+			                       directoryChooser="true"
+			                       tooltip="Name of the directory where the backup files should be stored." />
+			<booleanProperty label="include RAID ?"
+			                 property="securebackup.includeraid"
+			                 tooltip="Whether to include the content of the harddisk array." />
+			<booleanProperty label="force overwrite ?"
+			                 property="securebackup.forceoverwrite"
+			                 tooltip="Overwrite existing files in the target directory." />
+			<controlbar>
+				<button label="Cancel" type="cancel" />
+				<button label="Ok" type="ok" />
+			</controlbar>
+		</antform>
+
+		<fail unless="securebackup.targetdir"
+		      message="Secure Backup has been aborted." />
+
+		<securebackup targetBaseDir="${securebackup.targetdir}"
+		              hostname="${securebackup.hostname}"
+					  port="${securebackkup.port}"
+		              password="${securebackup.password}"
+		              includeRAID="${securebackup.includeraid}"
+		              forceOverwrite="${securebackup.forceoverwrite}" />
+	</target>
+
+
+	<!-- ================================= 
+          target: securerestore              
+         ================================= -->
+	<target name="bku_securerestore"
+	        depends="init"
+	        description="--> restore a device using a secure backup">
+
+		<property name="securerestore.port" value="${dp.mgmt.port}" />
+		<antform title="DataPower Configuration Management">
+			<label>Secure Restore</label>
+			<selectionproperty label="DataPower device :"
+			                   property="securerestore.hostname"
+			                   values="${dp.device.list}" />
+			<textProperty label="Port : "
+			              property="securerestore.port" />			
+			<textProperty label="Password : "
+			              property="securerestore.password"
+			              password="true" />
+			<fileSelectionProperty label="Seclect source directory : "
+			                       property="securerestore.sourcedir"
+			                       directoryChooser="true"
+			                       tooltip="Name of the directory where the backup files are stored." />
+			<booleanProperty label="validate?"
+			                 property="securerestore.validate"
+			                 tooltip="If set to true, the backup files will be validated but no restore is performed." />
+			<controlbar>
+				<button label="Cancel" type="cancel" />
+				<button label="Ok" type="ok" />
+			</controlbar>
+		</antform>
+
+		<fail unless="securerestore.sourcedir"
+		      message="Secure Restore has been aborted." />
+
+		<securerestore sourceBaseDir="${securerestore.sourcedir}"
+		               hostname="${securerestore.hostname}"
+			           port="${securerestore.port}"
+		               password="${securerestore.password}"
+		               validate="${securerestore.validate}" />
+	</target>
+
+
+	<!-- ================================= 
+          target: fileupload              
+         ================================= -->
+	<target name="fileupload"
+	        depends="init"
+	        description="--> upload files to the DataPower device">
+
+		<property name="upload.target.dir" value="local:///" />
+		<property name="upload.filefilter" value="**/*" />
+
+
+		<antform title="DataPower File Uploader">
+			<label>Select a directory to be uploaded.</label>
+			<fileSelectionProperty label="Directory: "
+			                       property="upload.source.dir"
+			                       directoryChooser="true" />
+			<selectionproperty label="DP base dir : "
+			                   property="upload.base.dir"
+			                   values="local:///,cert:///,sharedcert:///,pubcert:///" />
+			<textProperty label="DP subdirectory: "
+			              property="upload.target.dir"
+			              editable="true" />
+
+			<booleanProperty label="flatten?"
+			                 property="upload.flat"
+			                 tooltip="flatten the directory structure" />
+			<booleanProperty label="clean?"
+			                 property="upload.clean"
+			                 tooltip="will automatically delete all files from any directory on the device where we're uploading the files to" />
+			<selectionproperty label="Environment : "
+			                   property="dp.env"
+			                   values="${dp.env.list}" />
+			<controlbar>
+				<button label="Cancel" type="cancel" />
+				<button label="Ok" type="ok" />
+			</controlbar>
+		</antform>
+
+		<selectDevice dp.env="${dp.env}" />
+
+		<dp:copy domain="${dp.domain}"
+		         cleanDirectories="${upload.clean}"
+		         flatten="${upload.flatten}">
+			<!-- 
+	                dpfileset has the same attributes and nested elements as Ant fileset. 
+	                "prefix" defines the root directory on the device.
+
+	                The tasks automatically replicates entire local directory tree (including
+	                all directories that have matching files) on the device.
+	                'local:' filesystem is the default.
+	            -->
+			<dpFileset prefix="${upload.base.dir}${upload.target.dir}"
+			           dir="${upload.source.dir}"
+			           includes="${upload.filefilter}" />
+
+		</dp:copy>
+
+	</target>
+
+
+	<!-- ================================= 
+          target: createCheckpoint              
+         ================================= -->
+	<target name="createCheckpoint"
+	        depends="init"
+	        description="--> create a configuration checkpoint">
+		<antform title="DataPower Chekpoint Creation">
+			<label>Specify the name of the checkpoint.</label>
+			<textProperty label="Name: "
+			              property="checkpoint.name"
+			              editable="true"
+			              tooltip="Note that if the checkpoint with the same name already exists, it will be deleted." />
+			<booleanProperty label="append timestamp?"
+			                 property="checkpoint.timestamp"
+			                 tooltip="If true, append timestamp to the checkpoint name. Use with caution as this could quickly create a large number of checkpoints. The timestamp has the format 'yyyyMMdd_HHmmss'." />
+			<selectionproperty label="Environment :"
+			                   property="dp.env"
+			                   values="${dp.env.list}" />
+			<controlbar>
+				<button label="Cancel" type="cancel" />
+				<button label="Ok" type="ok" />
+			</controlbar>
+		</antform>
+		<selectDevice dp.env="${dp.env}" />
+		<!-- note that if the checkpoint with the same name already exists, it will be deleted -->
+		<dp:checkpoint name="${checkpoint.name}"
+		               timestamp="${checkpoint.timestamp}" />
+	</target>
+
+
+	<!-- =============================== -->
+	<!-- DataPower Troubleshooting Tasks -->
+	<!-- =============================== -->
+
+	<!-- ================================= 
+          target: ping              
+         ================================= -->
+	<target name="mon_ping" depends="init" description="--> execute a ping command on the device">
+		<antform title="DataPower Troubleshooting">
+			<label>Provide host name or IP address to be pinged.</label>
+			<textProperty label="Host : " property="ping.host" />
+			<selectionproperty label="Environment : "
+			                   property="dp.env"
+			                   values="${dp.env.list}" />
+			<controlbar>
+				<button label="Cancel" type="cancel" />
+				<button label="Ok" type="ok" />
+			</controlbar>
+		</antform>
+
+		<selectDevice dp.env="${dp.env}" />
+
+		<dp:action>
+			<!-- Simply specify action XML within the task -->
+			<Ping>
+				<!-- you can use Ant properties anywhere in the request -->
+				<RemoteHost>${ping.host}</RemoteHost>
+			</Ping>
+		</dp:action>
+	</target>
+
+
+	<!-- ================================= 
+          target: status              
+         ================================= -->
+	<target name="mon_status"
+	        depends="init"
+	        description="--> get device status information">
+
+
+		<xmlproperty file="xml/stati.xml" />
+
+		<antform title="DataPower Troubleshooting">
+			<label>DataPower Status Information.</label>
+			<selectionproperty label="Environment : "
+			                   property="dp.env"
+			                   values="${dp.env.list}" />
+			<selectionproperty label="Status Type : "
+			                   property="status.type"
+			                   values="${stati.type}" />
+			<controlbar>
+				<button label="Cancel" type="cancel" />
+				<button label="Ok" type="ok" />
+			</controlbar>
+		</antform>
+
+		<selectDevice dp.env="${dp.env}" />
+
+		<dp:status class="${status.type}" />
+
+	</target>
+
+
+	<!-- ================================= 
+          target: filedownload              
+         ================================= -->
+	<target name="mnt_filedownload"
+	        depends="init"
+	        description="--> download files from the device">
+		
+		<property name="filestore.targetdir" value="${basedir}" />
+
+		<antform title="DataPower File Management">
+			<label>DataPower File Downloader</label>
+			<selectionproperty label="Environment : "
+			                   property="dp.env"
+			                   values="${dp.env.list}" />
+			<selectionProperty label="Seclect location : "
+			                   property="filestore.location"
+			                   values="${dp.locations}"
+			                   tooltip="Name of the base directory on the DataPower aka file store." />
+			<textProperty label="Subdirectory : "
+			              property="filestore.dir"
+			              tooltip="Note: you to proivde a default domain path!" />
+			<textProperty label="File : " property="filestore.file" />
+			<fileSelectionProperty label="Select target directory : "
+			                       property="filestore.targetdir"
+			                       directoryChooser="true"
+			                       tooltip="Name of the directory where the files should be stored." />
+			<booleanProperty label="RegEx?"
+			                 property="filestore.isregex"
+			                 tooltip="Treat file name as regular expression." />
+			<booleanProperty label="ListOnly?"
+			                 property="filestore.listonly"
+			                 tooltip="Show only the directory content." />
+			<booleanProperty label="Overwrite?"
+			                 property="filestore.overwrite"
+			                 tooltip="Overwrite existing files." />
+			<booleanProperty label="Flatten?"
+			                 property="filestore.flatten"
+			                 tooltip="Flatten directory structure." />
+			<controlbar>
+				<button label="Cancel" type="cancel" />
+				<button label="Ok" type="ok" />
+			</controlbar>
+		</antform>
+
+		<selectDevice dp.env="${dp.env}" />
+
+		<downloader location="${filestore.location}"
+		            subdir="${filestore.dir}"
+		            filename="${filestore.file}"
+		            listfiles="${filestore.listonly}"
+		            targetdir="${filestore.targetdir}"
+		            regex="${filestore.isregex}"
+		            overwrite="${filestore.overwrite}"
+		            flatten="${filestore.flatten}"
+		            domain="default" />
+	</target>
+
+
+	<!-- ================================= 
+          target: tail              
+         ================================= -->
+	<target name="mon_tail" depends="init" description="--> tail device logs">
+		<property name="log.format"
+		          value="{1,date,yyyy-MM-dd HH:mm:ss} |{2}| {4,number,#} | {0}{3}" />
+		<property name="log.lines" value="48" />
+		<antform title="DataPower Log Viewer">
+			<label>Specify log target and output settings.</label>
+			<textProperty label="Log Target: " property="log.target" />
+			<textProperty label="Log Format: "
+			              property="log.format"
+			              editable="true" />
+			<textProperty label="number of lines: "
+			              property="log.lines"
+			              editable="true" />
+			<textProperty label="fail pattern: " property="log.failpattern" />
+			<booleanProperty label="fail on error?"
+			                 property="log.failonerror" />
+			<booleanProperty label="Follow?" property="log.follow" />
+			<selectionproperty label="Environment: "
+			                   property="dp.env"
+			                   values="${dp.env.list}" />
+			<controlbar>
+				<button label="Cancel" type="cancel" />
+				<button label="Ok" type="ok" />
+			</controlbar>
+		</antform>
+
+		<selectDevice dp.env="${dp.env}" />
+
+		<!-- If domainPatterns match multiple domains, tailLog will consolidate logs from these domains -->
+		<!-- dp:tailLog follow="${dp.follow}" domainPatterns="def.*, ${dev.dp.domain}" lines="48" / -->
+
+		<!-- You can also change the log format. The following template will add transation ID to the log. See User Guide for more details  -->
+		<!-- You can specify any logTarget configured on the device -->
+
+		<if>
+			<or>
+				<equals arg1="${log.failpattern}" arg2="" />
+				<not>
+					<isset property="log.failpattern" />
+				</not>
+			</or>
+			<then>
+				<echo message="no failpattern" />
+				<dp:tailLog follow="${log.follow}"
+				            lines="${log.lines}"
+				            logTarget="${log.target}"
+				            failOnError="${log.failonerror}"
+				            format="${log.format}" />
+			</then>
+			<else>
+				<dp:tailLog follow="${log.follow}"
+				            lines="${log.lines}"
+				            logTarget="${log.target}"
+				            format="${log.format}"
+				            failPatterns="${log.failpattern}" />
+			</else>
+		</if>
+
+	</target>
+
+
+	<!-- ================================= 
+          target: analyzeLogFiles              
+         ================================= -->
+	<target name="mon_analyzeLogFiles"
+	        depends="init"
+	        description="--> analyze DataPower log files">
+
+		<property name="log.analyzer.filepattern" value="*log*" />
+		<property name="log.analyzer.targetdir" value="${basedir}" />
+		<property name="log.analyzer.sourcedir" value="${basedir}" />
+
+		<antform title="DataPower Log File Analyzer">
+			<label>Data Power Log File Analyzer</label>
+			<fileSelectionProperty label="Select source directory : "
+			                       property="log.analyzer.sourcedir"
+			                       directoryChooser="true"
+			                       tooltip="Name of the directory where the XML log files reside." />
+			<fileSelectionProperty label="Select target directory : "
+			                       property="log.analyzer.targetdir"
+			                       directoryChooser="true"
+			                       tooltip="Name of the directory where the result should be stored." />
+			<textProperty label="Logfile Pattern : "
+			              property="log.analyzer.filepattern"
+			              editable="true"
+			              tooltip="files that should be processed look for" />
+			<textProperty label="RegEx : " property="log.analyzer.regex" />
+			<controlbar>
+				<button label="Cancel" type="cancel" />
+				<button label="Ok" type="ok" />
+			</controlbar>
+		</antform>
+
+		<path id="source.path">
+			<pathelement location="${log.analyzer.sourcedir}" />
+		</path>
+
+		<pathconvert dirsep="/"
+		             property="converted.sourcedir"
+		             refid="source.path" />
+
+		<!-- TODO -->
+		<xslt in="xml/dummy.xml"
+		      out="${log.analyzer.targetdir}/loganalysis.csv"
+		      style="xsl/analyze-xml-log-files.xsl"
+		      force="true"
+		      classpathref="dp.tools.classpath">
+			<factory name="net.sf.saxon.TransformerFactoryImpl" />
+			<param name="pattern" expression="${log.analyzer.regex}" />
+			<param name="logFiles"
+			       expression="file://${converted.sourcedir}/?select=${log.analyzer.filepattern};recurse=no" />
+		</xslt>
+	</target>
+	
+	<!-- ================================= 
+          target: runCliScript              
+         ================================= -->
+    <target name="runCliScript" depends="init" description="run a given CLI script via ssh">
+
+    	<property name="cli.file" value="${basedir}/scripts/mustGather.cli" />
+		<property name="cli.username" value="${user.name}" />
+		<antform title="DataPower CLI Script Runner">
+			<label>DataPower </label>
+			<selectionproperty label="Device : "
+			                   property="cli.host"
+			                   values="${dp.device.list}" />
+			<fileSelectionProperty label="Select CLI script to run : "
+			                       property="cli.file"
+			                       tooltip="Name of the CLI script file." />
+			<textProperty label="Username : "
+				property="cli.username" />
+			<textProperty label="Password : "
+				property="cli.password"
+				password="true" />
+			<controlbar>
+				<button label="Cancel" type="cancel" />
+				<button label="Ok" type="ok" />
+			</controlbar>
+		</antform>
+    	
+    	<sshexec host="${cli.host}"
+    		username="${cli.username}"
+    		password="${cli.password}"
+    		commandResource="${cli.file}"
+    		trust="yes" />
+    </target>
+
+
+
+	<!-- ================= -->
+	<!-- Macro Definitions -->
+	<!-- ================= -->
+
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: chooseEnvironment          
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="chooseEnvironment">
+		<attribute name="argname" default="default" />
+		<sequential>
+
+		</sequential>
+	</macrodef>
+
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: selectDevice          
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="selectDevice">
+		<attribute name="dp.env" default="DEV" />
+		<sequential>
+			<switch value="${dp.env}">
+				<case value="DEV">
+					<var name="dp.env.prefix" unset="true" />
+					<property name="dp.env.prefix" value="dev" />
+					<property name="dp.devices"
+					          value="${dev.dp.xmlmgm.url.1},${dev.dp.xmlmgm.url.2}" />
+				</case>
+				<case value="TEST">
+					<var name="dp.env.prefix" unset="true" />
+					<property name="dp.env.prefix" value="test" />
+					<property name="dp.devices"
+					          value="${test.dp.xmlmgm.url.1},${test.dp.xmlmgm.url.2}" />
+				</case>
+				<case value="ADMIN">
+					<var name="dp.env.prefix" unset="true" />
+					<property name="dp.env.prefix" value="admin" />
+					<property name="dp.devices"
+					          value="${admin.dp.xmlmgm.url.1},${admin.dp.xmlmgm.url.2}" />
+				</case>
+				<case value="PROD">
+					<var name="dp.env.prefix" unset="true" />
+					<property name="dp.env.prefix" value="prod" />
+					<property name="dp.devices"
+					          value="${prod.dp.xmlmgm.url.1},${prod.dp.xmlmgm.url.2}" />
+				</case>
+				<case value="default">
+					<var name="dp.env.prefix" unset="true" />
+					<property name="dp.env.prefix" value="default" />
+					<property name="dp.devices"
+					          value="${default.dp.xmlmgm.url.1},${default.dp.xmlmgm.url.2}" />
+				</case>
+				<default>
+					<var name="dp.env.prefix" unset="true" />
+					<fail message="environment '${dp.env}' is not supported" />
+				</default>
+			</switch>
+
+			<echo message="----------------------------------------------------------------------------" />
+			<echo message="dp.env.prefix = ${dp.env.prefix}" />
+			<echo message="available devices = ${dp.devices}" />
+
+			<antform title="DataPower - select device">
+				<label>Choose the appropriate DataPower box.</label>
+				<selectionproperty label="Device : "
+				                   property="${dp.env.prefix}.dp.xmlmgm.url"
+				                   values="${dp.devices}" />
+				<textProperty label="Password : "
+				              property="${dp.env.prefix}.dp.password"
+				              password="true" />
+				<controlbar>
+					<button label="Cancel" type="cancel" />
+					<button label="Ok" type="ok" />
+				</controlbar>
+			</antform>
+
+			<echo message="----------------------------------------------------------------------------" />
+			<echoproperties regex="${dp.env.prefix}\.dp\.((?!password).*)" />
+			<echo message="----------------------------------------------------------------------------" />
+
+		</sequential>
+	</macrodef>
+
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: selectConfigFile          
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="selectConfigFile">
+		<attribute name="dp.env" default="DEV" />
+		<sequential>
+			<switch value="${dp.env}">
+				<case value="DEV">
+					<var name="config.dir" unset="true" />
+					<property name="config.dir" value="${zip.target.dir}/dev" />
+
+				</case>
+				<case value="TEST">
+					<var name="dp.env.prefix" unset="true" />
+					<property name="config.dir"
+					          value="${zip.target.dir}/test" />
+
+				</case>
+				<case value="PROD">
+					<var name="dp.env.prefix" unset="true" />
+					<property name="config.dir"
+					          value="${zip.target.dir}/prod" />
+
+				</case>
+				<default>
+					<var name="config.dir" unset="true" />
+					<fail message="environment '${dp.env}' is not supported" />
+				</default>
+			</switch>
+
+			<foreach>
+				<filelist>
+				</filelist>
+			</foreach>
+
+			<echo message="----------------------------------------------------------------------------" />
+			<echo message="config directory = ${config.dir}" />
+			<echo message="available config files = ${dp.devices}" />
+
+			<antform title="DataPower - select config file">
+				<label>Choose configuration file to be imported.</label>
+				<selectionproperty label="Device : "
+				                   property="${dp.env.prefix}.dp.xmlmgm.url"
+				                   values="${dp.devices}" />
+				<textProperty label="Password : "
+				              property="${dp.env.prefix}.dp.password"
+				              password="true" />
+				<controlbar>
+					<button label="Cancel" type="cancel" />
+					<button label="Ok" type="ok" />
+				</controlbar>
+			</antform>
+
+			<echo message="----------------------------------------------------------------------------" />
+			<echoproperties regex="${dp.env.prefix}\.dp\.((?!password).*)" />
+			<echo message="----------------------------------------------------------------------------" />
+		</sequential>
+	</macrodef>
+
+</project>

@@ -1,0 +1,1 @@
+.\ant -f ..\..\..\data\kit\kit-swat-dp-svc-wasxml\build.xml 00-export-service

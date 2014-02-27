@@ -1,0 +1,17 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>ch.srsx.swat.datapower</groupId>
+    <artifactId>swat-dp-pom</artifactId>
+    <version>1.0.5-SNAPSHOT</version>
+  </parent>
+  <groupId>ch.srsx.swat.datapower.tools</groupId>
+  <artifactId>swat-4-dp</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Swat4DP</name>
+  <description>schlag&amp;rahm websphere administration toolkit for DataPower appliances</description>
+  <modules>
+    <module>swat-dp-service-templates</module>
+  </modules>
+</project>

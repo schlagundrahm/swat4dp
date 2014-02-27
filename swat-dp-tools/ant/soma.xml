@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- ================================================================================================= -->
+<!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
+<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- ================================================================================================= -->
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.8.2 or above. -->
+<!-- ====================================================================== -->
+<project name="swat-dp-tools.soma" default="info" basedir=".">
+
+	<dirname file="${ant.file.swat-dp-tools.soma}" property="ant_soma.dir" />
+	<import file="${ant_soma.dir}/taskdefs.xml" />
+	<import file="${ant_soma.dir}/validate.xml" />
+
+	<!-- ================================= 
+          target: info              
+         ================================= -->
+	<target name="info">
+		<echo message="Macros for soma-requests for swat-dp-tools" />
+	</target>
+
+	<!-- ================================= 
+          macrodef: soma-prepare-request-macro 
+         ================================= -->
+	<macrodef name="soma-prepare-request-macro">
+		<attribute name="soma.request" />
+		<attribute name="custom.filter" default="none" />
+		<attribute name="tmp.dir" default="upload" />
+		<attribute name="content.exists" default="false" />
+		<attribute name="content.dir" default="none" />
+		<attribute name="content.file" default="none" />
+		<attribute name="content.encoded" default="false" />
+		<attribute name="content.type" default="ZIP" />
+		<attribute name="crypto.prefix" default="none" />
+		<attribute name="device" default="none" />
+		<attribute name="env" default="none" />
+		<attribute name="domain" default="default" />
+		<attribute name="file.name" default="none" />
+		<attribute name="dp.file.name" default="none" />
+		<attribute name="deployment.policy" default="" />
+		<sequential>
+			<!-- Make sure the tmp-dir exists -->
+			<mkdir dir="dist/@{tmp.dir}" />
+
+			<!-- Define the content-specific filter -->
+			<soma-define-content-filter-macro filter="content.filter.id"
+			                                  exists="@{content.exists}"
+			                                  dir="@{content.dir}"
+			                                  file="@{content.file}"
+			                                  encoded="@{content.encoded}"
+			                                  type="@{content.type}"
+			                                  tmp.dir="@{tmp.dir}" />
+
+			<!-- Define the file-specific filter -->
+			<soma-define-file-filter-macro filter="file.filter.id"
+			                               file.name="@{file.name}"
+			                               dp.file.name="@{dp.file.name}" />
+
+			<!-- Define the device-specific filter -->
+			<soma-define-device-filter-macro filter="device.filter.id" device="@{device}" />
+
+			<!-- Define the env-specific filter -->
+			<soma-define-env-filter-macro filter="env.filter.id" env="@{env}" />
+
+			<!-- Define the crypto filter -->
+			<soma-define-crypto-filter-macro filter="crypto.filter.id" crypto.prefix="@{crypto.prefix}" />
+
+			<!-- Define the custom filter -->
+			<soma-define-custom-filter-macro filter="custom.filter.id" custom.filter="@{custom.filter}" />
+
+			<!-- Finally define the soma-filter -->
+			<soma-define-filter-macro filter="soma.filter.id"
+			                          domain="@{domain}"
+			                          deployment.policy="@{deployment.policy}"
+			                          content.filter="content.filter.id"
+			                          file.filter="file.filter.id"
+			                          device.filter="device.filter.id"
+			                          env.filter="env.filter.id"
+			                          crypto.filter="crypto.filter.id"
+			                          custom.filter="custom.filter.id" />
+
+			<!-- Filter soma-request-file with the filter above -->
+			<copy-soma-request-macro soma.request="@{soma.request}" dst.dir="dist/@{tmp.dir}" filter="soma.filter.id" />
+
+			<!-- verify that all tokens have been replaced in the request file -->
+			<verify-filter-xcfg-files-macro src-file="dist/@{tmp.dir}/@{soma.request}.xml" />
+			
+			<!-- validate request file -->
+			<validate-soma-request-macro request-file="dist/@{tmp.dir}/@{soma.request}.xml"/>
+		</sequential>
+	</macrodef>
+
+	<!-- ================================= 
+          macrodef: soma-run-multi-requests-on-multi-devices-macro 
+         ================================= -->
+	<macrodef name="soma-run-multi-requests-on-multi-devices-macro">
+		<attribute name="device.set" />
+		<attribute name="soma.requests" />
+		<attribute name="tmp.dir" default="upload" />
+		<attribute name="check.response" default="true" />
+		<sequential>
+			<!-- Make sure the property of the requests is around -->
+			<property name="local.soma.requests" value="@{soma.requests}" />
+			<property name="local.tmp.dir" value="@{tmp.dir}" />
+			<property name="local.check.response" value="@{check.response}" />
+
+			<!-- Deploy for all devices -->
+			<load-device-set-props-macro device-set="@{device.set}" />
+
+			<echo message="Running requests @{soma.requests} on device-list ${swat.device.list}." />
+			<foreach target="soma-run-multi-requests-on-single-device"
+			         list="${swat.device.list}"
+			         delimiter=","
+			         param="foreach.device"
+			         inheritall="true"
+			         inheritrefs="true" />
+		</sequential>
+	</macrodef>
+
+	<!-- ================================= 
+          target: soma-run-multi-requests-on-single-device 
+         ================================= -->
+	<target name="soma-run-multi-requests-on-single-device">
+		<!-- Run soma requests on a device -->
+		<soma-run-multi-requests-on-single-device-macro device="${foreach.device}"
+		                                                soma.requests="${local.soma.requests}"
+		                                                tmp.dir="${local.tmp.dir}"
+		                                                check.response="${local.check.response}" />
+	</target>
+
+	<!-- ================================= 
+          macrodef: soma-run-multi-requests-on-single-device-macro 
+         ================================= -->
+	<macrodef name="soma-run-multi-requests-on-single-device-macro">
+		<attribute name="device" />
+		<attribute name="soma.requests" />
+		<attribute name="tmp.dir" />
+		<attribute name="check.response" />
+		<sequential>
+			<var name="local.tmp.dir" value="@{tmp.dir}" />
+			<var name="local.check.response" value="@{check.response}" />
+			<var name="local.device" value="@{device}" />
+
+			<!-- Deploy for all requests -->
+			<echo message="Running requests @{soma.requests} on device @{device}." />
+			<foreach target="soma-run-single-request-on-single-device"
+			         list="@{soma.requests}"
+			         delimiter=","
+			         param="foreach.soma.request"
+			         inheritall="true"
+			         inheritrefs="true" />
+		</sequential>
+	</macrodef>
+
+	<!-- ================================= 
+          target: soma-run-single-request-on-single-device 
+         ================================= -->
+	<target name="soma-run-single-request-on-single-device">
+		<!-- Run soma request on a device -->
+		<soma-run-single-request-on-single-device-macro soma.request="${foreach.soma.request}"
+		                                                device="${local.device}"
+		                                                tmp.dir="${local.tmp.dir}"
+		                                                check.response="${local.check.response}" />
+	</target>
+
+	<!-- ================================= 
+          macrodef: soma-run-single-request-on-single-device-macro 
+         ================================= -->
+	<macrodef name="soma-run-single-request-on-single-device-macro">
+		<attribute name="soma.request" />
+		<attribute name="device" />
+		<attribute name="tmp.dir" />
+		<attribute name="check.response" />
+		<sequential>
+			<!-- Prepare the variables needed for calling the device (they will be loaded with the device props) -->
+			<local name="mgmt.prot" />
+			<local name="mgmt.host" />
+			<local name="mgmt.port" />
+
+			<!-- Loading the device props -->
+			<load-device-props-macro device="@{device}" />
+
+			<!-- Latest point to ensure we have the user set (only happens once) -->
+			<load-user-macro device-set="${swat.device-set.name}" />
+
+			<!-- Latest point to ensure we have the password set (only happens once) -->
+			<load-password-macro device-set="${swat.device-set.name}" />
+
+			<!-- Setting the input- and output-files as variables -->
+			<var name="input-file" value="dist/@{tmp.dir}/@{soma.request}.xml" />
+			<var name="output-file" value="dist/@{tmp.dir}/@{soma.request}-response.xml" />
+			<delete file="${output-file}" />
+
+			<if>
+				<isset property="curl.exec" />
+				<then>
+					<!-- Running curl -->
+					<echo message="Running curl with user ${mgr.target.user.name} and pw ********* against ${mgmt.prot}://${mgmt.host}:${mgmt.port}" />
+					<echo message="  ** ${curl.exec} --data-binary @${input-file} ${mgmt.prot}://${mgmt.host}:${mgmt.port}/service/mgmt/current -k -u ${mgr.target.user.name}:******* -o${output-file}" />
+					<exec executable="${curl.exec}">
+						<arg value="--data-binary" />
+						<arg value="@${input-file}" />
+						<arg value="${mgmt.prot}://${mgmt.host}:${mgmt.port}/service/mgmt/current" />
+						<arg value="--insecure" />
+						<arg value="-u" />
+						<arg value="${mgr.target.user.name}:${mgr.target.password.value}" />
+						<arg value="-o${output-file}" />
+					</exec>
+				</then>
+				<else>
+					<!-- use pure Java/Ant instead of external cURL tool -->
+					<fail message="Java truststore '${swat.dp.infra}/config/${swat.customer}-truststore.jks' does not exist!">
+						<condition>
+							<not>
+								<available file="${swat.dp.infra}/config/${swat.customer}-truststore.jks" type="file" />
+							</not>
+						</condition>
+					</fail>
+
+					<!-- Important Note: you have to create a java keystore with name <swat customer>-truststore.jks which contains the appropriate (ca) certificates to validate the connenction -->
+					<http url="${mgmt.prot}://${mgmt.host}:${mgmt.port}/service/mgmt/current"
+					      method="POST"
+					      outfile="${output-file}"
+					      failonunexpected="false">
+						<credentials username="${mgr.target.user.name}" password="${mgr.target.password.value}" />
+						<entity file="${input-file}" binary="true" />
+						<keystore file="${swat.dp.infra}/config/${swat.customer}-truststore.jks" password="123456" />
+					</http>
+				</else>
+			</if>
+
+			<!-- Check response -->
+			<if>
+				<equals arg1="@{check.response}" arg2="true" />
+				<then>
+					<!-- Extract the status as a text-file -->
+					<extract-soma-status-macro input="dist/@{tmp.dir}/@{soma.request}-response.xml"
+					                           output="dist/@{tmp.dir}/@{soma.request}-response.txt" />
+
+					<!-- Extract the status as a properties-file -->
+					<extract-soma-status-macro input="dist/@{tmp.dir}/@{soma.request}-response.xml"
+					                           style="${swat.dp.tools}/soma/xsl/extract-status-props.xsl"
+					                           output="dist/@{tmp.dir}/@{soma.request}-response.properties" />
+
+					<!--Check for errors and other unwanted stuff -->
+					<if>
+						<contains string="@{soma.request}" substring="service-quiesce" />
+						<then>
+							<!-- check authentication failure only -->
+							<verify-soma-response-macro src-file="dist/@{tmp.dir}/@{soma.request}-response.properties"
+							                            result-property="failure-properties"
+							                            pattern="Authentication failure" />
+						</then>
+						<else>
+							<!-- verify response properties -->
+							<verify-soma-response-macro src-file="dist/@{tmp.dir}/@{soma.request}-response.properties"
+							                            result-property="failure-properties"
+							                            pattern="&lt;error-log&gt;|[^-_]error[^-_]+|ERROR|failed|failure|cannot|:fault|malformed" />
+						</else>
+					</if>
+
+					<!-- Display response extract -->
+					<local name="response.msg" />
+					<loadfile property="response.msg"
+					          srcfile="dist/@{tmp.dir}/@{soma.request}-response.txt"
+					          failonerror="false" />
+					<echo message="Result of the '@{soma.request}' SOMA request: " />
+					<echo message="${response.msg}" />
+
+					<fail message="The SOMA request '@{soma.request}' returned an error! Details are stored in the 'dist/@{tmp.dir}/@{soma.request}-response.properties' file."
+					      if="failure-properties" />
+				</then>
+			</if>
+		</sequential>
+	</macrodef>
+</project>

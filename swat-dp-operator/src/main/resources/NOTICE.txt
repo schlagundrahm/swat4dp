@@ -1,0 +1,48 @@
+   =========================================================================
+   ==  The Schlag&rahm Websphere Administration Toolkit (SWAT)            ==
+   ==      -           -         -              -                         ==
+   ==  SWAT DatapPower Operator Module for IBM DataPower SOA appliances   ==
+   ==                      ---   Swat4DPops   ---                         ==
+   =========================================================================
+
+   schlag&rahm SWAT DataPower Operator Module
+   Copyright 2006-2013 schlag&rahm AG
+
+   This product includes software developed at
+   schlag&rahm AG (http://www.schlagundrahm.ch).
+   
+   It also contains libraries/code from the following entities:
+   
+   * The Apache Software Foundation (http://www.apache.org/). 
+     Apache License V2.0, Apache Software License
+     
+   * The Ant-Contrib project (http://ant-contrib.sourceforge.net/).
+     Apache License V2.0, Apache Software License
+     
+   * dpbuddy developed by MyArch, Inc. (http://myarch.com/)
+     MyArch Free License
+   
+   * The AntForm Team (http://antforms.sourceforge.net/).
+     GNU Lesser General Public License
+     
+   * SAXON XSLT processor developed by Michael Kay of Saxonica Limited (http://saxon.sourceforge.net/).
+     Mozilla Public License 1.0 (MPL)
+     
+   * The Logback Project developed by QOS.ch (http://logback.qos.ch/).
+     Eclipse Public License v1.0 or (per the licensee's choosing) GNU Lesser General Public License version 2.1
+     
+   * SLF4J developed by QOS.ch (http://www.slf4j.org/).
+     MIT license 
+     
+   * WebSphere Appliance Management Toolkit developed by International Business Machines Corporation (http://www.ibm.com/).
+     International License Agreement for Non-Warranted Programs
+     http://www14.software.ibm.com/cgi-bin/weblap/lap.pl?la_formnum=&li_formnum=L-DCHN-89G288&title=WebSphere+Appliance+Management+Toolkit&l=en
+     
+   * JUnit.org (http://www.junit.org/).
+     Common Public License - v 1.0
+     
+   * ...
+     
+
+   For further details on the licensing of these libraries, their functionality and their dependencies please use the above links.
+   

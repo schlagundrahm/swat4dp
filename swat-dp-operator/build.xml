@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.8.2 or above.        -->
+<!-- ====================================================================== -->
+
+<project name="swat-dp-operator"
+         default="info"
+         basedir="."
+         xmlns:dp="antlib:com.myarch.datapower">
+
+	<description>DataPower operator project based on the dpbuddy Ant tasks and IBM's WAMT.</description>
+
+	<property environment="env" />
+
+	<!-- ====================================================================== -->
+	<!-- Import maven-build.xml into the current project                        -->
+	<!-- ====================================================================== -->
+	<import file="${basedir}/maven-build.xml" description="generated maven build file"/>
+
+	<!-- ====================================================================== -->
+	<!-- Import property files                                                  -->
+	<!-- ====================================================================== -->
+
+	<!-- Get global properties from build.properties -->
+	<property file="build.properties" />
+
+	<!-- Get user specific properties from <user.properties.file> -->
+	<property file="${user.properties.file}" />
+
+	<!-- File with DataPower connection information, such as URL, username -->
+	<loadproperties srcFile="dp.properties" />
+
+	<!-- ====================================================================== -->
+	<!-- Help target                                                            -->
+	<!-- ====================================================================== -->
+
+	<target name="help">
+		<echo message="Please run: $ant -projecthelp" />
+	</target>
+
+	<target name="declare">
+
+		<!-- define the classpath for the additional tasks -->
+		<path id="dp.tools.classpath">
+			<pathelement location="${basedir}/${maven.build.resourceDir.0}"/>
+			<pathelement location="${project.build.outputDirectory}" />
+			<path refid="build.classpath" />
+		</path>
+
+		<!-- Task Definitions -->
+		<!-- declare antcontrib tasks -->
+		<taskdef resource="net/sf/antcontrib/antlib.xml"
+		         classpathref="dp.tools.classpath" />
+
+		<!-- declarre xml tasks -->
+		<taskdef name="xmltask"
+		         classname="com.oopsconsultancy.xmltask.ant.XmlTask"
+		         classpathref="dp.tools.classpath" />
+
+		
+
+	</target>
+
+	<!-- ============== -->
+	<!-- Initialization -->
+	<!-- ============== -->
+	<target name="init" depends="declare">
+		<!-- Create the time stamp -->
+		<tstamp>
+			<format property="FILESTAMP" pattern="yyyyMMdd_HHmmss" />
+		</tstamp>
+
+		<!-- Get global environment properties -->
+
+
+		<!-- DEFAULT values -->
+		<!-- Set property log4j.root.level to the regexp '\2' if not yet set within build.properties file -->
+		<property name="log4j.root.level" value="\2" />
+		<!-- Set property work.dir if not yet set in build.properties -->
+		<property name="work.dir" value="${user.dir}" />
+		<!-- Set compiler properties if not yet set in build.properties -->
+		<property name="compiler.type" value="full" />
+		<property name="compiler.debug" value="true" />
+
+		<xmlproperty file="pom.xml" />
+
+		<xmlcatalog id="dtds">
+			<dtd publicId="log4j:configuration"
+			     location="${maven.build.resourceDir.0}/log4j.dtd" />
+		</xmlcatalog>
+
+		
+
+	</target>
+
+	<!-- ================================= 
+          target: info              
+         ================================= -->
+	<target name="info" depends="init" description="show project information">
+		<!-- Displays the properties for this run -->
+		<echo message="OS=${os.name}" />
+		<echo message="JDK=${ant.java.version}" />
+		<echo message="${ant.version}" />
+		<echo message="build file=${ant.file}" />
+		<echo message="project=${ant.project.name}" />
+		<echo message="working directory=${work.dir}" />
+
+		<echo message="" />
+
+		<echo message="********************************************" />
+		<echoproperties prefix="maven.build" />
+		<echoproperties prefix="project" />
+		<echoproperties prefix="ant" />
+		<echoproperties prefix="java" />
+
+		<echo message="--------------------------------------------" />
+		<echoproperties prefix="env" />
+		<echo message="--------------------------------------------" />
+		<echoproperties prefix="work" />
+		<echo message="--------------------------------------------" />
+		<echoproperties prefix="ide" />
+		<echo message="--------------------------------------------" />
+		<echoproperties prefix="dp" />
+
+		<echo message="********************************************" />
+	</target>
+
+</project>

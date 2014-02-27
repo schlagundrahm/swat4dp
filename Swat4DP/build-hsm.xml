@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- ================================================================================================= -->
+<!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
+<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- ================================================================================================= -->
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.8.2 or above. -->
+<!-- ====================================================================== -->
+<project name="Swat4DP-HSM" default="info" basedir=".">
+
+	<!-- Copyright (c) 2013 schlag&rahm AG, Switzerland. All rights reserved -->
+	<!-- The schlag&rahm WebSphere Administration Toolkit for DataPower - Swat4DP -->
+
+	<!-- The build.properties file defines the path to local jar files -->
+	<property file="build.properties" />
+	<property file="${swat.dp.tools}/build.properties" />
+
+	<property file="${swat.dp.infra}/build.properties" />
+	<property file="${swat.dp.infra}/settings/${user.name}.properties" />
+
+	<!-- Import the common tasks to all dp-administration -->
+	<import file="${basedir}/../swat-dp-tools/macros.xml" />
+
+	<target name="91-exchange-hsm-kwk-on-device-set" depends="declare,choose-device-set" description="put the two devices of a device-set into the same HSM domain">
+		<exchange-hsm-kwk-on-device-set-macro device-set="${mgr.target.device-set.name}" />
+	</target>
+
+	<target name="92-exchange-hsm-kwk-between-two-devices" depends="declare,choose-multi-device"
+		description="put the two selected devices into the same HSM domain">
+		<exchange-hsm-kwk-macro source-device="${source.device.name}" destination-device="${destination.device.name}" />
+	</target>
+
+</project>
