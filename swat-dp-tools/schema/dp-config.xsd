@@ -71,9 +71,11 @@
 			<xsd:element name="OAuthSupportedClientGroup" type="ConfigElement" />
 			<xsd:element name="SSHClientProfile" type="ConfigElement" />
 			<xsd:element name="SSLProxyProfile" type="ConfigElement" />
+			<xsd:element name="DeploymentPolicyParametersBinding" type="ConfigElement" />
 			<xsd:element name="ErrorReportSettings" type="ConfigElement" />
 			<xsd:element name="SystemSettings" type="ConfigElement" />
 			<xsd:element name="TimeSettings" type="ConfigElement" />
+			<xsd:element name="DomainAvailability" type="ConfigElement" />
 			<xsd:element name="SchemaExceptionMap" type="ConfigElement" />
 			<xsd:element name="DocumentCryptoMap" type="ConfigElement" />
 			<xsd:element name="XPathRoutingMap" type="ConfigElement" />
@@ -82,8 +84,10 @@
 			<xsd:element name="FTPQuoteCommands" type="ConfigElement" />
 			<xsd:element name="MultiProtocolGateway" type="ConfigElement" />
 			<xsd:element name="WSGateway" type="ConfigElement" />
+			<xsd:element name="GeneratedPolicy" type="ConfigElement" />
 			<xsd:element name="HTTPInputConversionMap" type="ConfigElement" />
 			<xsd:element name="HTTPUserAgent" type="ConfigElement" />
+			<xsd:element name="ILMTAgent" type="ConfigElement" />
 			<xsd:element name="ImportPackage" type="ConfigElement" />
 			<xsd:element name="IMSConnect" type="ConfigElement" />
 			<xsd:element name="IncludeConfig" type="ConfigElement" />
@@ -101,15 +105,23 @@
 			<xsd:element name="TibcoEMSServer" type="ConfigElement" />
 			<xsd:element name="WebSphereJMSServer" type="ConfigElement" />
 			<xsd:element name="JSONSettings" type="ConfigElement" />
+			<xsd:element name="Language" type="ConfigElement" />
+			<xsd:element name="LDAPConnectionPool" type="ConfigElement" />
 			<xsd:element name="LoadBalancerGroup" type="ConfigElement" />
 			<xsd:element name="LogLabel" type="ConfigElement" />
 			<xsd:element name="Matching" type="ConfigElement" />
+			<xsd:element name="MCFHttpHeader" type="ConfigElement" />
+			<xsd:element name="MCFHttpMethod" type="ConfigElement" />
+			<xsd:element name="MCFHttpURL" type="ConfigElement" />
+			<xsd:element name="MCFXPath" type="ConfigElement" />
 			<xsd:element name="MessageContentFilters" type="ConfigElement" />
 			<xsd:element name="FilterAction" type="ConfigElement" />
 			<xsd:element name="MessageMatching" type="ConfigElement" />
 			<xsd:element name="CountMonitor" type="ConfigElement" />
 			<xsd:element name="DurationMonitor" type="ConfigElement" />
 			<xsd:element name="MessageType" type="ConfigElement" />
+			<xsd:element name="MPGWErrorAction" type="ConfigElement" />
+			<xsd:element name="MPGWErrorHandlingPolicy" type="ConfigElement" />
 			<xsd:element name="MQGW" type="ConfigElement" />
 			<xsd:element name="MQhost" type="ConfigElement" />
 			<xsd:element name="MQproxy" type="ConfigElement" />
@@ -124,6 +136,9 @@
 			<xsd:element name="NFSClientSettings" type="ConfigElement" />
 			<xsd:element name="NFSDynamicMounts" type="ConfigElement" />
 			<xsd:element name="NFSStaticMount" type="ConfigElement" />
+			<xsd:element name="ODR" type="ConfigElement" />
+			<xsd:element name="ODRConnectorGroup" type="ConfigElement" />
+			<xsd:element name="Pattern" type="ConfigElement" />
 			<xsd:element name="PeerGroup" type="ConfigElement" />
 			<xsd:element name="PolicyAttachments" type="ConfigElement" />
 			<xsd:element name="PolicyParameters" type="ConfigElement" />
@@ -154,6 +169,7 @@
 			<xsd:element name="FTPServerSourceProtocolHandler" type="ConfigElement" />
 			<xsd:element name="HTTPSourceProtocolHandler" type="ConfigElement" />
 			<xsd:element name="HTTPSSourceProtocolHandler" type="ConfigElement" />
+			<xsd:element name="IMSCalloutSourceProtocolHandler" type="ConfigElement" />
 			<xsd:element name="IMSConnectSourceProtocolHandler" type="ConfigElement" />
 			<xsd:element name="TibcoEMSSourceProtocolHandler" type="ConfigElement" />
 			<xsd:element name="WebSphereJMSSourceProtocolHandler" type="ConfigElement" />
