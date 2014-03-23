@@ -57,7 +57,7 @@
 			              tooltip="Name of the new DataPower service object." />
 			<selectionproperty label="Service Object Class: "
 			                   property="class"
-			                   values="MultiProtocolGateway,WSGateway,XMLFirewall,WebTokenService"
+			                   values="MultiProtocolGateway,WSGateway,XMLFirewallService,WebAppFW,HTTPService,WebTokenService,SSLProxyService,TCPProxyService"
 			                   tooltip="DataPower specific service class." />
 			<textProperty label="Service Summary: " property="summary" tooltip="Short description of the service." />
 			<controlbar>
