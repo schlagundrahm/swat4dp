@@ -156,6 +156,10 @@
 			                       objects="'${dev.70.objects}'" />
 			<extract-objects-macro input="${export-filtered-file}"
 			                       style="${split-device-objects-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-75-patterns.xcfg"
+			                       objects="'${dev.75.objects}'" />
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-device-objects-style}"
 			                       output="${split-dir}/${xcfg-files-prefix}-80-domain.xcfg"
 			                       objects="'${dev.80.objects}'" />
 
