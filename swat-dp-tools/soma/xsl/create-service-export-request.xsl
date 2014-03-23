@@ -24,7 +24,7 @@
                             <xsl:attribute name="ref-objects"><xsl:text>true</xsl:text></xsl:attribute>
                             <xsl:attribute name="ref-files"><xsl:text>true</xsl:text></xsl:attribute>
                         </xsl:element>
-                        <xsl:for-each select="import-objects/*">
+                        <xsl:for-each select="import-objects/object">
                             <xsl:element name="dp:object">
                                 <xsl:attribute name="class"><xsl:value-of select="@type" /></xsl:attribute>
                                 <xsl:attribute name="name"><xsl:value-of select="@name" /></xsl:attribute>
