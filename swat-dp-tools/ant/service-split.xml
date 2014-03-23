@@ -124,6 +124,10 @@
 			                       objects="'${svc.10.objects}'" />
 			<extract-objects-macro input="${export-filtered-file}"
 			                       style="${split-objects-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-12-acl.xcfg"
+			                       objects="'${svc.12.objects}'" />
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-objects-style}"
 			                       output="${split-dir}/${xcfg-files-prefix}-15-fsh.xcfg"
 			                       objects="'${svc.15.objects}'" />
 			<extract-objects-macro input="${export-filtered-file}"
