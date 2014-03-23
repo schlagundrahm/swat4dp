@@ -7,7 +7,7 @@
     xmlns:str="http://exslt.org/strings" 
     xmlns:env="http://www.w3.org/2003/05/soap-envelope">
 
-    <xsl:output method="xml" indent="yes" xalan:indent-amount="4" omit-xml-declaration="yes" />
+    <xsl:output method="xml" encoding="UTF-8" indent="yes" xalan:indent-amount="4" omit-xml-declaration="yes" />
     <xsl:strip-space elements="*" />
 
     <xsl:template match="*">
