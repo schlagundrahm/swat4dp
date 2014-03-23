@@ -4,7 +4,7 @@
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
     xmlns:xalan="http://xml.apache.org/xslt" 
     exclude-result-prefixes="xalan">
-    <xsl:output method="xml" indent="yes" xalan:indent-amount="4" omit-xml-declaration="yes" />
+    <xsl:output method="xml" encoding="UTF-8" indent="yes" xalan:indent-amount="4" omit-xml-declaration="yes" />
     <xsl:strip-space elements="*" />
     
     <xsl:param name="serviceName" />
