@@ -226,7 +226,7 @@
 					      failonunexpected="false">
 						<credentials username="${mgr.target.user.name}" password="${mgr.target.password.value}" />
 						<entity file="${input-file}" binary="true" />
-						<keystore file="${swat.dp.infra}/config/${swat.customer}-truststore.jks" password="123456" />
+						<keystore file="${swat.dp.infra}/config/${swat.customer}-truststore.jks" password="${mgr.truststore.password}" />
 					</http>
 				</else>
 			</if>
