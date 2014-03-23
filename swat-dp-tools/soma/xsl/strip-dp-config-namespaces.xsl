@@ -16,8 +16,8 @@
 			<xsl:for-each select="@*">
 				<!-- remove attribute prefix -->
 				<xsl:attribute name="{local-name()}">
-          		<xsl:value-of select="." />
-        		</xsl:attribute>
+				<xsl:value-of select="." />
+				</xsl:attribute>
 			</xsl:for-each>
 			<xsl:apply-templates />
 		</xsl:element>
