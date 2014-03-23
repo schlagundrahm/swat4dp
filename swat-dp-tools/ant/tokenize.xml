@@ -230,6 +230,11 @@
 
 			<!-- reorder attributes for manual comparison -->
 			<xcfg-reformat-macro src-dir="${tokenizer-tmp-dir}" dst-dir="${tokenized-dir}" conf-type="service" />
+			
+			<!-- fix end of line encoding for the current environment -->
+			<fixcrlf srcdir="${tokenized-dir}"
+			         includes="**/*.xcfg" />
+
 				
 			<delete dir="${tokenizer-tmp-dir}" failonerror="true" />
 			<echo message="@{service} configuration for @{device}/@{domain} has been tokenized." />
