@@ -10,6 +10,7 @@
 
 	<xsl:output
 		method="xml"
+		encoding="UTF-8"
 		indent="yes"
 		xalan:indent-amount="4"
 		omit-xml-declaration="yes" />
@@ -65,14 +66,14 @@
 					<xsl:when test="local-name(.)='RefreshInterval'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
-								<xsl:value-of select="concat('ntp.refresh-interval')" />
+								<xsl:value-of select="string('ntp.refresh-interval')" />
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
 					<xsl:when test="local-name(.)='UserSummary'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
-								<xsl:value-of select="concat('ntp.summary')" />
+								<xsl:value-of select="string('ntp.summary')" />
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
@@ -237,14 +238,14 @@
 					<xsl:when test="local-name(.)='RefreshInterval'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
-								<xsl:value-of select="concat('ntp.refresh-interval')" />
+								<xsl:value-of select="string('ntp.refresh-interval')" />
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
 					<xsl:when test="local-name(.)='UserSummary'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
-								<xsl:value-of select="concat('ntp.summary')" />
+								<xsl:value-of select="string('ntp.summary')" />
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
@@ -271,21 +272,21 @@
 					<xsl:when test="local-name(.)='UserSummary'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
-								<xsl:value-of select="concat('snmp.summary')" />
+								<xsl:value-of select="string('snmp.summary')" />
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
 					<xsl:when test="local-name(.)='LocalAddress'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
-								<xsl:value-of select="concat('snmp.local.alias')" />
+								<xsl:value-of select="string('snmp.local.alias')" />
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
 					<xsl:when test="local-name(.)='LocalPort'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
-								<xsl:value-of select="concat('snmp.local.port')" />
+								<xsl:value-of select="string('snmp.local.port')" />
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
@@ -360,7 +361,7 @@
 									<xsl:when test="local-name(.)='Port'">
 										<xsl:call-template name="set-token">
 											<xsl:with-param name="key">
-												<xsl:value-of select="concat('snmp.target',count(../preceding-sibling::Targets)+1,'.port)" />
+												<xsl:value-of select="concat('snmp.target',count(../preceding-sibling::Targets)+1,'.port')" />
 											</xsl:with-param>
 										</xsl:call-template>
 									</xsl:when>
