@@ -3,7 +3,7 @@
 	xmlns:dp="http://www.datapower.com/schemas/management" xmlns:str="http://exslt.org/strings" 
 	exclude-result-prefixes="dp str xalan">
 
-	<xsl:output method="xml" indent="yes" xalan:indent-amount="4" omit-xml-declaration="yes" />
+	<xsl:output method="xml" encoding="UTF-8" indent="yes" xalan:indent-amount="4" omit-xml-declaration="yes" />
 	<xsl:strip-space elements="*" />
 
 	<xsl:template match="/datapower-configuration">
