@@ -58,6 +58,7 @@
 			      out="@{output}"
 			      classpathref="swat.dp.tools.classpath">
 				<param name="domain" expression="${swat.domain.name}" />
+				<factory name="net.sf.saxon.TransformerFactoryImpl" />
 			</xslt>
 		</sequential>
 	</macrodef>
@@ -98,6 +99,7 @@
 			      out="@{output}"
 			      classpathref="swat.dp.tools.classpath">
 				<param name="importFile" expression="@{object-list}" />
+				<factory name="net.sf.saxon.TransformerFactoryImpl" />
 			</xslt>
 		</sequential>
 	</macrodef>
@@ -123,6 +125,7 @@
 				<param name="domain" expression="@{domain}" />
 				<param name="serviceObjectClass" expression="@{class}" />
 				<param name="serviceObjectName" expression="@{object}" />
+				<factory name="net.sf.saxon.TransformerFactoryImpl" />
 			</xslt>
 		</sequential>
 	</macrodef>
@@ -142,6 +145,7 @@
 			      style="${swat.dp.tools}/soma/xsl/create-delete-object-request.xsl"
 			      out="@{output}"
 			      classpathref="swat.dp.tools.classpath">
+				<factory name="net.sf.saxon.TransformerFactoryImpl" />
 			</xslt>
 		</sequential>
 	</macrodef>
@@ -203,6 +207,7 @@
 			      out="@{output}"
 			      classpathref="swat.dp.tools.classpath">
 				<param name="xcfgSelection" expression="@{xcfg-selection-expr}" />
+				<factory name="net.sf.saxon.TransformerFactoryImpl" />
 			</xslt>
 		</sequential>
 	</macrodef>
@@ -269,11 +274,16 @@
 			      in="dist/@{tmp.dir}/@{soma.request}-response.xml"
 			      style="${swat.dp.tools}/soma/xsl/extract-file.xsl"
 			      out="dist/@{tmp.dir}/@{soma.request}.b64"
-			      classpathref="swat.dp.tools.classpath" />
+			      classpathref="swat.dp.tools.classpath">
+				<factory name="net.sf.saxon.TransformerFactoryImpl" />
+			</xslt>
 
 			<!-- Base64 Decode the extracted file -->
 			<base64-decode-macro infile="dist/@{tmp.dir}/@{soma.request}.b64"
 			                     outfile="dist/@{tmp.dir}/@{soma.request}.zip" />
+			
+			<!-- clean unpack directory -->
+			<delete dir="dist/@{tmp.dir}/@{soma.request}" />
 
 			<!-- Unpack the backup zip file -->
 			<unzip src="dist/@{tmp.dir}/@{soma.request}.zip" dest="dist/@{tmp.dir}/@{soma.request}" />
@@ -293,7 +303,9 @@
 			      in="dist/@{tmp.dir}/@{soma.request}-response.xml"
 			      style="${swat.dp.tools}/soma/xsl/extract-file.xsl"
 			      out="dist/@{tmp.dir}/@{file.name}.b64"
-			      classpathref="swat.dp.tools.classpath" />
+			      classpathref="swat.dp.tools.classpath">
+				<factory name="net.sf.saxon.TransformerFactoryImpl" />
+			</xslt>
 
 			<!-- Base64 Decode the extracted file -->
 			<base64-decode-macro infile="dist/@{tmp.dir}/@{file.name}.b64" outfile="dist/@{tmp.dir}/@{file.name}" />
