@@ -142,28 +142,23 @@
 			<var name="local.tmp.dir" value="@{tmp.dir}" />
 			<var name="local.check.response" value="@{check.response}" />
 			<var name="local.device" value="@{device}" />
-
+			<var name="mgr.target.password.value.temp" value="notset" />
+			
 			<!-- Deploy for all requests -->
 			<echo message="Running requests @{soma.requests} on device @{device}." />
-			<foreach target="soma-run-single-request-on-single-device"
-			         list="@{soma.requests}"
-			         delimiter=","
-			         param="foreach.soma.request"
-			         inheritall="true"
-			         inheritrefs="true" />
+			<for list="@{soma.requests}"
+			     delimiter=","
+			     param="foreach.soma.request" >
+				<sequential>
+					<soma-run-single-request-on-single-device-macro soma.request="@{foreach.soma.request}"
+					                                                device="${local.device}"
+					                                                tmp.dir="${local.tmp.dir}"
+					                                                check.response="${local.check.response}" />
+			  </sequential>
+			</for>
+			
 		</sequential>
 	</macrodef>
-
-	<!-- ================================= 
-          target: soma-run-single-request-on-single-device 
-         ================================= -->
-	<target name="soma-run-single-request-on-single-device">
-		<!-- Run soma request on a device -->
-		<soma-run-single-request-on-single-device-macro soma.request="${foreach.soma.request}"
-		                                                device="${local.device}"
-		                                                tmp.dir="${local.tmp.dir}"
-		                                                check.response="${local.check.response}" />
-	</target>
 
 	<!-- ================================= 
           macrodef: soma-run-single-request-on-single-device-macro 
