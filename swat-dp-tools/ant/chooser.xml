@@ -234,8 +234,8 @@
 		<sequential>
 			<service-create-project-prefix-macro zone="@{zone}" domain="@{domain}" />
 			<property name="swat.current.service.common.home"
-			          location="${basedir}/../${service.project.prefix}-common" />
-			<property name="swat.current.service.home" location="${basedir}/../${service.project.prefix}-@{service}" />
+			          location="${swat.dp.customer.home}/${service.project.prefix}-common" />
+			<property name="swat.current.service.home" location="${swat.dp.customer.home}/${service.project.prefix}-@{service}" />
 			<echo message="Loading properties ${swat.current.service.home}/build.properties" />
 			<loadproperties srcfile="${swat.current.service.home}/build.properties" />
 			<echo message="Loading properties ${swat.current.service.home}/config/@{env}.properties" />
