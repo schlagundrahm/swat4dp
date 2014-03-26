@@ -31,7 +31,7 @@
 	</ciManagement>
 
 	<scm>
-		<connection>scm:cvs:pserver:${user.name}@cvs.shared:/opt/data/cvsroot/swat-dp:${project.artifactId}</connection>
+		<connection>scm:git:ssh://${user.name}@fritz.box/volume1/REPO/${project.artifactId}</connection>		
 		<!-- developerConnection>scm:cvs:extssh:&lt;userid&gt;@cvs.shared:/opt/data/cvsroot/swat-dp:${project.artifactId}</developerConnection -->
   </scm>
 
