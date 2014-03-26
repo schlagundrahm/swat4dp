@@ -502,8 +502,22 @@
 							<echo message="Password pre-set for User [${mgr.target.user.name}] for all device-sets." />
 						</then>
 						<else>
-							<echo message="No password has been set in your settings file (${swat.dp.infra}/settings/${user.name}.properties)." />
-							<dialog-password-macro property="mgr.target.password.value" title="Password for user ${mgr.target.user.name} on @{device-set}"/>
+							<if>
+								<and>
+									<isset property="mgr.target.password.value.temp" />
+									<length string="${mgr.target.password.value.temp}" trim="true" when="gt" length="7" />
+								</and>
+								<then>
+									<echo message="Password has been set by a previous dialog." />
+									<propertycopy name="mgr.target.password.value" from="mgr.target.password.value.temp" />
+								</then>
+								<else>
+									<echo message="No password has been set in your settings file (${swat.dp.infra}/settings/${user.name}.properties)." />
+									<dialog-password-macro property="mgr.target.password.value" title="Password for user ${mgr.target.user.name} on @{device-set}"/>
+									<!-- propertycopy name="mgr.target.password.value.temp" from="mgr.target.password.value" override="true" / -->
+									<var name="mgr.target.password.value.temp" value="${mgr.target.password.value}" />
+								</else>
+							</if>
 						</else>
 					</if>
 				</else>
