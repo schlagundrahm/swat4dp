@@ -36,7 +36,7 @@
 			<device-split-objects-macro device="@{device}" domain="default" />
 			
 			<!-- replace values with tokens -->
-			<tokenize-config-macro src-dir="dist/export/@{device}-default/xcfg/common" />
+			<tokenize-device-config-macro src-dir="dist/export/@{device}-default/xcfg/common" />
 		</sequential>
 	</macrodef>
 
