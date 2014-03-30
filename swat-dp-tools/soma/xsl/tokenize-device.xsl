@@ -42,6 +42,157 @@
 	<xsl:template match="comment()|processing-instruction()">
 		<xsl:copy />
 	</xsl:template>
+	
+	<!-- SSH Service -->
+	<xsl:template match="SSHService">
+		<xsl:variable name="label">
+			<xsl:value-of select="@name" />
+		</xsl:variable>
+		
+		<xsl:element name="{name()}">
+			<xsl:copy-of select="document('')/*/namespace::*[name()='env']" />
+			<xsl:copy-of select="document('')/*/namespace::*[name()='dp']" />
+			<xsl:copy-of select="@*" />
+			<xsl:for-each select="*">
+				<xsl:choose>
+					<xsl:when test="local-name(.)='mAdminState'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('ssh.state')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='LocalAddress'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('ssh.local.alias')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='LocalPort'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('ssh.local.port')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:copy-of select="." />
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:for-each>
+		</xsl:element>
+	</xsl:template>
+	
+	<!-- XML Management Interface -->
+	<xsl:template match="MgmtInterface">
+		<xsl:variable name="label">
+			<xsl:value-of select="@name" />
+		</xsl:variable>
+		
+		<xsl:element name="{name()}">
+			<xsl:copy-of select="document('')/*/namespace::*[name()='env']" />
+			<xsl:copy-of select="document('')/*/namespace::*[name()='dp']" />
+			<xsl:copy-of select="@*" />
+			<xsl:for-each select="*">
+				<xsl:choose>
+					<xsl:when test="local-name(.)='mAdminState'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('xml.mgmt.state')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='LocalAddress'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('xml.mgmt.local.alias')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='LocalPort'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('xml.mgmt.local.port')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='SSLProxy'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('xml.mgmt.ssl.profile')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:copy-of select="." />
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:for-each>
+		</xsl:element>
+	</xsl:template>
+	
+	<!-- Web Management Interface -->
+	<xsl:template match="WebGUI">
+		<xsl:variable name="label">
+			<xsl:value-of select="@name" />
+		</xsl:variable>
+		
+		<xsl:element name="{name()}">
+			<xsl:copy-of select="document('')/*/namespace::*[name()='env']" />
+			<xsl:copy-of select="document('')/*/namespace::*[name()='dp']" />
+			<xsl:copy-of select="@*" />
+			<xsl:for-each select="*">
+				<xsl:choose>
+					<xsl:when test="local-name(.)='mAdminState'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('web.mgmt.state')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='LocalAddress'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('web.mgmt.local.alias')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='LocalPort'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('web.mgmt.local.port')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='SSLProxy'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('web.mgmt.ssl.profile')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='SaveConfigOverwrites'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('web.mgmt.save.overwrites')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='IdleTimeout'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('web.mgmt.timeout')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:copy-of select="." />
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:for-each>
+		</xsl:element>
+	</xsl:template>
 
 
 	<!-- System Settings -->
@@ -56,28 +207,23 @@
 			<xsl:copy-of select="@*" />
 			<xsl:for-each select="*">
 				<xsl:choose>
-					<xsl:when test="local-name(.)='Description'">
+					<xsl:when test="local-name(.)='UserSummary'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
 								<xsl:value-of select="string('device.summary')" />
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
+					<xsl:when test="local-name(.)='Description'">
+						<xsl:call-template name="print-read-only-token" />
+					</xsl:when>
 					<xsl:when test="local-name(.)='ProductOID'">
-						<xsl:call-template name="set-token">
-							<xsl:with-param name="key">
-								<xsl:value-of select="string('device.product.oid')" />
-							</xsl:with-param>
-						</xsl:call-template>
+						<xsl:call-template name="print-read-only-token" />
 					</xsl:when>
 					<xsl:when test="local-name(.)='SerialNumber'">
-						<xsl:call-template name="set-token">
-							<xsl:with-param name="key">
-								<xsl:value-of select="string('device.serial')" />
-							</xsl:with-param>
-						</xsl:call-template>
+						<xsl:call-template name="print-read-only-token" />
 					</xsl:when>
-					<xsl:when test="local-name(.)='SerialEntitlement'">
+					<xsl:when test="local-name(.)='EntitlementNumber'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
 								<xsl:value-of select="string('device.entitlement')" />
@@ -85,11 +231,7 @@
 						</xsl:call-template>
 					</xsl:when>
 					<xsl:when test="local-name(.)='ProductID'">
-						<xsl:call-template name="set-token">
-							<xsl:with-param name="key">
-								<xsl:value-of select="string('device.product.id')" />
-							</xsl:with-param>
-						</xsl:call-template>
+						<xsl:call-template name="print-read-only-token" />
 					</xsl:when>
 					<xsl:when test="local-name(.)='Contact'">
 						<xsl:call-template name="set-token">
@@ -498,6 +640,13 @@
 			<xsl:copy-of select="@*" />
 			<xsl:for-each select="*">
 				<xsl:choose>
+					<xsl:when test="local-name(.)='mAdminState'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('snmp.state')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
 					<xsl:when test="local-name(.)='UserSummary'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
@@ -935,6 +1084,12 @@
 		<xsl:element name="{name()}">
 			<xsl:value-of select="concat('@',$key,'@')" />
 		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template name="print-read-only-token">
+		<xsl:message>
+			<xsl:value-of select="concat('#read-only# ',name(),'=',text())" />
+		</xsl:message>
 	</xsl:template>
 
 </xsl:stylesheet>
