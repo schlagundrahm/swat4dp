@@ -63,17 +63,246 @@
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
-					<xsl:when test="local-name(.)='RefreshInterval'">
+					<xsl:when test="local-name(.)='ProductOID'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
-								<xsl:value-of select="string('ntp.refresh-interval')" />
+								<xsl:value-of select="string('device.product.oid')" />
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
-					<xsl:when test="local-name(.)='UserSummary'">
+					<xsl:when test="local-name(.)='SerialNumber'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
-								<xsl:value-of select="string('ntp.summary')" />
+								<xsl:value-of select="string('device.serial')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='SerialEntitlement'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('device.entitlement')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='ProductID'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('device.product.id')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Contact'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('device.contact')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='SystemName'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('device.name')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Location'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('device.location')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='CustomUIFile'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('device.ui.file')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='AuditReserve'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('device.audit.space')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Locale'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('device.locale')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:copy-of select="." />
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:for-each>
+		</xsl:element>
+	</xsl:template>
+	
+	<!-- Statistics -->
+	<xsl:template match="Statistics">
+		<xsl:variable name="label">
+			<xsl:value-of select="@name" />
+		</xsl:variable>
+
+		<xsl:element name="{name()}">
+			<xsl:copy-of select="document('')/*/namespace::*[name()='env']" />
+			<xsl:copy-of select="document('')/*/namespace::*[name()='dp']" />
+			<xsl:copy-of select="@*" />
+			<xsl:for-each select="*">
+				<xsl:choose>
+					<xsl:when test="local-name(.)='mAdminState'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('statistics.state')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='LoadInterval'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('statistics.interval')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:copy-of select="." />
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:for-each>
+		</xsl:element>
+	</xsl:template>
+	
+	<!-- Error Report Settings -->
+	<xsl:template match="ErrorReportSettings">
+		<xsl:variable name="label">
+			<xsl:value-of select="@name" />
+		</xsl:variable>
+
+		<xsl:element name="{name()}">
+			<xsl:copy-of select="document('')/*/namespace::*[name()='env']" />
+			<xsl:copy-of select="document('')/*/namespace::*[name()='dp']" />
+			<xsl:copy-of select="@*" />
+			<xsl:for-each select="*">
+				<xsl:choose>
+					<xsl:when test="local-name(.)='mAdminState'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.state')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='UploadReport'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.upload')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='UploadReport'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.upload')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='UseSmtp'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.smtp')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='SmtpServer'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.smtp.server')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='EmailAddress'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.smtp.email.to')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='EmailAddressSender'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.smtp.email.from')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='InternalState'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.internal-state')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='FFDCPacketCapture'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.packet-capture')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='FFDCEventLogCapture'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.log-capture')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='FFDCMemoryLeakCapture'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.memory-capture')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='AlwaysOnStartup'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.on-startup')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='AlwaysOnShutdown'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.on-shutdown')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Protocol'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.protocol')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='RaidVolume'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.raid.name')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='RaidVolumePath'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.raid.path')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='ReportHistoryKept'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('error.report.history')" />
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
@@ -276,6 +505,13 @@
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
+					<xsl:when test="local-name(.)='Version'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('snmp.version')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
 					<xsl:when test="local-name(.)='LocalAddress'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
@@ -297,46 +533,28 @@
 									<xsl:when test="local-name(.)='Community'">
 										<xsl:call-template name="set-token">
 											<xsl:with-param name="key">
-												<xsl:value-of select="concat('snmp.policy',count(../preceding-sibling::Policies)+1,'.community')" />
+												<xsl:value-of select="concat('snmp.policy.',count(../preceding-sibling::Policies)+1,'.community')" />
 											</xsl:with-param>
 										</xsl:call-template>
 									</xsl:when>
 									<xsl:when test="local-name(.)='Domain'">
 										<xsl:call-template name="set-token">
 											<xsl:with-param name="key">
-												<xsl:value-of select="concat('snmp.policy',count(../preceding-sibling::Policies)+1,'.domain')" />
+												<xsl:value-of select="concat('snmp.policy.',count(../preceding-sibling::Policies)+1,'.domain')" />
 											</xsl:with-param>
 										</xsl:call-template>
 									</xsl:when>
 									<xsl:when test="local-name(.)='Mode'">
 										<xsl:call-template name="set-token">
 											<xsl:with-param name="key">
-												<xsl:value-of select="concat('snmp.policy',count(../preceding-sibling::Policies)+1,'.mode')" />
+												<xsl:value-of select="concat('snmp.policy.',count(../preceding-sibling::Policies)+1,'.mode')" />
 											</xsl:with-param>
 										</xsl:call-template>
 									</xsl:when>
 									<xsl:when test="local-name(.)='Host'">
 										<xsl:call-template name="set-token">
 											<xsl:with-param name="key">
-												<xsl:value-of select="concat('snmp.policy',count(../preceding-sibling::Policies)+1,'.host')" />
-											</xsl:with-param>
-										</xsl:call-template>
-									</xsl:when>
-									<xsl:otherwise>
-										<xsl:copy-of select="." />
-									</xsl:otherwise>
-								</xsl:choose>
-							</xsl:for-each>
-						</xsl:element>
-					</xsl:when>
-					<xsl:when test="local-name(.)='NameServers'">
-						<xsl:element name="{name()}">
-							<xsl:for-each select="*">
-								<xsl:choose>
-									<xsl:when test="local-name(.)='IPAddress'">
-										<xsl:call-template name="set-token">
-											<xsl:with-param name="key">
-												<xsl:value-of select="concat('dns.server.',count(../preceding-sibling::NameServers)+1)" />
+												<xsl:value-of select="concat('snmp.policy.',count(../preceding-sibling::Policies)+1,'.host')" />
 											</xsl:with-param>
 										</xsl:call-template>
 									</xsl:when>
@@ -361,35 +579,35 @@
 									<xsl:when test="local-name(.)='Port'">
 										<xsl:call-template name="set-token">
 											<xsl:with-param name="key">
-												<xsl:value-of select="concat('snmp.target',count(../preceding-sibling::Targets)+1,'.port')" />
+												<xsl:value-of select="concat('snmp.target.',count(../preceding-sibling::Targets)+1,'.port')" />
 											</xsl:with-param>
 										</xsl:call-template>
 									</xsl:when>
 									<xsl:when test="local-name(.)='Community'">
 										<xsl:call-template name="set-token">
 											<xsl:with-param name="key">
-												<xsl:value-of select="concat('snmp.target',count(../preceding-sibling::Targets)+1,'.community')" />
+												<xsl:value-of select="concat('snmp.target.',count(../preceding-sibling::Targets)+1,'.community')" />
 											</xsl:with-param>
 										</xsl:call-template>
 									</xsl:when>
 									<xsl:when test="local-name(.)='TrapVersion'">
 										<xsl:call-template name="set-token">
 											<xsl:with-param name="key">
-												<xsl:value-of select="concat('snmp.target',count(../preceding-sibling::Targets)+1,'.version')" />
+												<xsl:value-of select="concat('snmp.target.',count(../preceding-sibling::Targets)+1,'.version')" />
 											</xsl:with-param>
 										</xsl:call-template>
 									</xsl:when>
 									<xsl:when test="local-name(.)='SecurityName'">
 										<xsl:call-template name="set-token">
 											<xsl:with-param name="key">
-												<xsl:value-of select="concat('snmp.target',count(../preceding-sibling::Targets)+1,'.security.name')" />
+												<xsl:value-of select="concat('snmp.target.',count(../preceding-sibling::Targets)+1,'.security.name')" />
 											</xsl:with-param>
 										</xsl:call-template>
 									</xsl:when>
 									<xsl:when test="local-name(.)='SecurityLevel'">
 										<xsl:call-template name="set-token">
 											<xsl:with-param name="key">
-												<xsl:value-of select="concat('snmp.target',count(../preceding-sibling::Targets)+1,'.security.level')" />
+												<xsl:value-of select="concat('snmp.target.',count(../preceding-sibling::Targets)+1,'.security.level')" />
 											</xsl:with-param>
 										</xsl:call-template>
 									</xsl:when>
@@ -399,6 +617,54 @@
 								</xsl:choose>
 							</xsl:for-each>
 						</xsl:element>
+					</xsl:when>
+					
+					<xsl:when test="local-name(.)='Users'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('snmp.v3.user.',count(./preceding-sibling::Users)+1,'.name')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					
+					<xsl:when test="local-name(.)='Contexts'">
+						<xsl:element name="{name()}">
+							<xsl:for-each select="*">
+								<xsl:choose>
+									<xsl:when test="local-name(.)='Context'">
+										<xsl:call-template name="set-token">
+											<xsl:with-param name="key">
+												<xsl:value-of select="concat('snmp.v3.context.',count(../preceding-sibling::Contexts)+1,'.name')" />
+											</xsl:with-param>
+										</xsl:call-template>
+									</xsl:when>
+									<xsl:when test="local-name(.)='Domain'">
+										<xsl:call-template name="set-token">
+											<xsl:with-param name="key">
+												<xsl:value-of select="concat('snmp.v3.context.',count(../preceding-sibling::Contexts)+1,'.domain')" />
+											</xsl:with-param>
+										</xsl:call-template>
+									</xsl:when>
+									<xsl:otherwise>
+										<xsl:copy-of select="." />
+									</xsl:otherwise>
+								</xsl:choose>
+							</xsl:for-each>
+						</xsl:element>
+					</xsl:when>
+					<xsl:when test="local-name(.)='SecurityLevel'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('snmp.v3.security-level')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='AccessLevel'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('snmp.v3.access-level')" />
+							</xsl:with-param>
+						</xsl:call-template>
 					</xsl:when>
 					<xsl:otherwise>
 						<xsl:copy-of select="." />
