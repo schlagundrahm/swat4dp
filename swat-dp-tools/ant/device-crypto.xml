@@ -21,9 +21,9 @@
 	</target>
 
 	<!-- = = = = = = = = = = = = = = = = =
-          macrodef: device-key-generate-macro         
+          macrodef: device-set-key-generate-macro         
          = = = = = = = = = = = = = = = = = -->
-	<macrodef name="device-key-generate-macro">
+	<macrodef name="device-set-key-generate-macro">
 		<attribute name="device-set" />
 		<attribute name="crypto.prefix" />
 		<sequential>
