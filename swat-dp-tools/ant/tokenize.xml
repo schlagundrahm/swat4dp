@@ -215,7 +215,7 @@
 				<replace path="//configuration/LogTarget/Size/text()" withText="@log.file.size@" />
 				<replace path="//configuration/LogTarget/Rotate/text()" withText="@log.file.rotations@" />
 				<replace path="//configuration/LogTarget/LogObjects[Class='${service.object.class}']/FollowReferences/text()"
-				         withText="on" />
+				         withText="@log.service.follow-refs@" />
 				<replace path="//configuration/LogTarget/LogObjects[Class='${service.object.class}']/Class/text()"
 				         withText="@service.object.class@" />
 
