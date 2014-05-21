@@ -37,7 +37,7 @@
 			<if>
 				<equals arg1="@{dist-only}" arg2="false" />
 				<then>
-					<key-generate-on-device-macro device="${swat.device.master}" crypto.prefix="@{crypto.prefix}" />
+					<key-generate-on-device-macro device="${swat.device.master}" domain="${domain.name}" crypto.prefix="@{crypto.prefix}" />
 				</then>
 			</if>
 
