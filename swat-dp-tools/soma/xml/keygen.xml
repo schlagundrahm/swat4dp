@@ -15,10 +15,10 @@
                     <!-- OU3></OU3 -->
                     <CN>@crypto.cn@</CN>
                     <KeyLength>2048</KeyLength>
-                    <!-- FileName>will be generated</FileName -->
+                    <FileName>@keygen.filename@</FileName>
                     <Days>365</Days>
-                    <!-- Password></Password -->
-                    <!-- PasswordAlias></PasswordAlias -->
+                    <Password>@keygen.pw@</Password>
+                    <PasswordAlias>@keygen.pw.alias@</PasswordAlias>
                     <KwkExportable>@keygen.use.hsm@</KwkExportable>
                     <ExportKey>@keygen.export.key@</ExportKey>
                     <GenSSCert>@keygen.generate.sscert@</GenSSCert>
