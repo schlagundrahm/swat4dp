@@ -125,6 +125,7 @@
 				<filtersfile file="config/@{env}.properties" />
 				<filtersfile file="${swat.dp.infra}/build.properties" />
 				<filtersfile file="${pws.filter.file}" />
+				<filter token="domain.name" value="${domain.name}"/>
 			</filterset>
 
 			<!-- Copy and filter the local files (common and env-specific) -->

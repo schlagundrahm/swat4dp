@@ -221,6 +221,17 @@
 		                          env="${mgr.target.env.name}"
 		                          domain="${mgr.target.domain.alias}"
 		                          service="${mgr.target.service.name}" />
+		
+		<if>
+			<not>
+				<isset property="domain.name" />
+			</not>
+			<then>
+				<echo message="ATTENTION: using swat-dp-infra domain name as sevice specific domain name is not set!" />
+				<property name="domain.name" value="${swat.domain.name}" />
+			</then>
+		</if>
+		<echo message="using domain.name = ${domain.name}" />
 	</target>
 
 	<!-- = = = = = = = = = = = = = = = = =
@@ -234,8 +245,8 @@
 		<sequential>
 			<service-create-project-prefix-macro zone="@{zone}" domain="@{domain}" />
 			<property name="swat.current.service.common.home"
-			          location="${swat.dp.customer.home}/${service.project.prefix}-common" />
-			<property name="swat.current.service.home" location="${swat.dp.customer.home}/${service.project.prefix}-@{service}" />
+			          location="${basedir}/../${service.project.prefix}-common" />
+			<property name="swat.current.service.home" location="${basedir}/../${service.project.prefix}-@{service}" />
 			<echo message="Loading properties ${swat.current.service.home}/build.properties" />
 			<loadproperties srcfile="${swat.current.service.home}/build.properties" />
 			<echo message="Loading properties ${swat.current.service.home}/config/@{env}.properties" />
@@ -443,14 +454,14 @@
 				<isset property="mgr.target.user.name.@{device-set}" />
 				<then>
 					<propertycopy name="mgr.target.user.name" from="mgr.target.user.name.@{device-set}" />
-					<echo message="User-Name set to use for device-set @{device-set}: [${mgr.target.user.name}]" />
+					<echo message="Set user name for device-set @{device-set}: [${mgr.target.user.name}]" />
 				</then>
 				<else>
 					<if>
 						<isset property="mgr.target.user.name.default" />
 						<then>
 							<propertycopy name="mgr.target.user.name" from="mgr.target.user.name.default" />
-							<echo message="User-Name set to use for all device-sets: [${mgr.target.user.name}]" />
+							<echo message="Set default user name (mgr.target.user.name.default) for all device-sets: [${mgr.target.user.name}]" />
 						</then>
 						<else>
 							<echo message="No user name has been set in your settings file (${swat.dp.infra}/settings/${user.name}.properties)." />
@@ -459,7 +470,7 @@
 					</if>
 				</else>
 			</if>
-			<fail message="No User-Name set, please adjust your settings-file (${swat.dp.infra}/settings/${user.name}.properties)."
+			<fail message="No user name set, please adjust your settings-file (${swat.dp.infra}/settings/${user.name}.properties)."
 			      unless="mgr.target.user.name" />
 		</sequential>
 	</macrodef>
@@ -487,25 +498,26 @@
 	         = = = = = = = = = = = = = = = = = -->
 	<macrodef name="load-password-macro">
 		<attribute name="device-set" />
+		
 		<sequential>
 			<if>
 				<isset property="mgr.target.password.value.@{device-set}" />
 				<then>
 					<propertycopy name="mgr.target.password.value" from="mgr.target.password.value.@{device-set}" />
-					<echo message="Password pre-set for User [${mgr.target.user.name}] on device-set [@{device-set}]." />
+					<echo message="Password pre-set for user [${mgr.target.user.name}] on device-set [@{device-set}]." />
 				</then>
 				<else>
 					<if>
 						<isset property="mgr.target.password.value.default" />
 						<then>
 							<propertycopy name="mgr.target.password.value" from="mgr.target.password.value.default" />
-							<echo message="Password pre-set for User [${mgr.target.user.name}] for all device-sets." />
+							<echo message="Password pre-set for user [${mgr.target.user.name}] for all device-sets." />
 						</then>
 						<else>
 							<if>
 								<and>
-									<isset property="mgr.target.password.value.temp" />
-									<length string="${mgr.target.password.value.temp}" trim="true" when="gt" length="7" />
+									<isset property="mgr.target.password.value" />
+									<length string="${mgr.target.password.value}" trim="true" when="gt" length="7" />
 								</and>
 								<then>
 									<echo message="Password has been set by a previous dialog." />
