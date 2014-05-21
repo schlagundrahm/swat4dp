@@ -212,7 +212,9 @@
 
 			<echo message="Copying filtered content..." />
 			<copy todir="${basedir}/../${service.project.name}" filtering="true" verbose="true" overwrite="true">
-				<fileset dir="content" />
+				<fileset dir="content">
+					<exclude name="config/export/service-export-object-list.xml"/>
+				</fileset>
 				<filterset refid="content.filter" />
 			</copy>
 			<!-- Correct the environment properties file by name -->
