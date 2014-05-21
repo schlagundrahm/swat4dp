@@ -35,6 +35,7 @@
 			      out="@{output}"
 			      classpathref="swat.dp.tools.classpath">
 				<param name="filterObjectTypes" expression="@{objects}" />
+				<param name="log-level" expression="${swat.log.level}" />
 				<factory name="net.sf.saxon.TransformerFactoryImpl" />
 			</xslt>
 			<!-- remove empty config files -->
@@ -435,7 +436,7 @@
 		<attribute name="file-extension" default=".xcfg" />
 		<sequential>
 			<!-- reorder attributes for manual comparison -->
-			<echo message="Replace configuration values in a device (default domain) export with appropriate tokens (see ${dst-dir}) and print the properties to the console ..." />
+			<echo message="Replace configuration values in a device export (default domain) with appropriate tokens (see ${dst-dir}) and print the properties to the console ..." />
 			<delete dir="@{dst-dir}" failonerror="false" />
 			<mkdir dir="@{dst-dir}" />
 			<xslt processor="trax"
