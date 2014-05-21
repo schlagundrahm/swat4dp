@@ -69,9 +69,9 @@
           target: 15-device-key-generate 
          ================================= -->
 	<target name="15-device-key-generate"
-	        depends="declare,init,choose-device-set"
+	        depends="declare,init,choose-device"
 	        description="generate private key, self-signed certificate and a CSR">
-		<device-key-generate-macro device-set="${mgr.target.device-set.name}" crypto.prefix="device-id" />
+		<key-generate-on-device-macro device="${mgr.target.device.name}" domain="default" crypto.prefix="device-id" />
 	</target>
 
 	<!-- ================================= 

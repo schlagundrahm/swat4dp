@@ -24,7 +24,7 @@
           target: key-generate-on-device                      
          - - - - - - - - - - - - - - - - - -->
 	<target name="key-generate-on-device">
-		<key-generate-on-device-macro device="${current.device}" crypto.prefix="${current.crypto.prefix}" />
+		<key-generate-on-device-macro device="${current.device}" domain="${domain.name}" crypto.prefix="${current.crypto.prefix}" />
 	</target>
 
 	<!-- = = = = = = = = = = = = = = = = =
@@ -40,6 +40,7 @@
 
 			<!-- Adjust properties for the crypto prefix -->
 			<propertycopy name="local.crypto.cn" from="@{crypto.prefix}.cn" />
+			<!-- property name="local.dp.file.name" value="${crypto.object.name}.csr" /-->
 			<property name="local.file.name" value="${local.crypto.cn}.csr" />
 
 			<!-- prepare soma-request keygen -->
