@@ -148,15 +148,14 @@
 			<echo message="Running requests @{soma.requests} on device @{device}." />
 			<for list="@{soma.requests}"
 			     delimiter=","
-			     param="foreach.soma.request" >
+			     param="foreach.soma.request">
 				<sequential>
 					<soma-run-single-request-on-single-device-macro soma.request="@{foreach.soma.request}"
 					                                                device="${local.device}"
 					                                                tmp.dir="${local.tmp.dir}"
 					                                                check.response="${local.check.response}" />
-			  </sequential>
+				</sequential>
 			</for>
-			
 		</sequential>
 	</macrodef>
 
@@ -192,17 +191,44 @@
 				<isset property="curl.exec" />
 				<then>
 					<!-- Running curl -->
-					<echo message="Running curl with user ${mgr.target.user.name} and pw ********* against ${mgmt.prot}://${mgmt.host}:${mgmt.port}" />
-					<echo message="  ** ${curl.exec} --data-binary @${input-file} ${mgmt.prot}://${mgmt.host}:${mgmt.port}/service/mgmt/current -k -u ${mgr.target.user.name}:******* -o${output-file}" />
-					<exec executable="${curl.exec}">
-						<arg value="--data-binary" />
-						<arg value="@${input-file}" />
-						<arg value="${mgmt.prot}://${mgmt.host}:${mgmt.port}/service/mgmt/current" />
-						<arg value="--insecure" />
-						<arg value="-u" />
-						<arg value="${mgr.target.user.name}:${mgr.target.password.value}" />
-						<arg value="-o${output-file}" />
-					</exec>
+					<if>
+						<isset property="mgmt.ssh.tunnel.gtw" />
+						<then>
+							<echo message="using SSH tunnel with user ${ssh.tunnel.user} and gateway ${mgmt.ssh.tunnel.gtw} on local port ${mgmt.ssh.tunnel.local.port}" />
+							<sshsession host="${mgmt.ssh.tunnel.gtw}"
+								        username="${ssh.tunnel.user}"
+								        password="${ssh.tunnel.pwd}" >
+								<LocalTunnel lport="${mgmt.ssh.tunnel.local.port}" rhost="${mgmt.host}" rport="${mgmt.port}"/>
+								<sequential>
+									<echo message="Running curl with user ${mgr.target.user.name} and pw ********* against ${mgmt.prot}://${mgmt.host}:${mgmt.port}" />
+									<echo message="  ** ${curl.exec} --data-binary @${input-file} ${mgmt.prot}://${mgmt.host}:${mgmt.port}/service/mgmt/current -k -u ${mgr.target.user.name}:******* -o${output-file}" />
+									
+									<exec executable="${curl.exec}">
+										<arg value="--data-binary" />
+										<arg value="@${input-file}" />
+										<arg value="${mgmt.prot}://localhost:${mgmt.ssh.tunnel.local.port}/service/mgmt/current" />
+										<arg value="--insecure" />
+										<arg value="-u" />
+										<arg value="${mgr.target.user.name}:${mgr.target.password.value}" />
+										<arg value="-o${output-file}" />
+									</exec>
+								</sequential>
+							</sshsession>
+						</then>
+						<else>
+							<echo message="Running curl with user ${mgr.target.user.name} and pw ********* against ${mgmt.prot}://${mgmt.host}:${mgmt.port}" />
+							<echo message="  ** ${curl.exec} --data-binary @${input-file} ${mgmt.prot}://${mgmt.host}:${mgmt.port}/service/mgmt/current -k -u ${mgr.target.user.name}:******* -o${output-file}" />
+							<exec executable="${curl.exec}">
+								<arg value="--data-binary" />
+								<arg value="@${input-file}" />
+								<arg value="${mgmt.prot}://${mgmt.host}:${mgmt.port}/service/mgmt/current" />
+								<arg value="--insecure" />
+								<arg value="-u" />
+								<arg value="${mgr.target.user.name}:${mgr.target.password.value}" />
+								<arg value="-o${output-file}" />
+							</exec>
+						</else>
+					</if>
 				</then>
 				<else>
 					<!-- use pure Java/Ant instead of external cURL tool -->
