@@ -160,6 +160,20 @@
 					<!-- No crypto.prefix set, define the empty filterset -->
 					<filterset id="@{filter}" />
 				</then>
+				<elseif>
+					<equals arg1="@{crypto.prefix}" arg2="device-id" />
+					<then>
+						<propertycopy name="local.crypto.cn" from="@{crypto.prefix}.cn" />
+						<!-- Define the Device Crypto Filter -->
+						<filterset id="@{filter}" onmissingfiltersfile="ignore">
+							<!-- Specific Device Crypto -->
+							<filter token="crypto.cn" value="${local.crypto.cn}" />
+							<filter token="crypto.object.name" value="device-id" />
+							<!-- Common Device Crypto -->
+							<filtersfile file="${swat.dp.infra}/config/device-crypto.properties" />
+						</filterset>
+					</then>
+				</elseif>
 				<else>
 					<propertycopy name="local.crypto.cn" from="@{crypto.prefix}.cn" />
 					<if>
