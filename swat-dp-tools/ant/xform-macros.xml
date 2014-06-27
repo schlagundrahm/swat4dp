@@ -572,4 +572,29 @@
 		</sequential>
 	</macrodef>
 
+	<!-- ================================= 
+          macrodef: remove-empty-elements-macro 
+         ================================= -->
+	<macrodef name="remove-empty-elements-macro">
+		<attribute name="src-dir" />
+		<attribute name="dst-dir" default="@{src-dir}/../cleanup"/>
+		<attribute name="file-extension" default=".xcfg" />
+		<sequential>
+			<echo message="Remove configuration elements that have an empty name attribute ..." />
+			<delete dir="@{dst-dir}" failonerror="false" />
+			<mkdir dir="@{dst-dir}" />
+			<xslt processor="trax"
+			      basedir="@{src-dir}"
+			      style="${swat.dp.tools}/soma/xsl/remove-empty-elements.xsl"
+			      destdir="@{dst-dir}"
+			      extension="@{file-extension}"
+			      classpathref="swat.dp.tools.classpath">
+				<factory name="net.sf.saxon.TransformerFactoryImpl" />
+			</xslt>
+			<copy todir="@{src-dir}" filtering="false" verbose="false" overwrite="true">
+				<fileset dir="@{dst-dir}" excludesfile="${binary.excludes}" includes="**/*@{file-extension}" />
+			</copy>
+			<delete dir="@{dst-dir}" failonerror="false" />
+		</sequential>
+	</macrodef>
 </project>
