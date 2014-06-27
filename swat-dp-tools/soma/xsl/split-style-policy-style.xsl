@@ -93,7 +93,6 @@
             <xsl:result-document method="xml" href="{$serviceName}-30-waf-request-{$index}.xcfg" omit-xml-declaration="yes">
                 <datapower-configuration version="3">
                     <xsl:copy-of select="../../../../export-details" />
-                    
                     <xsl:variable name="nonxml-rulename" select="/datapower-configuration/configuration/WebAppRequest[@name=$rulename]/NonXMLRule[@class='StylePolicyRule']/text()" />
                     <xsl:variable name="xml-rulename" select="/datapower-configuration/configuration/WebAppRequest[@name=$rulename]/XMLRule[@class='StylePolicyRule']/text()" />
                     <xsl:message>
@@ -125,7 +124,6 @@
                         </xsl:for-each>
                         <xsl:copy-of select="../../../StylePolicyRule[@name=$nonxml-rulename]" />
                         <xsl:copy-of select="../../../StylePolicyRule[@name=$xml-rulename]" />
-                        
                         <xsl:copy-of select="../../../WebAppRequest[@name=$rulename]" />
                     </xsl:element>
                 </datapower-configuration>
@@ -138,9 +136,8 @@
             <xsl:result-document method="xml" href="{$serviceName}-30-waf-response-{$index}.xcfg" omit-xml-declaration="yes">
                 <datapower-configuration version="3">
                     <xsl:copy-of select="../../../../export-details" />
-                    
-                    <xsl:variable name="nonxml-rulename" select="/datapower-configuration/configuration/WebAppRequest[@name=$rulename]/NonXMLRule[@class='StylePolicyRule']/text()" />
-                    <xsl:variable name="xml-rulename" select="/datapower-configuration/configuration/WebAppRequest[@name=$rulename]/XMLRule[@class='StylePolicyRule']/text()" />
+                    <xsl:variable name="nonxml-rulename" select="/datapower-configuration/configuration/WebAppResponse[@name=$rulename]/NonXMLRule[@class='StylePolicyRule']/text()" />
+                    <xsl:variable name="xml-rulename" select="/datapower-configuration/configuration/WebAppResponse[@name=$rulename]/XMLRule[@class='StylePolicyRule']/text()" />
                     <xsl:message>
                         <xsl:value-of select="concat('NonXMLRule = ', $nonxml-rulename)" />
                         <xsl:value-of select="concat('XMLRule = ', $xml-rulename)" />
@@ -170,7 +167,6 @@
                         </xsl:for-each>
                         <xsl:copy-of select="../../../StylePolicyRule[@name=$nonxml-rulename]" />
                         <xsl:copy-of select="../../../StylePolicyRule[@name=$xml-rulename]" />
-                        
                         <xsl:copy-of select="../../../WebAppResponse[@name=$rulename]" />
                     </xsl:element>
                 </datapower-configuration>
@@ -196,30 +192,6 @@
                             <xsl:copy-of select="../../StylePolicyAction[@name=$actname]" />
                         </xsl:for-each>
                         <xsl:copy-of select="../../../StylePolicyRule[@name=$rulename]" />
-                    </xsl:element>
-                </datapower-configuration>
-            </xsl:result-document>
-        </xsl:for-each>
-        <!-- WAF Non-XML Processing Rule (StylePolicyRule) -->
-        <xsl:for-each select="datapower-configuration/configuration/*/NonXMLRuleFOOBAR[@class='StylePolicyRule']">
-            <xsl:variable name="index" select="99 + position()" />
-            <xsl:variable name="rulename" select="text()" />
-            <xsl:result-document method="xml" href="{$serviceName}-30-waf-non-xml-processing.xcfg" omit-xml-declaration="yes">
-                <datapower-configuration version="3">
-                    <xsl:copy-of select="../../../../export-details" />
-                    <xsl:element name="configuration">
-                        <xsl:attribute name="domain"><xsl:value-of select="/datapower-configuration/configuration/@domain" /></xsl:attribute>
-                        <xsl:for-each select="../../StylePolicyRule[@name=$rulename]/Actions">
-                            <xsl:variable name="actname" select="text()" />
-                            <xsl:if test="../../StylePolicyAction[@name=$actname]/Type/text() = 'conditional'">
-                                <xsl:for-each select="../../StylePolicyAction[@name=$actname]/Condition">
-                                    <xsl:variable name="condname" select="ConditionAction/text()" />
-                                    <xsl:copy-of select="../../StylePolicyAction[@name=$condname]" />
-                                </xsl:for-each>
-                            </xsl:if>
-                            <xsl:copy-of select="../../StylePolicyAction[@name=$actname]" />
-                        </xsl:for-each>
-                        <xsl:copy-of select="../../StylePolicyRule[@name=$rulename]" />
                     </xsl:element>
                 </datapower-configuration>
             </xsl:result-document>
