@@ -142,6 +142,10 @@
 			                       style="${split-objects-style}"
 			                       output="${split-dir}/${xcfg-files-prefix}-26-name-value-profiles.xcfg"
 			                       objects="'${svc.26.objects}'" />
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-objects-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-28-monitors.xcfg"
+			                       objects="'${svc.28.objects}'" />
 
 			<!-- Now split away all style-rules, and separate them out, one by one -->
 			<extract-objects-macro input="${export-filtered-file}"
@@ -177,8 +181,8 @@
 			                       objects="'${svc.60.objects}'" />
 			<extract-objects-macro input="${export-filtered-file}"
 			                       style="${split-objects-style}"
-			                       output="${split-dir}/${xcfg-files-prefix}-65-monitors.xcfg"
-			                       objects="'${svc.65.objects}'" />
+			                       output="${split-dir}/${xcfg-files-prefix}-70-error-policy.xcfg"
+			                       objects="'${svc.70.objects}'" />
 			<extract-objects-macro input="${export-filtered-file}"
 			                       style="${split-objects-style}"
 			                       output="${split-dir}/${xcfg-files-prefix}-80-service.xcfg"
