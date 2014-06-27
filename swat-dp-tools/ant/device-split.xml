@@ -108,7 +108,7 @@
 			                       objects="'${dev.04.objects}'" />
 			<extract-objects-macro input="${export-filtered-file}"
 			                       style="${split-device-objects-style}"
-			                       output="${split-dir}/${xcfg-files-prefix}-05-snmp.xcfg"
+			                       output="${split-dir}/${xcfg-files-prefix}-05-domain.xcfg"
 			                       objects="'${dev.05.objects}'" />
 			<extract-objects-macro input="${export-filtered-file}"
 			                       style="${split-device-objects-style}"
@@ -132,6 +132,10 @@
 			                       objects="'${dev.10.objects}'" />
 			<extract-objects-macro input="${export-filtered-file}"
 			                       style="${split-device-objects-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-15-lbg.xcfg"
+			                       objects="'${dev.15.objects}'" />
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-device-objects-style}"
 			                       output="${split-dir}/${xcfg-files-prefix}-20-log.xcfg"
 			                       objects="'${dev.20.objects}'" />
 			<extract-objects-macro input="${export-filtered-file}"
@@ -142,10 +146,7 @@
 			                       style="${split-device-objects-style}"
 			                       output="${split-dir}/${xcfg-files-prefix}-40-mgmt.xcfg"
 			                       objects="'${dev.40.objects}'" />
-			<extract-objects-macro input="${export-filtered-file}"
-			                       style="${split-device-objects-style}"
-			                       output="${split-dir}/${xcfg-files-prefix}-50-lbg.xcfg"
-			                       objects="'${dev.50.objects}'" />
+			<!-- dev.50.objects -->
 			<extract-objects-macro input="${export-filtered-file}"
 			                       style="${split-device-objects-style}"
 			                       output="${split-dir}/${xcfg-files-prefix}-60-slm.xcfg"
@@ -160,7 +161,7 @@
 			                       objects="'${dev.75.objects}'" />
 			<extract-objects-macro input="${export-filtered-file}"
 			                       style="${split-device-objects-style}"
-			                       output="${split-dir}/${xcfg-files-prefix}-80-domain.xcfg"
+			                       output="${split-dir}/${xcfg-files-prefix}-80-snmp.xcfg"
 			                       objects="'${dev.80.objects}'" />
 
 			<!-- And now split away the uncategorized objects -->
