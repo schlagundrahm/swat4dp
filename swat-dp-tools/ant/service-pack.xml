@@ -169,6 +169,9 @@
 			<!-- Remove temporarily needed pws.filter.file -->
 			<delete file="${pws.filter.file}" />
 			
+			<!-- Remove empty elements -->
+			<remove-empty-elements-macro src-dir="${xcfg-dir}" />
+			
 			<!-- run schema validation on xcfg files -->
 			<validate-config-macro source-dir="${xcfg-dir}" />
 
