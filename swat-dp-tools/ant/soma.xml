@@ -143,7 +143,6 @@
 			<var name="local.check.response" value="@{check.response}" />
 			<var name="local.device" value="@{device}" />
 			<var name="mgr.target.password.value.temp" value="notset" />
-			
 			<!-- Deploy for all requests -->
 			<echo message="Running requests @{soma.requests} on device @{device}." />
 			<for list="@{soma.requests}"
