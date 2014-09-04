@@ -100,7 +100,7 @@
 
 					<echo message="Step 1b: We see the object list in the common project, copy it over" />
 					<copy tofile="dist/object-list/common-import-object-list.xml" overwrite="true" verbose="true">
-						<fileset dir="${swat.current.service.common.home}/dist/object-list/${swat.env.name}"
+						<fileset dir="${swat.current.service.common.home}/dist/object-list/${swat.env.short}"
 						         includes="import-object-list.xml" />
 					</copy>
 
