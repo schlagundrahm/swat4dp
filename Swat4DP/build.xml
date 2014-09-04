@@ -113,7 +113,7 @@
 	<target name="21-domain-services-export"
 	        depends="declare,load-domain-props"
 	        description="running domain-services export">
-		<foreach target="31-service-export"
+		<foreach target="32-service-export"
 		         list="${swat.service.list}"
 		         delimiter=","
 		         param="mgr.target.service.name"
@@ -127,7 +127,7 @@
 	<target name="22-domain-services-pack2compare"
 	        depends="declare,load-domain-props"
 	        description="running domain-services pack2compare">
-		<foreach target="32-service-pack2compare"
+		<foreach target="33-service-pack2compare"
 		         list="${swat.service.list}"
 		         delimiter=","
 		         param="mgr.target.service.name"
@@ -141,7 +141,7 @@
 	<target name="23-domain-services-object-list-create"
 	        depends="declare,load-domain-props"
 	        description="running to create the object list for domain-services">
-		<foreach target="33-service-object-list-create"
+		<foreach target="34-service-object-list-create"
 		         list="${swat.service.list}"
 		         delimiter=","
 		         param="mgr.target.service.name"
@@ -521,7 +521,7 @@
 				                prefix="sanitizepw">
 					<filterchain>
 						<linecontains>
-							<contains value=".pw." />
+							<contains value=".pw" />
 						</linecontains>
 					</filterchain>
 				</loadproperties>
