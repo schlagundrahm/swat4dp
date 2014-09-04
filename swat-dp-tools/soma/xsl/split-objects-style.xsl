@@ -13,6 +13,8 @@
     <xsl:param name="filterObjectTypes" />
     <xsl:variable name="filterObjectTypesVar" select="$filterObjectTypes" />
     <xsl:variable name="filterObjectTypeList" select="tokenize($filterObjectTypesVar, ',')" />
+    
+    <xsl:param name="log-level" />
 
     <xsl:template match="/datapower-configuration">
         <xsl:copy>
@@ -34,13 +36,17 @@
     <xsl:template match="*[@intrinsic]" />
 
     <xsl:template match="*">
-        <xsl:message>
-            <xsl:value-of select="concat('trying to match ', local-name(), ' against ', string-join($filterObjectTypeList,','), ' ...')" />
-        </xsl:message>
-        <xsl:if test="exists(index-of($filterObjectTypeList, local-name()))">
+        <xsl:if test="number($log-level) &lt; 2" >
             <xsl:message>
-                <xsl:value-of select="concat('... found match of ', local-name(), ' within ', string-join($filterObjectTypeList,','))" />
+                <xsl:value-of select="concat('trying to match ', local-name(), ' against ', string-join($filterObjectTypeList,','), ' ...')" />
             </xsl:message>
+        </xsl:if>
+        <xsl:if test="exists(index-of($filterObjectTypeList, local-name()))">
+            <xsl:if test="number($log-level) &lt; 2" >
+                <xsl:message>
+                    <xsl:value-of select="concat('... found match of ', local-name(), ' within ', string-join($filterObjectTypeList,','))" />
+                </xsl:message>
+            </xsl:if>
             <xsl:copy-of select="." />
         </xsl:if>
     </xsl:template>

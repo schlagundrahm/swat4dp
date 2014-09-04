@@ -11,6 +11,7 @@
     <xsl:strip-space elements="*"/>
 
     <xsl:param name="importFile" />
+    <xsl:param name="log-level" />
 
     <xsl:template match="/datapower-configuration">
         <xsl:element name="datapower-configuration">
@@ -27,7 +28,9 @@
                             <xsl:message>IGNORE - Object found: <xsl:value-of select="$currentType" /> / <xsl:value-of select="$currentName" /></xsl:message>
                         </xsl:when>
                         <xsl:otherwise>
-                            <xsl:message>ORPHAN - Object not found: <xsl:value-of select="$currentType" /> / <xsl:value-of select="$currentName" /></xsl:message>
+                            <xsl:if test="number($log-level) &lt; 2" >
+                                <xsl:message>ORPHAN - Object not found: <xsl:value-of select="$currentType" /> / <xsl:value-of select="$currentName" /></xsl:message>
+                            </xsl:if>
                             <xsl:copy-of select="." />
                         </xsl:otherwise>
                     </xsl:choose>
