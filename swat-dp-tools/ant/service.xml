@@ -35,12 +35,21 @@
 			<property file="${swat.dp.devices}/config/@{device}.properties" />
 
 			<!-- Export the objects from domain -->
-			<service-export-objects-macro device="@{device}"
-			                              env="@{env}"
-			                              domain="@{domain}"
-			                              object="@{object}"
-			                              class="@{class}" />
-
+			<if>
+				<not>
+					<isset property="swat.skip.export" />
+				</not>
+				<then>
+					<service-export-objects-macro device="@{device}"
+					                              env="@{env}"
+					                              domain="@{domain}"
+					                              object="@{object}"
+					                              class="@{class}" />
+				</then>
+				<else>
+					<echo message="ATTENTION: swat.skip.export is enabled - check build.properties and comment (unset) the property." />
+				</else>
+			</if>
 			<!-- Split the export file -->
 			<service-split-objects-macro device="@{device}"
 			                             domain="@{domain}"
