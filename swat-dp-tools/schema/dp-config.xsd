@@ -175,6 +175,7 @@
 			<xsd:element name="WebSphereJMSSourceProtocolHandler" type="ConfigElement" />
 			<xsd:element name="MQFTESourceProtocolHandler" type="ConfigElement" />
 			<xsd:element name="MQSourceProtocolHandler" type="ConfigElement" />
+			<xsd:element name="POPPollerSourceProtocolHandler" type="ConfigElement" />
 			<xsd:element name="SSHServerSourceProtocolHandler" type="ConfigElement" />
 			<xsd:element name="StatelessTCPSourceProtocolHandler" type="ConfigElement" />
 			<xsd:element name="XTCProtocolHandler" type="ConfigElement" />
