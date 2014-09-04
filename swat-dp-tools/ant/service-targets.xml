@@ -160,8 +160,12 @@
 		<service-pack2compare-macro env="${mgr.target.env.name}" />
 
 		<!-- Step 2: Combine the additional .xcfg files into one export file -->
+		<pathconvert targetos="unix" property="common-xfg-path">
+			<path location="${swat.dp.customer.home}/${ant.project.name}/dist/import/${mgr.target.env.name}/xcfg/common/"/>
+		</pathconvert>
+		
 		<property name="xcfg-selection-expr"
-		          value="../../../${ant.project.name}/dist/import/${mgr.target.env.name}/xcfg/common/?select=*.xcfg" />
+		          value="file:///${common-xfg-path}/?select=*.xcfg" />
 		<echo message="Step 2: Combining the files for expression ${xcfg-selection-expr} into import.xml..." />
 		<combine-xcfg-files-macro input="${swat.dp.tools}/soma/xml/empty-config.xml"
 		                          output="dist/object-list/${mgr.target.env.name}/import.xml"
