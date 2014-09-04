@@ -175,7 +175,12 @@
 		<echoproperties prefix="dp" />
 
 		<echo message="********************************************" />
-		<echo message="USAGE:" />
+		<!-- Format path -->
+		<echo message="dp.tools.classpath :" />
+		<pathconvert pathsep="${line.separator}"
+		             property="echo.tools.classpath"
+		             refid="dp.tools.classpath" />
+		<echo message="${echo.tools.classpath}" />
 	</target>
 
 	<!-- ================================= 
@@ -485,9 +490,11 @@
 			<selectionproperty label="DataPower device :"
 			                   property="securebackup.hostname"
 			                   values="${dp.hostnames}" />
+			<textProperty label="Username : "
+			              property="securebackup.username" />
 			<textProperty label="Password : "
-			              property="securebackup.password"
-			              password="true" />
+						              property="securebackup.password"
+						              password="true" />
 			<fileSelectionProperty label="Seclect target directory : "
 			                       property="securebackup.targetdir"
 			                       directoryChooser="true"
@@ -509,7 +516,8 @@
 
 		<securebackup targetBaseDir="${securebackup.targetdir}"
 		              hostname="${securebackup.hostname}"
-		              password="${securebackup.password}"
+		              username="${securebackup.username}"
+					  password="${securebackup.password}"
 		              includeRAID="${securebackup.includeraid}"
 		              forceOverwrite="${securebackup.forceoverwrite}" />
 	</target>
@@ -1030,6 +1038,8 @@
 		<pathconvert dirsep="/"
 		             property="converted.sourcedir"
 		             refid="source.path" />
+		
+		<echo message="converted.sourcedir = ${converted.sourcedir}" />
 
 		<xslt in="${maven.build.resourceDir.0}/xml/dummy.xml"
 		      out="${log.analyzer.targetdir}/loganalysis.csv"
@@ -1039,7 +1049,7 @@
 			<factory name="net.sf.saxon.TransformerFactoryImpl" />
 			<param name="pattern" expression="${log.analyzer.regex}" />
 			<param name="logFiles"
-			       expression="file://${converted.sourcedir}/?select=${log.analyzer.filepattern};recurse=no" />
+			       expression="file:///${converted.sourcedir}/?select=${log.analyzer.filepattern};recurse=no" />
 		</xslt>
 	</target>
 
