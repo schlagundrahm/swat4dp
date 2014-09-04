@@ -211,24 +211,24 @@
 			</filterset>
 
 			<echo message="Copying filtered content..." />
-			<copy todir="${basedir}/../${service.project.name}" filtering="true" verbose="true" overwrite="true">
+			<copy todir="${swat.dp.customer.home}/${service.project.name}" filtering="true" verbose="true" overwrite="true">
 				<fileset dir="content">
 					<exclude name="config/export/service-export-object-list.xml"/>
 				</fileset>
 				<filterset refid="content.filter" />
 			</copy>
 			<echo message="Copying unfiltered content..." />
-			<copy todir="${basedir}/../${service.project.name}" filtering="false" verbose="true" overwrite="true">
+			<copy todir="${swat.dp.customer.home}/${service.project.name}" filtering="false" verbose="true" overwrite="true">
 				<fileset dir="content">
 					<include name="config/export/service-export-object-list.xml"/>
 				</fileset>
 			</copy>
 			<!-- Correct the environment properties file by name -->
 			<echo message="Renaming resources..." />
-			<move file="${basedir}/../${service.project.name}/config/env.properties"
-			      tofile="${basedir}/../${service.project.name}/config/${env.name}.properties" />
-			<move file="${basedir}/../${service.project.name}/master/common/local/service"
-			      tofile="${basedir}/../${service.project.name}/master/common/local/${service.name}" />
+			<move file="${swat.dp.customer.home}/${service.project.name}/config/env.properties"
+			      tofile="${swat.dp.customer.home}/${service.project.name}/config/${swat.env.short}.properties" />
+			<move file="${swat.dp.customer.home}/${service.project.name}/master/common/local/service"
+			      tofile="${swat.dp.customer.home}/${service.project.name}/master/common/local/${service.name}" />
 		</sequential>
 	</macrodef>
 
