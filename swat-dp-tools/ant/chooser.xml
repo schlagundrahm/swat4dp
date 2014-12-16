@@ -263,7 +263,7 @@
 			<isset property="swat.deployment-policy.list" />
 			<then>
 				<!-- At least one policy is defined, give the choice -->
-				<antform title="Swat4DP - Deployment Policy Selection"
+				<antform title="Swat4DP - Deployment Policy Selection [${service.name}]"
 				         stylesheet="${swat.styles.dir}/style.properties"
 				         icon="${swat.styles.dir}/favicon.png">
 					<label>Choose the Target Deployment Policy.</label>
