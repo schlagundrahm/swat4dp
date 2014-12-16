@@ -163,6 +163,7 @@
 						<factory name="net.sf.saxon.TransformerFactoryImpl" />
 						<param name="serviceName" expression="@{service}" />
 						<param name="serviceObjectName" expression="@{object}" />
+						<param name="log-level" expression="${swat.log.level}" />
 					</xslt>
 				</then>
 			</if>
