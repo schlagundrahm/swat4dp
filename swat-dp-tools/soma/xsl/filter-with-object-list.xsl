@@ -25,11 +25,11 @@
                     <xsl:variable name="currentObjectFound" select="count(document($importFile)/import-objects/object[@type=$currentType and @name=$currentName])" />
                     <xsl:choose>
                         <xsl:when test="$currentObjectFound > 0">
-                            <xsl:message>IGNORE - Object found: <xsl:value-of select="$currentType" /> / <xsl:value-of select="$currentName" /></xsl:message>
+                            <xsl:message>REMOVE - Object: <xsl:value-of select="$currentType" /> / <xsl:value-of select="$currentName" /></xsl:message>
                         </xsl:when>
                         <xsl:otherwise>
                             <xsl:if test="number($log-level) &lt; 2" >
-                                <xsl:message>ORPHAN - Object not found: <xsl:value-of select="$currentType" /> / <xsl:value-of select="$currentName" /></xsl:message>
+                                <xsl:message>COPY - Object: <xsl:value-of select="$currentType" /> / <xsl:value-of select="$currentName" /></xsl:message>
                             </xsl:if>
                             <xsl:copy-of select="." />
                         </xsl:otherwise>
