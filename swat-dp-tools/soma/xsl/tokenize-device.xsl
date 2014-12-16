@@ -823,6 +823,126 @@
 		</xsl:element>
 	</xsl:template>
 
+	<!-- Link Aggregation -->
+	<xsl:template match="LinkAggregation">
+		<xsl:variable name="index">
+			<xsl:value-of select="position()" />
+		</xsl:variable>
+		<xsl:variable name="label">
+			<xsl:value-of select="@name" />
+		</xsl:variable>
+
+		<xsl:element name="{name()}">
+			<xsl:copy-of select="document('')/*/namespace::*[name()='env']" />
+			<xsl:copy-of select="document('')/*/namespace::*[name()='dp']" />
+			<xsl:copy-of select="@*" />
+			<xsl:for-each select="*">
+				<xsl:choose>
+					<xsl:when test="local-name(.)='UserSummary'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('linkaggregate.',$label,'.summary')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='IPAddress'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('linkaggregate.',$label,'.ip')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Type'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('linkaggregate.',$label,'.type')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='DefaultGateway'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('linkaggregate.',$label,'.gw')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='StaticRoutes'">
+						<xsl:call-template name="set-static-routes">
+							<xsl:with-param name="int-prefix">
+								<xsl:value-of select="concat('linkaggregate.',$label)" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Group'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('linkaggregate.',$label,'.standby.group')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='VirtualIP'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('linkaggregate.',$label,'.standby.vip')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Preempt'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('linkaggregate.',$label,'.standby.preempt')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Priority'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('linkaggregate.',$label,'.standby.priority')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Authentication'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('linkaggregate.',$label,'.standby.authentication')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='AuxVirtualIP'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('linkaggregate.',$label,'.standby.vip.aux')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='SelfBalance'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('linkaggregate.',$label,'.standby.selfbalancing')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Links'">
+						<xsl:call-template name="set-attribute-and-value-token">
+							<xsl:with-param name="attrname">
+								<xsl:value-of select="string('class')" />
+							</xsl:with-param>
+							<xsl:with-param name="attrkey">
+								<xsl:value-of select="concat('linkaggregate.',$label,'.link',count(./preceding-sibling::Links)+1,'.class')" />
+							</xsl:with-param>
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('linkaggregate.',$label,'.link',count(./preceding-sibling::Links)+1,'.name')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:copy-of select="." />
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:for-each>
+		</xsl:element>
+	</xsl:template>
+	
 	<!-- Ethernet Interfaces -->
 	<xsl:template match="EthernetInterface">
 		<xsl:variable name="index">
@@ -838,6 +958,13 @@
 			<xsl:copy-of select="@*" />
 			<xsl:for-each select="*">
 				<xsl:choose>
+					<xsl:when test="local-name(.)='LinkAggMode'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ethernet.',$label,'.linkaggmode')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
 					<xsl:when test="local-name(.)='IPAddress'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
@@ -1082,6 +1209,25 @@
 			<xsl:value-of select="@*[name()=$name]" />
 		</xsl:message>
 		<xsl:element name="{name()}">
+			<xsl:value-of select="concat('@',$key,'@')" />
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template name="set-attribute-and-value-token">
+		<xsl:param name="attrname"></xsl:param>
+		<xsl:param name="attrkey"></xsl:param>
+		<xsl:param name="key"></xsl:param>
+		<xsl:message>
+			<xsl:value-of select="concat($key,'=',text())" />
+		</xsl:message>
+		<xsl:message>
+			<xsl:value-of select="concat($attrkey,'=')" />
+			<xsl:value-of select="@*[name()=$attrname]" />
+		</xsl:message>
+		<xsl:element name="{name()}">
+			<xsl:attribute name="{$attrname}">
+				<xsl:value-of select="concat('@',$attrkey,'@')" />
+			</xsl:attribute>
 			<xsl:value-of select="concat('@',$key,'@')" />
 		</xsl:element>
 	</xsl:template>
