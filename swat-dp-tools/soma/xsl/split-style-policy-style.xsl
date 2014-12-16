@@ -9,6 +9,7 @@
     
     <xsl:param name="serviceName" />
     <xsl:param name="serviceObjectName" />
+    <xsl:param name="log-level" />
 
     <xsl:variable name="serviceNameVar" select="$serviceName" />
 
@@ -16,9 +17,54 @@
     <xsl:variable name="serviceObjectNameLengthVar" select="string-length($serviceObjectNameVar)" />
 
     <xsl:template match="/">
+        <!-- called  rules -->
+        <xsl:for-each select="datapower-configuration/configuration/StylePolicyRule[Direction='rule']">
+            <xsl:variable name="index" select="99 + position()" />
+            <xsl:variable name="rulename" select="@name" />
+            <xsl:if test="number($log-level) &lt; 2" >
+                <xsl:message>
+                    <xsl:value-of select="concat('processing rule ', $rulename, ' ...')" />
+                </xsl:message>
+            </xsl:if>
+            <xsl:result-document method="xml" href="{$serviceName}-29-{$index}-{$rulename}.xcfg" omit-xml-declaration="yes">
+                <datapower-configuration version="3">
+                    <xsl:copy-of select="../../export-details" />
+                    <xsl:element name="configuration">
+                        <xsl:attribute name="domain"><xsl:value-of select="/datapower-configuration/configuration/@domain" /></xsl:attribute>
+                        <xsl:for-each select="./Actions">
+                            <xsl:variable name="actname" select="text()" />
+                            <xsl:if test="number($log-level) &lt; 2" >
+                                <xsl:message>
+                                    <xsl:value-of select="concat('adding action ', $actname, ' ...')" />
+                                </xsl:message>
+                            </xsl:if>
+                            <xsl:if test="../../StylePolicyAction[@name=$actname]/Type/text() = 'conditional'">
+                                <xsl:for-each select="../../StylePolicyAction[@name=$actname]/Condition">
+                                    <xsl:variable name="condname" select="ConditionAction/text()" />
+                                    <xsl:if test="number($log-level) &lt; 2" >
+                                        <xsl:message>
+                                            <xsl:value-of select="concat('adding condition ', $condname, ' ...')" />
+                                        </xsl:message>
+                                    </xsl:if>
+                                    <xsl:copy-of select="../../StylePolicyAction[@name=$condname]" />
+                                </xsl:for-each>
+                            </xsl:if>
+                            <xsl:copy-of select="../../StylePolicyAction[@name=$actname]" />
+                        </xsl:for-each>
+                        <xsl:copy-of select="." />
+                    </xsl:element>
+                </datapower-configuration>
+            </xsl:result-document>
+        </xsl:for-each>
+        <!-- MPGW/XMLFW Policies -->
         <xsl:for-each select="datapower-configuration/configuration/StylePolicy/PolicyMaps/Rule">
             <xsl:variable name="index" select="99 + position()" />
             <xsl:variable name="rulename" select="text()" />
+            <xsl:if test="number($log-level) &lt; 2" >
+                <xsl:message>
+                    <xsl:value-of select="concat('processing rule ', $rulename, ' ...')" />
+                </xsl:message>
+            </xsl:if>
             <xsl:result-document method="xml" href="{$serviceName}-30-{$index}-{substring($rulename,$serviceObjectNameLengthVar+2)}.xcfg" omit-xml-declaration="yes">
                 <datapower-configuration version="3">
                     <xsl:copy-of select="../../../../export-details" />
@@ -26,10 +72,20 @@
                         <xsl:attribute name="domain"><xsl:value-of select="/datapower-configuration/configuration/@domain" /></xsl:attribute>
                         <xsl:for-each select="../../../StylePolicyRule[@name=$rulename]/Actions">
                             <xsl:variable name="actname" select="text()" />
+                            <xsl:if test="number($log-level) &lt; 2" >
+                                <xsl:message>
+                                    <xsl:value-of select="concat('adding action ', $actname, ' ...')" />
+                                </xsl:message>
+                            </xsl:if>
                             <xsl:if test="../../StylePolicyAction[@name=$actname]/Type/text() = 'conditional'">
                                 <xsl:for-each select="../../StylePolicyAction[@name=$actname]/Condition">
                                     <xsl:variable name="condname" select="ConditionAction/text()" />
+                                    <xsl:if test="number($log-level) &lt; 2" >
+                                        <xsl:message>
+                                            <xsl:value-of select="concat('adding condition ', $condname, ' ...')" />
+                                        </xsl:message>
                                     <xsl:copy-of select="../../StylePolicyAction[@name=$condname]" />
+                                </xsl:if>
                                 </xsl:for-each>
                             </xsl:if>
                             <xsl:copy-of select="../../StylePolicyAction[@name=$actname]" />
@@ -39,6 +95,7 @@
                 </datapower-configuration>
             </xsl:result-document>
         </xsl:for-each>
+        <!-- WS-Proxy Policies -->
         <xsl:for-each select="datapower-configuration/configuration/WSStylePolicy/PolicyMaps/Rule">
             <xsl:variable name="index" select="99 + position()" />
             <xsl:variable name="rulename" select="text()" />
