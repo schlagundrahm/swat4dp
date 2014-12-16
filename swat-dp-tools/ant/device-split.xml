@@ -146,7 +146,10 @@
 			                       style="${split-device-objects-style}"
 			                       output="${split-dir}/${xcfg-files-prefix}-40-mgmt.xcfg"
 			                       objects="'${dev.40.objects}'" />
-			<!-- dev.50.objects -->
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-device-objects-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-50-ipmi.xcfg"
+			                       objects="'${dev.50.objects}'" />
 			<extract-objects-macro input="${export-filtered-file}"
 			                       style="${split-device-objects-style}"
 			                       output="${split-dir}/${xcfg-files-prefix}-60-slm.xcfg"
