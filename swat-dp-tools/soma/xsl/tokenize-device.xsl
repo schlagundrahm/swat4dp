@@ -193,6 +193,176 @@
 			</xsl:for-each>
 		</xsl:element>
 	</xsl:template>
+	
+	<!-- IPMI Users -->
+	<xsl:template match="IPMIUser">
+		<xsl:variable name="label">
+			<xsl:value-of select="@name" />
+		</xsl:variable>
+		<xsl:variable name="index">
+			<!-- xsl:value-of select="position() - (count(../preceding-sibling::*[name()!='IPMIUser']) + 1)" /-->
+			<xsl:value-of select="position()" />
+		</xsl:variable>
+
+		<xsl:element name="{name()}">
+			<xsl:copy-of select="document('')/*/namespace::*[name()='env']" />
+			<xsl:copy-of select="document('')/*/namespace::*[name()='dp']" />
+			<xsl:copy-of select="@*[name()!='name']" />
+			<xsl:attribute name="name">
+				<xsl:call-template name="set-attribute-token">
+					<xsl:with-param name="name">
+						<xsl:value-of select="string('name')" />
+					</xsl:with-param>
+					<xsl:with-param name="key">
+						<xsl:value-of select="concat('ipmi.user.',$index,'.name')" />
+					</xsl:with-param>
+				</xsl:call-template>
+			</xsl:attribute>
+			<xsl:for-each select="*">
+				<xsl:choose>
+					<xsl:when test="local-name(.)='mAdminState'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ipmi.user.',$index,'.state')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='UserSummary'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ipmi.user.',$index,'.summary')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='UserID'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ipmi.user.',$index,'.id')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Password'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ipmi.user.',$index,'.password')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:copy-of select="." />
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:for-each>
+		</xsl:element>
+	</xsl:template>
+	
+	<!-- IPMI Lan Channel -->
+	<xsl:template match="IPMILanChannel">
+		<xsl:variable name="label">
+			<xsl:value-of select="@name" />
+		</xsl:variable>
+		
+		<xsl:element name="{name()}">
+			<xsl:copy-of select="document('')/*/namespace::*[name()='env']" />
+			<xsl:copy-of select="document('')/*/namespace::*[name()='dp']" />
+			<xsl:copy-of select="@*" />
+			<xsl:for-each select="*">
+				<xsl:choose>
+					<xsl:when test="local-name(.)='mAdminState'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('ipmi.lanchannel.state')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='UserSummary'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('ipmi.lanchannel.summary')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='MaximumPrivilegeLevel'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('ipmi.lanchannel.maxpriv')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='SolEnabled'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('ipmi.lanchannel.sol.enabled')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='SolRequiredUserPrivilegeLevel'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('ipmi.lanchannel.sol.privlevel')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='AllowedUser'">
+						<xsl:element name="{name()}">
+							<xsl:for-each select="*">
+								<xsl:choose>
+									<xsl:when test="local-name(.)='UserID'">
+										<xsl:call-template name="set-token">
+											<xsl:with-param name="key">
+												<xsl:value-of select="concat('ipmi.lanchannel.user.',count(../preceding-sibling::AllowedUser)+1,'.id')" />
+											</xsl:with-param>
+										</xsl:call-template>
+									</xsl:when>
+									<xsl:when test="local-name(.)='PrivilegeLevel'">
+										<xsl:call-template name="set-token">
+											<xsl:with-param name="key">
+												<xsl:value-of select="concat('ipmi.lanchannel.user.',count(../preceding-sibling::AllowedUser)+1,'.privlevel')" />
+											</xsl:with-param>
+										</xsl:call-template>
+									</xsl:when>
+									<xsl:when test="local-name(.)='SOLEnabled'">
+										<xsl:call-template name="set-token">
+											<xsl:with-param name="key">
+												<xsl:value-of select="concat('ipmi.lanchannel.user.',count(../preceding-sibling::AllowedUser)+1,'.sol')" />
+											</xsl:with-param>
+										</xsl:call-template>
+									</xsl:when>
+									<xsl:when test="local-name(.)='MaxSimultaneousSessions'">
+										<xsl:call-template name="set-token">
+											<xsl:with-param name="key">
+												<xsl:value-of select="concat('ipmi.lanchannel.user.',count(../preceding-sibling::AllowedUser)+1,'.maxsessions')" />
+											</xsl:with-param>
+										</xsl:call-template>
+									</xsl:when>
+									<xsl:otherwise>
+										<xsl:copy-of select="." />
+									</xsl:otherwise>
+								</xsl:choose>
+							</xsl:for-each>
+						</xsl:element>
+					</xsl:when>
+					<xsl:when test="local-name(.)='IPAddress'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('ipmi.lanchannel.ip')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='DefaultGateway'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('ipmi.lanchannel.gtw')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:copy-of select="." />
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:for-each>
+		</xsl:element>
+	</xsl:template>
 
 
 	<!-- System Settings -->
