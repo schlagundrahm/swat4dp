@@ -193,26 +193,76 @@
 					<if>
 						<isset property="mgmt.ssh.tunnel.gtw" />
 						<then>
+							<if>
+								<isset property="ssh.tunnel.pwd" />
+								<then>
+									<echo message="SSH tunnel password has been set for ${ssh.tunnel.user}]" />
+									<if>
+										<matches pattern="^\{aes\}.+" string="${ssh.tunnel.pwd}"/>
+										<then>
+											<decrypt-password-macro password.text="${ssh.tunnel.pwd}" password.property="ssh.tunnel.pwd" />
+										</then>
+									</if>
+								</then>
+								<elseif>
+									<isset property="ssh.tunnel.key" />
+									<then>
+										<echo message="using private key ${ssh.tunnel.key} for the SSH tunnel" />
+									</then>
+								</elseif>
+								<else>
+									<dialog-username-password-macro user-property="ssh.tunnel.user" pwd-property="ssh.tunnel.pwd" title="SSH Login to SSH tunnel gateway ${mgmt.ssh.tunnel.gtw}"/>
+								</else>
+							</if>
+							<fail message="No user name set for the SSH tunnel, please adjust your settings-file (${swat.dp.infra}/settings/${user.name}.properties)."
+							      unless="ssh.tunnel.user" />
+							
 							<echo message="using SSH tunnel with user ${ssh.tunnel.user} and gateway ${mgmt.ssh.tunnel.gtw} on local port ${mgmt.ssh.tunnel.local.port}" />
-							<sshsession host="${mgmt.ssh.tunnel.gtw}"
-								        username="${ssh.tunnel.user}"
-								        password="${ssh.tunnel.pwd}" >
-								<LocalTunnel lport="${mgmt.ssh.tunnel.local.port}" rhost="${mgmt.host}" rport="${mgmt.port}"/>
-								<sequential>
-									<echo message="Running curl with user ${mgr.target.user.name} and pw ********* against ${mgmt.prot}://${mgmt.host}:${mgmt.port}" />
-									<echo message="  ** ${curl.exec} --data-binary @${input-file} ${mgmt.prot}://${mgmt.host}:${mgmt.port}/service/mgmt/current -k -u ${mgr.target.user.name}:******* -o${output-file}" />
-									
-									<exec executable="${curl.exec}">
-										<arg value="--data-binary" />
-										<arg value="@${input-file}" />
-										<arg value="${mgmt.prot}://localhost:${mgmt.ssh.tunnel.local.port}/service/mgmt/current" />
-										<arg value="--insecure" />
-										<arg value="-u" />
-										<arg value="${mgr.target.user.name}:${mgr.target.password.value}" />
-										<arg value="-o${output-file}" />
-									</exec>
-								</sequential>
-							</sshsession>
+							<if>
+								<isset property="ssh.tunnel.pwd" />
+								<then>
+									<sshsession host="${mgmt.ssh.tunnel.gtw}"
+										        username="${ssh.tunnel.user}"
+										        password="${ssh.tunnel.pwd}">
+										<LocalTunnel lport="${mgmt.ssh.tunnel.local.port}" rhost="${mgmt.host}" rport="${mgmt.port}"/>
+										<sequential>
+											<echo message="Running curl with user ${mgr.target.user.name} and pw ********* against ${mgmt.prot}://${mgmt.host}:${mgmt.port}" />
+											<echo message="  ** ${curl.exec} --data-binary @${input-file} ${mgmt.prot}://${mgmt.host}:${mgmt.port}/service/mgmt/current -k -u ${mgr.target.user.name}:******* -o${output-file}" />
+											
+											<exec executable="${curl.exec}">
+												<arg value="--data-binary" />
+												<arg value="@${input-file}" />
+												<arg value="${mgmt.prot}://localhost:${mgmt.ssh.tunnel.local.port}/service/mgmt/current" />
+												<arg value="--insecure" />
+												<arg value="-u" />
+												<arg value="${mgr.target.user.name}:${mgr.target.password.value}" />
+												<arg value="-o${output-file}" />
+											</exec>
+										</sequential>
+									</sshsession>
+								</then>
+								<else>
+									<sshsession host="${mgmt.ssh.tunnel.gtw}"
+										        username="${ssh.tunnel.user}"
+										        keyfile="${ssh.tunnel.key}">
+										<LocalTunnel lport="${mgmt.ssh.tunnel.local.port}" rhost="${mgmt.host}" rport="${mgmt.port}"/>
+										<sequential>
+											<echo message="Running curl with user ${mgr.target.user.name} and pw ********* against ${mgmt.prot}://${mgmt.host}:${mgmt.port}" />
+											<echo message="  ** ${curl.exec} --data-binary @${input-file} ${mgmt.prot}://${mgmt.host}:${mgmt.port}/service/mgmt/current -k -u ${mgr.target.user.name}:******* -o${output-file}" />
+											
+											<exec executable="${curl.exec}">
+												<arg value="--data-binary" />
+												<arg value="@${input-file}" />
+												<arg value="${mgmt.prot}://localhost:${mgmt.ssh.tunnel.local.port}/service/mgmt/current" />
+												<arg value="--insecure" />
+												<arg value="-u" />
+												<arg value="${mgr.target.user.name}:${mgr.target.password.value}" />
+												<arg value="-o${output-file}" />
+											</exec>
+										</sequential>
+									</sshsession>
+								</else>
+							</if>
 						</then>
 						<else>
 							<echo message="Running curl with user ${mgr.target.user.name} and pw ********* against ${mgmt.prot}://${mgmt.host}:${mgmt.port}" />
