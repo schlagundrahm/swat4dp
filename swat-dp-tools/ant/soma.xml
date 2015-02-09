@@ -327,7 +327,7 @@
 							<!-- verify response properties -->
 							<verify-soma-response-macro src-file="dist/@{tmp.dir}/@{soma.request}-response.properties"
 							                            result-property="failure-properties"
-							                            pattern="&lt;error-log&gt;|[^-_]error[^-_]+|ERROR|failed|failure|cannot|:fault|malformed" />
+							                            pattern="&lt;error-log&gt;|[^-_\.]error[^-_\.]+|ERROR|failed|failure|cannot|:fault|malformed" />
 						</else>
 					</if>
 
