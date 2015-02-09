@@ -1135,10 +1135,24 @@
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
+					<xsl:when test="local-name(.)='UseDHCP'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ethernet.',$label,'.usedhcp')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
 					<xsl:when test="local-name(.)='IPAddress'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
 								<xsl:value-of select="concat('ethernet.',$label,'.ip')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='SecondaryAddress'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ethernet.',$label,'.ip.secondary.',count(./preceding-sibling::SecondaryAddress)+1)" />
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
