@@ -137,15 +137,6 @@
 		<fail unless="service.name"
 		      message="Could not read service.name property from ${clone.source.dir}/build.properties" />
 
-		<!-- Copy and filter the template content into the target project (local workspace) -->
-		<filterset id="clone.filter" onmissingfiltersfile="ignore">
-			<filter token="swat.customer" value="${swat.customer}" />
-			<filter token="service.name" value="${clone.target.service.name}" />
-			<!--  TODO Do you really need the short names here? -->
-			<filter token="zone.name" value="${swat.zone.short}" />
-			<filter token="domain.name" value="${swat.domain.short}" />
-		</filterset>
-
 		<echo message="Copying source content..." />
 		<copy todir="${clone.target.dir}" filtering="true" verbose="true" overwrite="false">
 			<fileset dir="${clone.source.dir}" defaultexcludes="false">
@@ -158,18 +149,25 @@
 				<exclude name="**/tmp/**/*" />
 				<exclude name="**/*.tmp" />
 				<exclude name="**/*.bak" />
+				<exclude name="**/master/**/*.*" />
+				<exclude name="**/xcfg/**/*.*" />
 			</fileset>
-			<filterset refid="clone.filter" />
+			<filterchain>
+				<tokenfilter>
+					<replaceregex pattern="^zone.name=.*$" replace="zone.name=${swat.zone.short}" />
+					<replaceregex pattern="^service.summary=(.*)$" replace="service.summary=Clone of \1" />
+				</tokenfilter>
+			</filterchain>
 		</copy>
 
 		<echo message="Renaming files by replacing pattern '${service.name}' with '${clone.target.service.name}' ..." />
-		<move todir="${clone.target.dir}" verbose="true" overwrite="false">
-			<fileset dir="${clone.target.dir}">
+		<copy todir="${clone.target.dir}" filtering="false" verbose="true" overwrite="false">
+			<fileset dir="${clone.source.dir}">
 				<include name="**/master/**/*.*" />
 				<include name="**/xcfg/**/*.*" />
 			</fileset>
 			<regexpmapper from="(.*)${service.name}(.*)" to="\1${clone.target.service.name}\2" />
-		</move>
+		</copy>
 
 		<echo message="Replacing service.name in build.properties ..." />
 		<replaceregexp byline="true">
@@ -223,6 +221,9 @@
 					<include name="config/export/service-export-object-list.xml"/>
 				</fileset>
 			</copy>
+			
+			<copy todir="${swat.dp.customer.home}/${service.project.name}/" file="content/.cvsignore" verbose="true" overwrite="true" />
+			
 			<!-- Correct the environment properties file by name -->
 			<echo message="Renaming resources..." />
 			<move file="${swat.dp.customer.home}/${service.project.name}/config/env.properties"
