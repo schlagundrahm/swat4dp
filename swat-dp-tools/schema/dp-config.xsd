@@ -94,6 +94,7 @@
 			<xsd:element name="InteropService" type="ConfigElement" />
 			<xsd:element name="EthernetInterface" type="ConfigElement" />
 			<xsd:element name="VLANInterface" type="ConfigElement" />
+			<xsd:element name="LinkAggregation" type="ConfigElement" />
 			<xsd:element name="IPMILanChannel" type="ConfigElement" />
 			<xsd:element name="IPMIUser" type="ConfigElement" />
 			<xsd:element name="IPMulticast" type="ConfigElement" />
@@ -227,6 +228,7 @@
 		<xsd:attribute name="intrinsic" type="xsd:boolean" />
 		<xsd:attribute name="read-only" type="xsd:boolean" />
 		<xsd:attribute name="external" type="xsd:boolean" />
+		<xsd:attribute name="locked" type="xsd:boolean" />
 	</xsd:attributeGroup>
 
 
