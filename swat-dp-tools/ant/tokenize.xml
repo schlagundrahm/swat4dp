@@ -52,6 +52,7 @@
 			         encoding="UTF-8">
 				<fileset dir="${src-dir}" id="xcfg">
 					<include name="*.xcfg" />
+					<exclude name="temp*.xcfg" />
 					<exclude name="*-intrinsic.xcfg" />
 				</fileset>
 
