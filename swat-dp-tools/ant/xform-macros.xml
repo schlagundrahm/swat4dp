@@ -450,6 +450,28 @@
 		</sequential>
 	</macrodef>
 
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: tokenize-service-config-macro          
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="tokenize-service-config-macro">
+		<attribute name="src-dir" />
+		<attribute name="dst-dir" default="@{src-dir}/../tokenized"/>
+		<attribute name="file-extension" default=".xcfg" />
+		<sequential>
+			<!-- reorder attributes for manual comparison -->
+			<echo message="Replace configuration values in a service export with appropriate tokens (see @{dst-dir}) and print the properties to the console ..." />
+			<delete dir="@{dst-dir}" failonerror="false" />
+			<mkdir dir="@{dst-dir}" />
+			<xslt processor="trax"
+			      basedir="@{src-dir}"
+			      style="${swat.dp.tools}/soma/xsl/tokenize-service.xsl"
+			      destdir="@{dst-dir}"
+			      extension="@{file-extension}"
+			      classpathref="swat.dp.tools.classpath">
+				<factory name="net.sf.saxon.TransformerFactoryImpl" />
+			</xslt>
+		</sequential>
+	</macrodef>
 
 	<!-- = = = = = = = = = = = = = = = = =
           macrodef: join-vars-macro          
