@@ -124,18 +124,6 @@
 		                      service="${service.name}"
 		                      object="${export.service.object.name}"
 		                      class="${service.object.class}" />
-
-		<if>
-			<equals arg1="${export.tokenize.config}" arg2="true" />
-			<then>
-				<tokenize-configuration-macro env="${mgr.target.env.name}"
-				                              device="${export.device.name}"
-				                              domain="${domain.name}"
-				                              service="${service.name}"
-				                              object="${export.service.object.name}"
-				                              class="${service.object.class}" />
-			</then>
-		</if>
 	</target>
 
 	<!-- ================================= 

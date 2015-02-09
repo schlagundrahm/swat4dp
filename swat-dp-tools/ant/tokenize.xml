@@ -17,7 +17,9 @@
 		<echo message="Macros for config tokenization for swat-dp-tools" />
 	</target>
 
-	<!-- Common targets for exporting objects -->
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: tokenize-configuration-macro          
+         = = = = = = = = = = = = = = = = = -->
 	<macrodef name="tokenize-configuration-macro">
 		<attribute name="env" />
 		<attribute name="device" />
@@ -52,7 +54,7 @@
 			         encoding="UTF-8">
 				<fileset dir="${src-dir}" id="xcfg">
 					<include name="*.xcfg" />
-					<exclude name="temp*.xcfg" />
+					<exclude name="temp-*.xcfg" />
 					<exclude name="*-intrinsic.xcfg" />
 				</fileset>
 
@@ -103,14 +105,16 @@
 				        replace="@service.object.name@$1" />
 				<regexp path="//configuration//text()" pattern="${service.dir}(.*)" replace="@service.dir@$1" />
 
-				<replace path="//configuration/${service.object.class}/UserSummary/text()"
-				         withText="@service.summary@" />
-				<replace path="//configuration/${service.object.class}/@name" withText="@service.object.name@" />
+				<!-- replace path="//configuration/${service.object.class}/UserSummary/text()"
+				         withText="@service.summary@" / -->
+				<!-- replace path="//configuration/${service.object.class}/@name" withText="@service.object.name@" / -->
+				
 				<replace path="//configuration/${service.object.class}/DebugMode/text()" withText="@debug.mode@" />
 				<replace path="//configuration/${service.object.class}/DebugHistory/text()"
 				         withText="@debug.history@" />
 
 				<!-- XMLFW objects -->
+				<!-- we now use the tokenize-service.xsl stylesheet for this part
 				<replace path="//configuration/XMLFirewallService/LocalAddress/text()"
 				         withText="@frontend.server.host@" />
 				<replace path="//configuration/XMLFirewallService/LocalPort/text()" withText="@frontend.server.port@" />
@@ -120,13 +124,15 @@
 				<replace path="//configuration/XMLFirewallService/HTTPTimeout/text()" withText="@frontend.timeout@" />
 				<replace path="//configuration/XMLFirewallService/HTTPPersistTimeout/text()"
 				         withText="@frontend.timeout.persistent@" />
-
+				-->
+				
 				<!-- Front Side Handler objects -->
+				<!-- we now use the tokenize-service.xsl stylesheet for this part
 				<replace path="//configuration/HTTPSSourceProtocolHandler/LocalAddress/text()"
 				         withText="@frontend.server.host@" />
 				<replace path="//configuration/HTTPSSourceProtocolHandler/LocalPort/text()"
 				         withText="@frontend.server.port@" />
-
+				-->
 
 				<!-- WS-Proxy objects -->
 				<replace path="//configuration/WSGateway/FrontTimeout/text()" withText="@frontend.timeout@" />
@@ -156,6 +162,7 @@
 				        replace="@wsdl.name@" />
 
 				<!-- MPGW -->
+				<!-- we now use the tokenize-service.xsl stylesheet for this part
 				<replace path="//configuration/MultiProtocolGateway/BackendUrl/text()" withText="@backend.url@" />
 				<replace path="//configuration/MultiProtocolGateway/FrontProtocol/text()"
 				         withText="@service.object.name@" />
@@ -171,6 +178,7 @@
 				<replace path="//configuration/MultiProtocolGateway/XMLManager/text()" withText="@xml.manager@" />
 				<replace path="//configuration/MultiProtocolGateway/SSLProxyProfile/text()"
 				         withText="@backend.ssl.profile@" />
+				-->
 
 				<!-- WAF objects -->
 				<replace path="//configuration/WebAppFW/FrontSide/LocalAddress/text()"
