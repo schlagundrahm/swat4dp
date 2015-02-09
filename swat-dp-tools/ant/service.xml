@@ -56,7 +56,25 @@
 			                             service="@{service}"
 			                             object="@{object}"
 			                             class="@{class}" />
-
+			
+			<!-- replace values with tokens -->
+			<if>
+				<equals arg1="${export.tokenize.config}" arg2="true" />
+				<then>
+					<tokenize-configuration-macro env="${mgr.target.env.name}"
+					                              device="${export.device.name}"
+					                              domain="${domain.name}"
+					                              service="${service.name}"
+					                              object="${export.service.object.name}"
+					                              class="${service.object.class}" />
+					
+					<tokenize-service-config-macro src-dir="dist/tokenized/@{device}-@{domain}" dst-dir="dist/tokenized2/@{device}-@{domain}" />
+					
+					<fixcrlf srcdir="dist/tokenized/@{device}-@{domain}" includes="**/*.xcfg" fixlast="true" />
+					<fixcrlf srcdir="dist/tokenized2/@{device}-@{domain}" includes="**/*.xcfg" fixlast="false" />
+				</then>
+			</if>
+			
 			<!-- change carriage return/line feed -->
 			<property name="src-dir" value="dist/export/@{device}-@{domain}/xcfg/common" />
 			<fixcrlf srcdir="${src-dir}" includes="**/*.xcfg" fixlast="false" />
