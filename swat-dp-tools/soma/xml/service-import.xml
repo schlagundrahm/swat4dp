@@ -1,10 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+        <!-- import config from export
+        <xsd:element name="do-import">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="input-file" type="tns:base64-binary" minOccurs="1"/>
+              <xsd:element name="object" minOccurs="0" maxOccurs="unbounded">
+                <xsd:complexType>
+                  <xsd:attribute name="class" type="tns:export-class"/>
+                  <xsd:attribute name="name" type="tns:export-name"/>
+                  <xsd:attribute name="overwrite" type="xsd:boolean"/>
+                  <xsd:attribute name="import-debug" type="xsd:boolean"/>
+                </xsd:complexType>
+              </xsd:element>
+              <xsd:element name="file" minOccurs="0" maxOccurs="unbounded">
+                <xsd:complexType>
+                  <xsd:attribute name="name" type="xsd:string"/>
+                  <xsd:attribute name="overwrite" type="xsd:boolean"/>
+                </xsd:complexType>
+              </xsd:element>
+              <xsd:element name="deployment-policy" type="tns:ConfigConfigDeploymentPolicy" minOccurs="0" maxOccurs="1"/>
+            </xsd:sequence>
+            <xsd:attribute name="source-type" type="tns:export-format"/>
+            <xsd:attribute name="dry-run" type="xsd:boolean"/>
+            <xsd:attribute name="overwrite-files" type="xsd:boolean"/>
+            <xsd:attribute name="overwrite-objects" type="xsd:boolean"/>
+            <xsd:attribute name="rewrite-local-ip" type="xsd:boolean"/>
+            <xsd:attribute name="deployment-policy" type="xsd:string"/>
+          </xsd:complexType>
+        </xsd:element>
+        -->
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dp="http://www.datapower.com/schemas/management">
-    <soapenv:Header />
-    <soapenv:Body>
-        <dp:request domain="@domain.name@">
-            <dp:do-import source-type="@soma.content.type@" dry-run="false" overwrite-files="true" overwrite-objects="true" deployment-policy="@deployment.policy@">
-                <dp:input-file>@soma.content@</dp:input-file>
-            </dp:do-import>
-        </dp:request>
-    </soapenv:Body>
+   <soapenv:Header/>
+   <soapenv:Body>
+      <dp:request domain="@domain.name@">
+         <dp:do-import source-type="@soma.content.type@" dry-run="false" overwrite-files="true" overwrite-objects="true"
+            deployment-policy="@deployment.policy@">
+            <dp:input-file>@soma.content@</dp:input-file>
+         </dp:do-import>
+      </dp:request>
+   </soapenv:Body>
 </soapenv:Envelope>
