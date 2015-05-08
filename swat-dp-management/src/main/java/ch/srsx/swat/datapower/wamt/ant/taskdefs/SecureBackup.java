@@ -74,7 +74,7 @@ public class SecureBackup extends Task {
 	 */
 	public SecureBackup() {
 		hostname = null;
-		port = 8888;
+		port = 5550;
 		username = System.getProperty("user.name");
 		certname = "DataPowerSecureBackup";
 		includeISCSI = false;
