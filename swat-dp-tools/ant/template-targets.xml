@@ -102,6 +102,7 @@
 	        description="Clone an existing project and do some pattern replacement">
 
 		<property name="clone.source.dir" value="${basedir}/.." />
+		<property name="clone.target.base.dir" value="${swat.dp.customer.home}" />
 		<loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/${mgr.target.zone.name}.properties" />
 		<loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/envs/${mgr.target.env.name}/${mgr.target.env.name}.properties" />
 		<loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/envs/${mgr.target.env.name}/domains/${mgr.target.domain.alias}.properties" />
@@ -120,6 +121,10 @@
 			<textProperty label="New service name : "
 			              property="clone.target.service.name"
 			              tooltip="This is the name according to the service.name property." />
+			<fileSelectionProperty label="Select base project directory : "
+			                       property="clone.target.base.dir"
+			                       directoryChooser="true"
+			                       tooltip="Base directory of the new project." />
 			<controlbar>
 				<button label="Cancel" type="cancel" target="cancel" />
 				<button label="Ok" type="ok" />
@@ -130,7 +135,7 @@
 		<fail unless="clone.target.service.name" message="new service name property not set" />
 
 		<property name="clone.target.project.name" value="${service.project.prefix}-${clone.target.service.name}" />
-		<property name="clone.target.dir" value="${basedir}/../${clone.target.project.name}" />
+		<property name="clone.target.dir" value="${clone.target.base.dir}/${clone.target.project.name}" />
 		<basename file="${clone.source.dir}" property="clone.source.project.name" />
 
 		<property file="${clone.source.dir}/build.properties" />
