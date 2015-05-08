@@ -29,7 +29,7 @@
       </xsl:copy>
    </xsl:template>
 
-   <xsl:template match="comment()|processing-instruction()">
+   <xsl:template match="processing-instruction()">
       <xsl:copy />
    </xsl:template>
    
@@ -198,17 +198,10 @@
                      </xsl:with-param>
                   </xsl:call-template>
                </xsl:when>
-               <xsl:when test="local-name(.)='RemoteAddress'">
+               <xsl:when test="local-name(.)='BackendUrl'">
                   <xsl:call-template name="set-token">
                      <xsl:with-param name="key">
-                        <xsl:value-of select="string('backend.address')" />
-                     </xsl:with-param>
-                  </xsl:call-template>
-               </xsl:when>
-               <xsl:when test="local-name(.)='RemotePort'">
-                  <xsl:call-template name="set-token">
-                     <xsl:with-param name="key">
-                        <xsl:value-of select="string('backend.port')" />
+                        <xsl:value-of select="string('backend.url')" />
                      </xsl:with-param>
                   </xsl:call-template>
                </xsl:when>
@@ -340,19 +333,62 @@
                      </xsl:with-param>
                   </xsl:call-template>
                </xsl:when>
-               <xsl:when test="local-name(.)='RemoteAddress'">
-                  <xsl:call-template name="set-token">
-                     <xsl:with-param name="key">
-                        <xsl:value-of select="string('backend.address')" />
-                     </xsl:with-param>
-                  </xsl:call-template>
+               <xsl:when test="local-name(.)='WSDLCachePolicy'">
+                  <xsl:element name="{name()}">
+                     <xsl:for-each select="*">
+                        <xsl:choose>
+                           <xsl:when test="local-name(.)='Match'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsdl.cache.',count(../preceding-sibling::WSDLCachePolicy)+1,'.map')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:when test="local-name(.)='TTL'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsdl.cache.',count(../preceding-sibling::WSDLCachePolicy)+1,'.ttl')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:otherwise>
+                              <xsl:copy-of select="." />
+                           </xsl:otherwise>
+                        </xsl:choose>
+                     </xsl:for-each>
+                  </xsl:element>
                </xsl:when>
-               <xsl:when test="local-name(.)='RemotePort'">
-                  <xsl:call-template name="set-token">
-                     <xsl:with-param name="key">
-                        <xsl:value-of select="string('backend.port')" />
-                     </xsl:with-param>
-                  </xsl:call-template>
+               <xsl:when test="local-name(.)='BaseWSDL'">
+                  <xsl:element name="{name()}">
+                     <xsl:for-each select="*">
+                        <xsl:choose>
+                           <xsl:when test="local-name(.)='WSDLName'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsdl.',count(../preceding-sibling::BaseWSDL)+1,'.name')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:when test="local-name(.)='WSDLSourceLocation'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsdl.',count(../preceding-sibling::BaseWSDL)+1,'.location')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:when test="local-name(.)='PolicyAttachments'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsdl.',count(../preceding-sibling::BaseWSDL)+1,'.policyattachments')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:otherwise>
+                              <xsl:copy-of select="." />
+                           </xsl:otherwise>
+                        </xsl:choose>
+                     </xsl:for-each>
+                  </xsl:element>
                </xsl:when>
                <xsl:when test="local-name(.)='FrontTimeout'">
                   <xsl:call-template name="set-token">
@@ -438,7 +474,234 @@
          </xsl:for-each>
       </xsl:element>
    </xsl:template>
+   
 
+   <!-- WSP Endpoint Rewrite Policy -->
+   <xsl:template match="WSEndpointRewritePolicy">
+      <xsl:variable name="label">
+         <xsl:value-of select="@name" />
+      </xsl:variable>
+
+      <xsl:element name="{name()}">
+         <xsl:copy-of select="document('')/*/namespace::*[name()='env']" />
+         <xsl:copy-of select="document('')/*/namespace::*[name()='dp']" />
+         <xsl:copy-of select="@*[name()!='name']" />
+         <xsl:attribute name="name">
+            <xsl:call-template name="set-attribute-token">
+               <xsl:with-param name="name">
+                  <xsl:value-of select="string('name')" />
+               </xsl:with-param>
+               <xsl:with-param name="key">
+                  <xsl:value-of select="string('service.object.name')" />
+               </xsl:with-param>
+            </xsl:call-template>
+         </xsl:attribute>
+         <xsl:for-each select="*">
+            <xsl:choose>
+            <!-- 
+                        <ServicePortMatchRegexp>^{http://www.tgic.de/gsg/umd-registration-insurance/1.0}InsuranceRegistrationSOAPServicePort$</ServicePortMatchRegexp>
+            <LocalEndpointProtocol>default</LocalEndpointProtocol>
+            <LocalEndpointHostname>0.0.0.0</LocalEndpointHostname>
+            <LocalEndpointPort>0</LocalEndpointPort>
+            <LocalEndpointURI>/umd/registration/insurance/InsuranceRegistrationSOAPService</LocalEndpointURI>
+            <FrontProtocol class="HTTPSourceProtocolHandler">UmdWebServiceEndpoint</FrontProtocol>
+            <UseFrontProtocol>on</UseFrontProtocol>
+            <WSDLBindingProtocol>soap-11</WSDLBindingProtocol>
+            <FrontsidePortSuffix/>
+             -->
+               <xsl:when test="local-name(.)='WSEndpointLocalRewriteRule'">
+                  <xsl:element name="{name()}">
+                     <xsl:for-each select="*">
+                        <xsl:choose>
+                           <xsl:when test="local-name(.)='ServicePortMatchRegexp'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsendpoint.local.',count(../preceding-sibling::WSEndpointLocalRewriteRule)+1,'.serviceportregexp')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:when test="local-name(.)='LocalEndpointProtocol'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsendpoint.local.',count(../preceding-sibling::WSEndpointLocalRewriteRule)+1,'.protocol')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:when test="local-name(.)='LocalEndpointHostname'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsendpoint.local.',count(../preceding-sibling::WSEndpointLocalRewriteRule)+1,'.hostname')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:when test="local-name(.)='LocalEndpointPort'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsendpoint.local.',count(../preceding-sibling::WSEndpointLocalRewriteRule)+1,'.port')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:when test="local-name(.)='LocalEndpointURI'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsendpoint.local.',count(../preceding-sibling::WSEndpointLocalRewriteRule)+1,'.uri')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:when test="local-name(.)='FrontProtocol'">
+                              <xsl:call-template name="set-attribute-and-value-token">
+                                 <xsl:with-param name="attrname">
+                                    <xsl:value-of select="string('class')" />
+                                 </xsl:with-param>
+                                 <xsl:with-param name="attrkey">
+                                    <xsl:value-of select="concat('wsendpoint.local.',count(../preceding-sibling::WSEndpointLocalRewriteRule)+1,'.fsh.class')" />
+                                 </xsl:with-param>
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsendpoint.local.',count(../preceding-sibling::WSEndpointLocalRewriteRule)+1,'.fsh.name')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:when test="local-name(.)='UseFrontProtocol'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsendpoint.local.',count(../preceding-sibling::WSEndpointLocalRewriteRule)+1,'.usefrontprotocol')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:when test="local-name(.)='WSDLBindingProtocol'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsendpoint.local.',count(../preceding-sibling::WSEndpointLocalRewriteRule)+1,'.binding')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:when test="local-name(.)='FrontsidePortSuffix'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsendpoint.local.',count(../preceding-sibling::WSEndpointLocalRewriteRule)+1,'.suffix')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:when test="local-name(.)='LocalEndpointHostname'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsendpoint.local.',count(../preceding-sibling::WSEndpointLocalRewriteRule)+1,'.hostname')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:otherwise>
+                              <xsl:copy-of select="." />
+                           </xsl:otherwise>
+                        </xsl:choose>
+                     </xsl:for-each>
+                  </xsl:element>
+               </xsl:when>
+               <!-- 
+                        <WSEndpointRemoteRewriteRule>
+            <ServicePortMatchRegexp>^{http://www.tgic.de/gsg/umd-registration-insurance/1.0}InsuranceRegistrationSOAPServicePort$</ServicePortMatchRegexp>
+            <RemoteEndpointProtocol>http</RemoteEndpointProtocol>
+            <RemoteEndpointHostname>umd-app-e-01.ham.gdv.org</RemoteEndpointHostname>
+            <RemoteEndpointPort>9080</RemoteEndpointPort>
+            <RemoteEndpointURI>/umd/registration/insurance/InsuranceRegistrationSOAPService</RemoteEndpointURI>
+            <RemoteMQQM/>
+            <RemoteTibcoEMS/>
+            <RemoteWebSphereJMS/>
+         </WSEndpointRemoteRewriteRule>
+                -->
+               <xsl:when test="local-name(.)='WSEndpointRemoteRewriteRule'">
+                  <xsl:element name="{name()}">
+                     <xsl:for-each select="*">
+                        <xsl:choose>
+                           <xsl:when test="local-name(.)='ServicePortMatchRegexp'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsendpoint.remote.',count(../preceding-sibling::WSEndpointRemoteRewriteRule)+1,'.serviceportregexp')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:when test="local-name(.)='RemoteEndpointProtocol'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsendpoint.remote.',count(../preceding-sibling::WSEndpointRemoteRewriteRule)+1,'.protocol')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:when test="local-name(.)='RemoteEndpointHostname'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsendpoint.remote.',count(../preceding-sibling::WSEndpointRemoteRewriteRule)+1,'.hostname')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:when test="local-name(.)='RemoteEndpointPort'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsendpoint.remote.',count(../preceding-sibling::WSEndpointRemoteRewriteRule)+1,'.port')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:when test="local-name(.)='RemoteEndpointURI'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('wsendpoint.remote.',count(../preceding-sibling::WSEndpointRemoteRewriteRule)+1,'.uri')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
+                           <xsl:otherwise>
+                              <xsl:copy-of select="." />
+                           </xsl:otherwise>
+                        </xsl:choose>
+                     </xsl:for-each>
+                  </xsl:element>
+               </xsl:when>
+               <xsl:otherwise>
+                  <xsl:copy-of select="." />
+               </xsl:otherwise>
+            </xsl:choose>
+         </xsl:for-each>
+      </xsl:element>
+   </xsl:template>
+
+   <!-- PolicyAttachments -->
+   <xsl:template match="PolicyAttachments">
+      <xsl:variable name="label">
+         <xsl:value-of select="@name" />
+      </xsl:variable>
+      <xsl:variable name="index">
+         <xsl:value-of
+            select="count(./preceding-sibling::PolicyAttachments) + 1" />
+      </xsl:variable>
+
+      <xsl:element name="{name()}">
+         <xsl:copy-of select="document('')/*/namespace::*[name()='env']" />
+         <xsl:copy-of select="document('')/*/namespace::*[name()='dp']" />
+         <xsl:copy-of select="@*[name()!='name']" />
+         <xsl:attribute name="name">
+         <xsl:call-template name="set-attribute-token">
+            <xsl:with-param name="name">
+               <xsl:value-of select="string('name')" />
+            </xsl:with-param>
+            <xsl:with-param name="key">
+               <xsl:value-of select="concat('policyattachments.',$index,'.name')" />
+            </xsl:with-param>
+         </xsl:call-template>
+         </xsl:attribute>
+         <xsl:for-each select="*">
+            <xsl:choose>
+               <xsl:when test="local-name(.)='EnforcementMode'">
+                  <xsl:call-template name="set-token">
+                     <xsl:with-param name="key">
+                        <xsl:value-of select="concat('policyattachments.',$index,'.mode')" />
+                     </xsl:with-param>
+                  </xsl:call-template>
+               </xsl:when>
+               <xsl:otherwise>
+                  <xsl:copy-of select="." />
+               </xsl:otherwise>
+            </xsl:choose>
+         </xsl:for-each>
+      </xsl:element>
+   </xsl:template>
 
    <!-- HTTP(S) Front Side Handler -->
    <xsl:template match="HTTPSSourceProtocolHandler|HTTPSourceProtocolHandler">
