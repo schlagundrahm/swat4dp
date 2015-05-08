@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- ============================================================================================== -->
-<!-- schlag&rahm WebSphere Administration Toolkit (SWAT) for IBM WebSphere DataPower SOA appliances -->
-<!-- Copyright © 2011 schlag&rahm gmbh, Switzerland. All rights reserved.                           -->
+<!-- Pierce's DataPower Administration Toolkit (P'DAT) for IBM WebSphere DataPower SOA appliances -->
 <!-- ============================================================================================== -->
 
 <!-- ====================================================================== -->
@@ -14,7 +13,7 @@
          basedir="."
          xmlns:dp="antlib:com.myarch.datapower">
 
-	<description>DataPower management project based on Myarch dpbuddy and SWAT Ant tasks and on IBM's WAMT.</description>
+	<description>DataPower management project based on Myarch dpbuddy, IBM's WAMT and on custom ANT tasks.</description>
 
 	<property environment="env" />
 
@@ -41,7 +40,7 @@
 	<!-- ====================================================================== -->
 
 	<target name="help">
-		<echo message="schlag&amp;rahm WebSphere Administration Toolkit (SWAT) for IBM WebSphere DataPower SOA appliances" />
+		<echo message="Administration Toolkitfor IBM WebSphere DataPower SOA appliances" />
 		<echo message="Please run: $ant -projecthelp" />
 	</target>
 
@@ -154,8 +153,8 @@
          ================================= -->
 	<target name="info" depends="init" description="show project information">
 		<echo message="==============================================================================================" />
-		<echo message="schlag&amp;rahm WebSphere Administration Toolkit (SWAT) for IBM WebSphere DataPower SOA appliances" />
-		<echo message="Copyright © 2011 schlag&amp;rahm gmbh, Switzerland. All rights reserved." />
+		<echo message="Pierce's DataPower WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances" />
+		<echo message="NOTE: You need IBM's WAMT library (latest version) and MyArch's free dpbuddy version (2.3.1)!" />
 		<echo message="==============================================================================================" />
 		<!-- Displays the properties for this run -->
 		<echo message="OS=${os.name}" />
@@ -188,7 +187,7 @@
 	     ================================= -->
 	<target name="deploy"
 	        depends="init"
-	        description="--> deploy HS DataPower configuration">
+	        description="--> deploy DataPower configuration">
 		<property name="version" value="${project.version}" />
 
 		<antform title="DataPower Deployment">
@@ -283,9 +282,6 @@
 			<selectionproperty label="Environment :"
 			                   property="dp.env"
 			                   values="${dp.envs}" />
-			<selectionproperty label="Application domain : "
-			                   property="dp.domain"
-			                   values="${dp.domains}" />
 			<textProperty label="Name patterns : "
 			              property="export.namepatterns"
 			              tooltip="Comma-delimited list of regular expression patterns." />
@@ -305,14 +301,17 @@
 		</antform>
 
 		<selectDevice dp.env="${dp.env}" />
+		
+		<dp:status class="DomainStatus" domain="default"/>
 
+		<fail />
 		<!-- You can simply list regexps defining objects that you want to export without worrying about their types (classes) -->
 
 		<dp:export file="${export.filename}"
 		           namePatterns="${export.namepatterns}"
 		           persisted="${export.persisted}"
 		           allFiles="${export.allfiles}"
-		           domain="${dp.domain}">
+		           >
 		</dp:export>
 	</target>
 
@@ -643,10 +642,10 @@
 				<dp:action domain="default">
 					<Keygen>
 						<!-- LDAPOrder>off</LDAPOrder -->
-						<C>CH</C>
-						<ST>ZH</ST>
-						<L>Winterthur</L>
-						<O>schlag&amp;rahm gmbh</O>
+						<C>${keygen.c}</C>
+						<ST>${keygen.st}</ST>
+						<L>${keygen.l}</L>
+						<O>${keygen.o}</O>
 						<OU>${keygen.ou}</OU>
 						<CN>${keygen.cn}</CN>
 						<KeyLength>2048</KeyLength>
@@ -669,10 +668,10 @@
 				<dp:action>
 					<Keygen>
 						<!-- LDAPOrder>off</LDAPOrder -->
-						<C>CH</C>
-						<ST>ZH</ST>
-						<L>Winterthur</L>
-						<O>schlag&amp;rahm gmbh</O>
+						<C>${keygen.c}</C>
+						<ST>${keygen.st}</ST>
+						<L>${keygen.l}</L>
+						<O>${keygen.o}</O>
 						<OU>${keygen.ou}</OU>
 						<CN>${keygen.cn}</CN>
 						<KeyLength>2048</KeyLength>
@@ -1038,7 +1037,7 @@
 		<pathconvert dirsep="/"
 		             property="converted.sourcedir"
 		             refid="source.path" />
-		
+
 		<echo message="converted.sourcedir = ${converted.sourcedir}" />
 
 		<xslt in="${maven.build.resourceDir.0}/xml/dummy.xml"
@@ -1143,32 +1142,31 @@
           macrodef: selectDevice          
          = = = = = = = = = = = = = = = = = -->
 	<macrodef name="selectDevice">
-		<attribute name="dp.env" default="DEV" />
+		<attribute name="dp.env" />
 		<sequential>
-			<switch value="${dp.env}">
-				<case value="DEV">
-					<var name="dp.env.prefix" unset="true" />
-					<property name="dp.env.prefix" value="dev" />
-					<property name="dp.urls"
-					          value="${dev.dp.xmlmgm.url.1},${dev.dp.xmlmgm.url.2}" />
-				</case>
-				<case value="TEST">
-					<var name="dp.env.prefix" unset="true" />
-					<property name="dp.env.prefix" value="test" />
-					<property name="dp.urls"
-					          value="${test.dp.xmlmgm.url.1},${test.dp.xmlmgm.url.2}" />
-				</case>
-				<case value="PROD">
-					<var name="dp.env.prefix" unset="true" />
-					<property name="dp.env.prefix" value="prod" />
-					<property name="dp.urls"
-					          value="${prod.dp.xmlmgm.url.1},${prod.dp.xmlmgm.url.2}" />
-				</case>
-				<default>
-					<var name="dp.env.prefix" unset="true" />
-					<fail message="environment '${dp.env}' is not supported" />
-				</default>
-			</switch>
+			<var name="dp.env.prefix" value="@{dp.env}" />
+
+			<propertyselector property="url.props"
+			                         delimiter=","
+			                         match="@{dp.env}\.dp.xmlmgm\.url\.[1-9]"
+			                         select="\0"
+			                         casesensitive="true"
+			                         distinct="true"/>
+			<sortlist property="sorted.url.props" value="${url.props}" delimiter="," />
+
+			<var name="urls" value="" />
+			<for list="${sorted.url.props}" param="url.prop">
+				<sequential>
+					<propertycopy name="url" from="@{url.prop}" override="true"/>
+					<var name="urls" value="${urls},${url}" />
+				</sequential>
+			</for>
+			
+			<propertyregex property="dp.urls"
+			              input="${urls}"
+			              regexp="^,(.*)"
+			              select="\1"
+			              casesensitive="false" />
 
 			<echo message="----------------------------------------------------------------------------" />
 			<echo message="dp.env.prefix = ${dp.env.prefix}" />
@@ -1183,7 +1181,7 @@
 				              property="${dp.env.prefix}.dp.password"
 				              password="true" />
 				<controlbar>
-					<button label="Cancel" type="cancel" />
+					<button label="Cancel" type="cancel" target="cancel" />
 					<button label="Ok" type="ok" />
 				</controlbar>
 			</antform>
@@ -1201,29 +1199,7 @@
 	<macrodef name="selectConfigFile">
 		<attribute name="dp.env" default="DEV" />
 		<sequential>
-			<switch value="${dp.env}">
-				<case value="DEV">
-					<var name="config.dir" unset="true" />
-					<property name="config.dir" value="${zip.target.dir}/dev" />
-
-				</case>
-				<case value="TEST">
-					<var name="dp.env.prefix" unset="true" />
-					<property name="config.dir"
-					          value="${zip.target.dir}/test" />
-
-				</case>
-				<case value="PROD">
-					<var name="dp.env.prefix" unset="true" />
-					<property name="config.dir"
-					          value="${zip.target.dir}/prod" />
-
-				</case>
-				<default>
-					<var name="config.dir" unset="true" />
-					<fail message="environment '${dp.env}' is not supported" />
-				</default>
-			</switch>
+			
 
 			<foreach>
 				<filelist>
@@ -1515,5 +1491,12 @@
 			</exec>
 		</sequential>
 	</macrodef>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+	  target: cancel 
+	 - - - - - - - - - - - - - - - - - -->
+	<target name="cancel">
+		<fail message="Process has been aborted!" status="0" />
+	</target>
 
 </project>
