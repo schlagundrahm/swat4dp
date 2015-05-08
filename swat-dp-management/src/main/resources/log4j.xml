@@ -16,7 +16,7 @@
   <logger name="org.apache">
     <level value="INFO" />
   </logger>
-  <logger name="ch.swisscard">
+  <logger name="ch.srsx.swat">
     <level value="DEBUG" />
   </logger>
   <root>
