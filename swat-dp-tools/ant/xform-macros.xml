@@ -130,6 +130,50 @@
 			</xslt>
 		</sequential>
 	</macrodef>
+	
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: create-file-export-request-macro          
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="create-file-export-requests-macro">
+		<attribute name="input" />
+		<attribute name="output" />
+		<attribute name="domain" />
+		<sequential>
+			<!-- Create a soma request to export files from a given domain -->
+			<echo message="Create a soma request to export files from a given domain [input=@{input}]" />
+			<delete file="@{output}" />
+			<xslt processor="trax"
+			      in="@{input}"
+			      style="${swat.dp.tools}/soma/xsl/create-file-export-requests.xsl"
+			      out="@{output}"
+			      classpathref="swat.dp.tools.classpath">
+				<param name="domain" expression="@{domain}" />
+				<factory name="net.sf.saxon.TransformerFactoryImpl" />
+			</xslt>
+		</sequential>
+	</macrodef>
+	
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: create-filestore-export-request-macro          
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="create-filestore-export-request-macro">
+		<attribute name="input" />
+		<attribute name="output" />
+		<attribute name="domain" />
+		<sequential>
+			<!-- Create a soma request to export a filestore from a given domain -->
+			<echo message="Create a soma request to a filestore from a given domain" />
+			<delete file="@{output}" />
+			<xslt processor="trax"
+			      in="@{input}"
+			      style="${swat.dp.tools}/soma/xsl/create-filestore-export-request.xsl"
+			      out="@{output}"
+			      classpathref="swat.dp.tools.classpath">
+				<param name="domain" expression="@{domain}" />
+				<factory name="net.sf.saxon.TransformerFactoryImpl" />
+			</xslt>
+		</sequential>
+	</macrodef>
 
 	<!-- ================================= 
           macrodef: create-delete-object-list-request-macro 

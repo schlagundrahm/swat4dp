@@ -45,6 +45,14 @@
 					                              domain="@{domain}"
 					                              object="@{object}"
 					                              class="@{class}" />
+					<if>
+						<available file="config/export/service-export-file-list.xml" />
+						<then>
+							<service-export-filestore-macro device="@{device}"
+						                              env="@{env}"
+						                              domain="@{domain}" />
+						</then>
+					</if>
 				</then>
 				<else>
 					<echo message="ATTENTION: swat.skip.export is enabled - check build.properties and comment (unset) the property." />
@@ -109,6 +117,33 @@
 			<extract-zip-file-macro soma.request="service-export" tmp.dir="download" />
 		</sequential>
 	</macrodef>
+	
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: service-export-filestore-macro          
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="service-export-filestore-macro">
+		<attribute name="env" />
+		<attribute name="device" />
+		<attribute name="domain" />
+
+		<sequential>
+			<!-- Prepare the soma-request getfilestore -->
+			<service-prepare-export-filestore-macro domain="@{domain}"
+			                                        env="@{env}" />
+
+			<!-- Run the soma-request getfilestore -->
+			<soma-run-single-request-on-single-device-macro device="@{device}"
+			                                                soma.request="filestore-export"
+			                                                tmp.dir="download"
+			                                                check.response="true" />
+
+			<!-- Create the get-file requests according the service-export-file-list -->
+			<service-prepare-export-files-macro domain="@{domain}"
+			                                    env="@{env}"
+			                                    file-list="config/export/service-export-file-list.xml" />
+
+		</sequential>
+	</macrodef>
 
 	<!-- = = = = = = = = = = = = = = = = =
           macrodef: service-prepare-export-objects-macro          
@@ -144,10 +179,70 @@
 					                                     domain="@{domain}"
 					                                     class="@{class}"
 					                                     object="@{object}" />
+					<!-- Step 3: Verify that all tokens have been replaced in the service export file -->
+					<verify-filter-xcfg-files-macro src-file="dist/download/service-export.xml" />
 				</then>
 				<else>
 					<!-- Prepare the soma-request service-export -->
 					<soma-prepare-request-macro soma.request="service-export"
+					                            domain="@{domain}"
+					                            content.exists="false"
+					                            tmp.dir="download" />
+				</else>
+			</if>
+		</sequential>
+	</macrodef>
+	
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: service-prepare-export-filestore-macro          
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="service-prepare-export-filestore-macro">
+		<attribute name="domain" />
+		<attribute name="env" />
+		<sequential>
+			<!-- Prepare the soma-request filestore-export -->
+			<soma-prepare-request-macro soma.request="filestore-export"
+			                            domain="@{domain}"
+			                            content.exists="false"
+			                            tmp.dir="download" />
+		
+		</sequential>
+	</macrodef>
+
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: service-prepare-export-files-macro          
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="service-prepare-export-files-macro">
+		<attribute name="domain" />
+		<attribute name="env" />
+		<attribute name="file-list" />
+		<sequential>
+			<if>
+				<available file="@{file-list}" />
+				<then>
+					<!-- Define content filterset -->
+					<filterset id="content.filter" onmissingfiltersfile="ignore">
+						<filtersfile file="build.properties" />
+						<filtersfile file="config/@{env}.properties" />
+						<filtersfile file="${swat.dp.infra}/build.properties" />
+					</filterset>
+
+					<!-- Copy and filter the file-list -->
+					<echo message="Copying file-list filtered ..." />
+					<copy todir="dist/download" filtering="true" verbose="true" overwrite="true">
+						<fileset file="@{file-list}" />
+						<filterset refid="content.filter" />
+					</copy>
+
+					<!-- Step 2: Create all getfile requests -->
+					<echo message="Step 2: Create all getfile requests" />
+					<create-file-export-requests-macro input="dist/download/service-export-file-list.xml"
+					                                   output="dist/download/files/get-file.xml"
+					                                   domain="@{domain}" />
+				</then>
+				<else>
+					<!-- Prepare the soma-request service-export -->
+					<soma-prepare-request-macro soma.request="getfile"
 					                            domain="@{domain}"
 					                            content.exists="false"
 					                            tmp.dir="download" />
