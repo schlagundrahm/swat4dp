@@ -8,7 +8,7 @@
          default="info"
          basedir=".">
 
-	<description>DataPower backup/restore project (Swat4DPops) based on IBM's WAMT.</description>
+	<description>DataPower backup/restore project (Swat4DPbackup) based on IBM's WAMT.</description>
 
 	<property environment="env" />
 
@@ -114,15 +114,27 @@
 	        depends="init, selectDevice"
 	        description="--> creates a secure backup and stores the files on the backup server">
 
+		<property name="dp.user" value="${env.USER}"/>
+		<property name="dp.certname" value="SecureBackup"/>
+		
+		<if>
+		<not>
+			<isset property="securebackup.silent" />
+		</not>
+		<then>
 		<antform title="Swat4DP - Backup/Restore Module">
 			<label>Secure Backup</label>
 			<textProperty label="Hostname :"
 			                   property="dp.hostname" />
 			<textProperty label="Port : "
 			              property="dp.port" />
+			<textProperty label="User : "
+			              property="dp.user" />
 			<textProperty label="Password : "
 			              property="dp.password"
 			              password="true" />
+			<textProperty label="Certname : "
+			              property="dp.certname" />
 			<fileSelectionProperty label="Seclect target directory : "
 			                       property="securebackup.targetdir"
 			                       directoryChooser="true"
@@ -134,18 +146,28 @@
 			                 property="securebackup.forceoverwrite"
 			                 tooltip="Overwrite existing files in the target directory." />
 			<controlbar>
-				<button label="Cancel" type="cancel" />
+				<button label="Cancel" type="cancel" target="cancel" />
 				<button label="Ok" type="ok" />
 			</controlbar>
 		</antform>
+			</then>
+			<else>
+				<echo message="... running in silent mode" />
+				<property name="dp.password" value=""  />
+				
+			</else>
+		</if>
 
-		<fail unless="securebackup.targetdir"
-		      message="Secure Backup has been aborted." />
+		<fail unless="dp.hostname" message="The property 'dp.hostname' has not been set!" />
+		<fail unless="dp.port" message="The property 'dp.port' has not been set!" />
+		<fail unless="securebackup.targetdir" message="Target directory is not defined." />
 
 		<securebackup targetBaseDir="${securebackup.targetdir}"
 		              hostname="${dp.hostname}"
 					  port="${dp.port}"
+		              username="${dp.user}"
 		              password="${dp.password}"
+		              certname="${dp.certname}"
 		              includeRAID="${securebackup.includeraid}"
 		              forceOverwrite="${securebackup.forceoverwrite}" />
 	</target>
@@ -194,22 +216,39 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: selectDevice                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="selectDevice">
-		<antform title="Swat4DP - Backup/Restore Module">
-			<label>Select Device</label>
-			<selectionproperty label="DataPower device :"
-			                   property="device.name"
-			                   values="${dp.device.list}" />
-			<controlbar>
-				<button label="Cancel" type="cancel" />
-				<button label="Ok" type="ok" />
-			</controlbar>
-		</antform>
+	<target name="selectDevice">
+		<if>
+			<not>
+				<isset property="dp.hostname" />
+			</not>
+			<then>
+				<antform title="Swat4DP - Backup/Restore Module">
+					<label>Select Device</label>
+					<selectionproperty label="DataPower device :"
+					                   property="device.name"
+				                   values="${dp.device.list}" />
+					<controlbar>
+						<button label="Cancel" type="cancel" />
+						<button label="Ok" type="ok" />
+					</controlbar>
+				</antform>
 
-		<fail unless="device.name"
-		      message="Device selection has been aborted." />
-    	
-    	<loadproperties srcfile="${basedir}/devices/${device.name}.properties"  />
+				<fail unless="device.name"
+				      message="Device selection has been aborted." />
+				
+				<loadproperties srcfile="${basedir}/devices/${device.name}.properties"  />
+			</then>
+			<else>
+				<echo message="... using device '${dp.hostname}'" />
+			</else>
+		</if>
+	</target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+		  target: cancel 
+		 - - - - - - - - - - - - - - - - - -->
+	<target name="cancel">
+		<fail message="Process has been aborted!" status="0" />
     </target>
 
 

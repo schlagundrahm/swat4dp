@@ -16,6 +16,13 @@
 			<directory>${project.build.directory}/site</directory>
 			<outputDirectory>docs</outputDirectory>
 		</fileSet>
+		<fileSet>
+			<directory>${project.basedir}/src/main/resources/certs</directory>
+			<outputDirectory>/certs</outputDirectory>
+			<includes>
+				<include>*.jks</include>
+			</includes>
+		</fileSet>
 	</fileSets>
 	<files>
 		<file>

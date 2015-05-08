@@ -27,7 +27,7 @@ import com.ibm.datapower.wamt.clientAPI.ProgressContainer;
 
 
 /**
- * Copyright (C) 2012 schlag&rahm gmbh, Switzerland. All rights reserved.
+ * Copyright (C) 2012 schlag&amp;rahm gmbh, Switzerland. All rights reserved.
  * 
  * TODO SecureRestore class
  *
@@ -53,7 +53,7 @@ public class SecureRestore extends Task {
 		hostname = null;
 		port = 5550;
 		username = System.getProperty("user.name");
-		credentials = "DataPowerSecureRestore";
+		credentials = "SecureRestore";
 		validate = true;
 		sourceBaseDir = null;
 		
