@@ -9,6 +9,7 @@
     
     <xsl:param name="serviceName" />
     <xsl:param name="serviceObjectName" />
+    <xsl:param name="useIndexInRuleName" />
     <xsl:param name="log-level" />
 
     <xsl:variable name="serviceNameVar" select="$serviceName" />
@@ -26,7 +27,20 @@
                     <xsl:value-of select="concat('processing rule ', $rulename, ' ...')" />
                 </xsl:message>
             </xsl:if>
-            <xsl:result-document method="xml" href="{$serviceName}-29-{$index}-{$rulename}.xcfg" omit-xml-declaration="yes">
+            <xsl:variable name="filename">
+                <xsl:choose>
+                    <xsl:when test="$useIndexInRuleName = 'true'">
+                        <xsl:value-of select="concat($serviceName, '-29-', $index, '-', $rulename, '.xcfg')" />
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="concat($serviceName, '-29-', $rulename, '.xcfg')" />
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:variable>
+            <xsl:result-document method="xml" href="{$filename}" omit-xml-declaration="yes">
+                <xsl:comment>
+                    <xsl:value-of select="concat(' Called Rule Index ', $index, ' ')" />
+                </xsl:comment>
                 <datapower-configuration version="3">
                     <xsl:copy-of select="../../export-details" />
                     <xsl:element name="configuration">
@@ -65,7 +79,20 @@
                     <xsl:value-of select="concat('processing rule ', $rulename, ' ...')" />
                 </xsl:message>
             </xsl:if>
-            <xsl:result-document method="xml" href="{$serviceName}-30-{$index}-{substring($rulename,$serviceObjectNameLengthVar+2)}.xcfg" omit-xml-declaration="yes">
+            <xsl:variable name="filename">
+                <xsl:choose>
+                    <xsl:when test="$useIndexInRuleName = 'true'">
+                        <xsl:value-of select="concat($serviceName, '-30-', $index, '-', substring($rulename, $serviceObjectNameLengthVar+2), '.xcfg')" />
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="concat($serviceName, '-30-', substring($rulename, $serviceObjectNameLengthVar+2), '.xcfg')" />
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:variable>
+            <xsl:result-document method="xml" href="{$filename}" omit-xml-declaration="yes">
+                <xsl:comment>
+                    <xsl:value-of select="concat(' MPGW/XMLFW Rule Index ', $index, ' ')" />
+                </xsl:comment>
                 <datapower-configuration version="3">
                     <xsl:copy-of select="../../../../export-details" />
                     <xsl:element name="configuration">
@@ -99,7 +126,20 @@
         <xsl:for-each select="datapower-configuration/configuration/WSStylePolicy/PolicyMaps/Rule">
             <xsl:variable name="index" select="99 + position()" />
             <xsl:variable name="rulename" select="text()" />
-            <xsl:result-document method="xml" href="{$serviceName}-30-{$index}-{substring($rulename,$serviceObjectNameLengthVar+2)}.xcfg" omit-xml-declaration="yes">
+            <xsl:variable name="filename">
+                <xsl:choose>
+                    <xsl:when test="$useIndexInRuleName = 'true'">
+                        <xsl:value-of select="concat($serviceName, '-30-', $index, '-', substring($rulename, $serviceObjectNameLengthVar+2), '.xcfg')" />
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="concat($serviceName, '-30-', substring($rulename, $serviceObjectNameLengthVar+2), '.xcfg')" />
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:variable>
+            <xsl:result-document method="xml" href="{$filename}" omit-xml-declaration="yes">
+                <xsl:comment>
+                    <xsl:value-of select="concat(' WSP Rule Index ', $index, ' ')" />
+                </xsl:comment>
                 <datapower-configuration version="3">
                     <xsl:copy-of select="../../../../export-details" />
                     <xsl:element name="configuration">
@@ -123,7 +163,20 @@
         <xsl:for-each select="datapower-configuration/configuration/WebAppErrorHandlingPolicy/ErrorStylePolicyRule[@class='StylePolicyRule']">
             <xsl:variable name="index" select="99 + position()" />
             <xsl:variable name="rulename" select="text()" />
-            <xsl:result-document method="xml" href="{$serviceName}-30-waf-default-error.xcfg" omit-xml-declaration="yes">
+            <xsl:variable name="filename">
+                <xsl:choose>
+                    <xsl:when test="$useIndexInRuleName = 'true'">
+                        <xsl:value-of select="concat($serviceName, '-30-waf-default-error-', $index, '.xcfg')" />
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="concat($serviceName, '-30-waf-default-error.xcfg')" />
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:variable>
+            <xsl:result-document method="xml" href="{$filename}" omit-xml-declaration="yes">
+                <xsl:comment>
+                    <xsl:value-of select="concat(' WAF Error Rule Index ', $index, ' ')" />
+                </xsl:comment>
                 <datapower-configuration version="3">
                     <xsl:copy-of select="../../../../export-details" />
                     <xsl:element name="configuration">
@@ -147,7 +200,20 @@
         <xsl:for-each select="datapower-configuration/configuration/AppSecurityPolicy/RequestMaps/Rule">
             <xsl:variable name="index" select="99 + position()" />
             <xsl:variable name="rulename" select="text()" />
-            <xsl:result-document method="xml" href="{$serviceName}-30-waf-request-{$index}.xcfg" omit-xml-declaration="yes">
+            <xsl:variable name="filename">
+                <xsl:choose>
+                    <xsl:when test="$useIndexInRuleName = 'true'">
+                        <xsl:value-of select="concat($serviceName, '-30-waf-request-', $index, '.xcfg')" />
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="concat($serviceName, '-30-waf-request.xcfg')" />
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:variable>
+            <xsl:result-document method="xml" href="{$filename}" omit-xml-declaration="yes">
+                <xsl:comment>
+                    <xsl:value-of select="concat(' WAF Request Map Rule Index ', $index, ' ')" />
+                </xsl:comment>
                 <datapower-configuration version="3">
                     <xsl:copy-of select="../../../../export-details" />
                     <xsl:variable name="nonxml-rulename" select="/datapower-configuration/configuration/WebAppRequest[@name=$rulename]/NonXMLRule[@class='StylePolicyRule']/text()" />
@@ -190,7 +256,20 @@
         <xsl:for-each select="datapower-configuration/configuration/AppSecurityPolicy/ResponseMaps/Rule">
             <xsl:variable name="index" select="99 + position()" />
             <xsl:variable name="rulename" select="text()" />
-            <xsl:result-document method="xml" href="{$serviceName}-30-waf-response-{$index}.xcfg" omit-xml-declaration="yes">
+            <xsl:variable name="filename">
+                <xsl:choose>
+                    <xsl:when test="$useIndexInRuleName = 'true'">
+                        <xsl:value-of select="concat($serviceName, '-30-waf-response-', $index, '.xcfg')" />
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="concat($serviceName, '-30-waf-response.xcfg')" />
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:variable>
+            <xsl:result-document method="xml" href="{$filename}" omit-xml-declaration="yes">
+                <xsl:comment>
+                    <xsl:value-of select="concat(' WAF Response Map Rule Index ', $index, ' ')" />
+                </xsl:comment>
                 <datapower-configuration version="3">
                     <xsl:copy-of select="../../../../export-details" />
                     <xsl:variable name="nonxml-rulename" select="/datapower-configuration/configuration/WebAppResponse[@name=$rulename]/NonXMLRule[@class='StylePolicyRule']/text()" />
@@ -233,7 +312,20 @@
         <xsl:for-each select="datapower-configuration/configuration/AppSecurityPolicy/ErrorMaps/Rule">
             <xsl:variable name="index" select="99 + position()" />
             <xsl:variable name="rulename" select="text()" />
-            <xsl:result-document method="xml" href="{$serviceName}-30-waf-error-{$index}.xcfg" omit-xml-declaration="yes">
+            <xsl:variable name="filename">
+                <xsl:choose>
+                    <xsl:when test="$useIndexInRuleName = 'true'">
+                        <xsl:value-of select="concat($serviceName, '-30-waf-error-', $index, '.xcfg')" />
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="concat($serviceName, '-30-waf-error.xcfg')" />
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:variable>
+            <xsl:result-document method="xml" href="{$filename}" omit-xml-declaration="yes">
+                <xsl:comment>
+                    <xsl:value-of select="concat(' WAF Error Map Rule Index ', $index, ' ')" />
+                </xsl:comment>
                 <datapower-configuration version="3">
                     <xsl:copy-of select="../../../../export-details" />
                     <xsl:element name="configuration">
