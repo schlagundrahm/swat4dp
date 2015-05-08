@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns:dpfff="http://www.datapower.com/schemas/management" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+<xsd:schema xmlns:dpfff="http://www.datapower.com/schemas/management" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   elementFormDefault="qualified">
 
 	<!-- xsd:import schemaLocation="xml-mgmt.xsd" namespace="http://www.datapower.com/schemas/management" / -->
 	<!-- IMPORTANT NOTE -->
@@ -8,228 +9,229 @@
 	<!-- TODO: maybe this is only an issue with older boxes - to be verified -->
 
 
-	<xsd:element name="datapower-configuration" type="DpConfig">
-		<xsd:annotation>
-			<xsd:appinfo>Swat4DP</xsd:appinfo>
-			<xsd:documentation>the datapower-configuration element can't be found in any of the xml-mgmt schema files</xsd:documentation>
-		</xsd:annotation>
-	</xsd:element>
+   <xsd:element name="datapower-configuration" type="DpConfig">
+      <xsd:annotation>
+         <xsd:appinfo>Swat4DP</xsd:appinfo>
+         <xsd:documentation>the datapower-configuration element can't be found in any of the xml-mgmt schema files</xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
 
-	<xsd:complexType name="DpConfig">
-		<xsd:sequence>
-			<xsd:element name="configuration" type="Config" minOccurs="1" maxOccurs="1" />
-		</xsd:sequence>
-		<xsd:attribute name="version" type="xsd:string" />
-	</xsd:complexType>
+   <xsd:complexType name="DpConfig">
+      <xsd:sequence>
+         <xsd:element name="configuration" type="Config" minOccurs="1" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute name="version" type="xsd:string"/>
+   </xsd:complexType>
 
-	<xsd:complexType name="ConfigElement">
-		<xsd:annotation>
-			<xsd:appinfo>Swat4DP</xsd:appinfo>
-			<xsd:documentation>no further validation on configuration elements</xsd:documentation>
-		</xsd:annotation>
-		<xsd:sequence>
-			<xsd:any processContents="lax" minOccurs="0" maxOccurs="unbounded" />
-		</xsd:sequence>
-		<xsd:attributeGroup ref="ConfigAttributes" />
-	</xsd:complexType>
+   <xsd:complexType name="ConfigElement">
+      <xsd:annotation>
+         <xsd:appinfo>Swat4DP</xsd:appinfo>
+         <xsd:documentation>no further validation on configuration elements</xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:attributeGroup ref="ConfigAttributes"/>
+   </xsd:complexType>
 
-	<xsd:complexType name="Config">
-		<xsd:annotation>
-			<xsd:appinfo>Swat4DP</xsd:appinfo>
-			<xsd:documentation>derived from xml-mgmt.xsd type AnyConfigElement</xsd:documentation>
-		</xsd:annotation>
-		<xsd:choice maxOccurs="unbounded">
-			<xsd:element name="AAAPolicy" type="ConfigElement" />
-			<xsd:element name="Domain" type="ConfigElement" />
-			<xsd:element name="LDAPSearchParameters" type="ConfigElement" />
-			<xsd:element name="ProcessingMetadata" type="ConfigElement" />
-			<xsd:element name="RADIUSSettings" type="ConfigElement" />
-			<xsd:element name="RBMSettings" type="ConfigElement" />
-			<xsd:element name="SAMLAttributes" type="ConfigElement" />
-			<xsd:element name="SOAPHeaderDisposition" type="ConfigElement" />
-			<xsd:element name="TAM" type="ConfigElement" />
-			<xsd:element name="TFIMEndpoint" type="ConfigElement" />
-			<xsd:element name="XACMLPDP" type="ConfigElement" />
-			<xsd:element name="AccessControlList" type="ConfigElement" />
-			<xsd:element name="AppSecurityPolicy" type="ConfigElement" />
-			<xsd:element name="CompactFlash" type="ConfigElement" />
-			<xsd:element name="CompileOptionsPolicy" type="ConfigElement" />
-			<xsd:element name="ConfigDeploymentPolicy" type="ConfigElement" />
-			<xsd:element name="ConformancePolicy" type="ConfigElement" />
-			<xsd:element name="CertMonitor" type="ConfigElement" />
-			<xsd:element name="CRLFetch" type="ConfigElement" />
-			<xsd:element name="CryptoCertificate" type="ConfigElement" />
-			<xsd:element name="CryptoFWCred" type="ConfigElement" />
-			<xsd:element name="CryptoIdentCred" type="ConfigElement" />
-			<xsd:element name="CryptoKerberosKDC" type="ConfigElement" />
-			<xsd:element name="CryptoKerberosKeytab" type="ConfigElement" />
-			<xsd:element name="CryptoKey" type="ConfigElement" />
-			<xsd:element name="CryptoProfile" type="ConfigElement" />
-			<xsd:element name="CryptoSSKey" type="ConfigElement" />
-			<xsd:element name="CryptoValCred" type="ConfigElement" />
-			<xsd:element name="OAuthSupportedClient" type="ConfigElement" />
-			<xsd:element name="OAuthSupportedClientGroup" type="ConfigElement" />
-			<xsd:element name="SSHClientProfile" type="ConfigElement" />
-			<xsd:element name="SSLProxyProfile" type="ConfigElement" />
-			<xsd:element name="DeploymentPolicyParametersBinding" type="ConfigElement" />
-			<xsd:element name="ErrorReportSettings" type="ConfigElement" />
-			<xsd:element name="SystemSettings" type="ConfigElement" />
-			<xsd:element name="TimeSettings" type="ConfigElement" />
-			<xsd:element name="DomainAvailability" type="ConfigElement" />
-			<xsd:element name="SchemaExceptionMap" type="ConfigElement" />
-			<xsd:element name="DocumentCryptoMap" type="ConfigElement" />
-			<xsd:element name="XPathRoutingMap" type="ConfigElement" />
-			<xsd:element name="LogTarget" type="ConfigElement" />
-			<xsd:element name="FormsLoginPolicy" type="ConfigElement" />
-			<xsd:element name="FTPQuoteCommands" type="ConfigElement" />
-			<xsd:element name="MultiProtocolGateway" type="ConfigElement" />
-			<xsd:element name="WSGateway" type="ConfigElement" />
-			<xsd:element name="GeneratedPolicy" type="ConfigElement" />
-			<xsd:element name="HTTPInputConversionMap" type="ConfigElement" />
-			<xsd:element name="HTTPUserAgent" type="ConfigElement" />
-			<xsd:element name="ILMTAgent" type="ConfigElement" />
-			<xsd:element name="ImportPackage" type="ConfigElement" />
-			<xsd:element name="IMSConnect" type="ConfigElement" />
-			<xsd:element name="IncludeConfig" type="ConfigElement" />
-			<xsd:element name="InteropService" type="ConfigElement" />
-			<xsd:element name="EthernetInterface" type="ConfigElement" />
-			<xsd:element name="VLANInterface" type="ConfigElement" />
-			<xsd:element name="LinkAggregation" type="ConfigElement" />
-			<xsd:element name="IPMILanChannel" type="ConfigElement" />
-			<xsd:element name="IPMIUser" type="ConfigElement" />
-			<xsd:element name="IPMulticast" type="ConfigElement" />
-			<xsd:element name="IScsiChapConfig" type="ConfigElement" />
-			<xsd:element name="IScsiHBAConfig" type="ConfigElement" />
-			<xsd:element name="IScsiInitiatorConfig" type="ConfigElement" />
-			<xsd:element name="IScsiTargetConfig" type="ConfigElement" />
-			<xsd:element name="IScsiVolumeConfig" type="ConfigElement" />
-			<xsd:element name="TibcoEMSServer" type="ConfigElement" />
-			<xsd:element name="WebSphereJMSServer" type="ConfigElement" />
-			<xsd:element name="JSONSettings" type="ConfigElement" />
-			<xsd:element name="Language" type="ConfigElement" />
-			<xsd:element name="LDAPConnectionPool" type="ConfigElement" />
-			<xsd:element name="LoadBalancerGroup" type="ConfigElement" />
-			<xsd:element name="LogLabel" type="ConfigElement" />
-			<xsd:element name="Matching" type="ConfigElement" />
-			<xsd:element name="MCFHttpHeader" type="ConfigElement" />
-			<xsd:element name="MCFHttpMethod" type="ConfigElement" />
-			<xsd:element name="MCFHttpURL" type="ConfigElement" />
-			<xsd:element name="MCFXPath" type="ConfigElement" />
-			<xsd:element name="MessageContentFilters" type="ConfigElement" />
-			<xsd:element name="FilterAction" type="ConfigElement" />
-			<xsd:element name="MessageMatching" type="ConfigElement" />
-			<xsd:element name="CountMonitor" type="ConfigElement" />
-			<xsd:element name="DurationMonitor" type="ConfigElement" />
-			<xsd:element name="MessageType" type="ConfigElement" />
-			<xsd:element name="MPGWErrorAction" type="ConfigElement" />
-			<xsd:element name="MPGWErrorHandlingPolicy" type="ConfigElement" />
-			<xsd:element name="MQGW" type="ConfigElement" />
-			<xsd:element name="MQhost" type="ConfigElement" />
-			<xsd:element name="MQproxy" type="ConfigElement" />
-			<xsd:element name="MQQM" type="ConfigElement" />
-			<xsd:element name="MQQMGroup" type="ConfigElement" />
-			<xsd:element name="MTOMPolicy" type="ConfigElement" />
-			<xsd:element name="NameValueProfile" type="ConfigElement" />
-			<xsd:element name="DNSNameService" type="ConfigElement" />
-			<xsd:element name="HostAlias" type="ConfigElement" />
-			<xsd:element name="NetworkSettings" type="ConfigElement" />
-			<xsd:element name="NTPService" type="ConfigElement" />
-			<xsd:element name="NFSClientSettings" type="ConfigElement" />
-			<xsd:element name="NFSDynamicMounts" type="ConfigElement" />
-			<xsd:element name="NFSStaticMount" type="ConfigElement" />
-			<xsd:element name="ODR" type="ConfigElement" />
-			<xsd:element name="ODRConnectorGroup" type="ConfigElement" />
-			<xsd:element name="Pattern" type="ConfigElement" />
-			<xsd:element name="PeerGroup" type="ConfigElement" />
-			<xsd:element name="PolicyAttachments" type="ConfigElement" />
-			<xsd:element name="PolicyParameters" type="ConfigElement" />
-			<xsd:element name="RaidVolume" type="ConfigElement" />
-			<xsd:element name="SQLRuntimeSettings" type="ConfigElement" />
-			<xsd:element name="SecureCloudConnector" type="ConfigElement" />
-			<xsd:element name="MgmtInterface" type="ConfigElement" />
-			<xsd:element name="SSHService" type="ConfigElement" />
-			<xsd:element name="TelnetService" type="ConfigElement" />
-			<xsd:element name="WebGUI" type="ConfigElement" />
-			<xsd:element name="XMLFirewallService" type="ConfigElement" />
-			<xsd:element name="XSLProxyService" type="ConfigElement" />
-			<xsd:element name="HTTPService" type="ConfigElement" />
-			<xsd:element name="SSLProxyService" type="ConfigElement" />
-			<xsd:element name="TCPProxyService" type="ConfigElement" />
-			<xsd:element name="XSLCoprocService" type="ConfigElement" />
-			<xsd:element name="ShellAlias" type="ConfigElement" />
-			<xsd:element name="SimpleCountMonitor" type="ConfigElement" />
-			<xsd:element name="SLMAction" type="ConfigElement" />
-			<xsd:element name="SLMCredClass" type="ConfigElement" />
-			<xsd:element name="SLMPolicy" type="ConfigElement" />
-			<xsd:element name="SLMRsrcClass" type="ConfigElement" />
-			<xsd:element name="SLMSchedule" type="ConfigElement" />
-			<xsd:element name="SNMPSettings" type="ConfigElement" />
-			<xsd:element name="FTPFilePollerSourceProtocolHandler" type="ConfigElement" />
-			<xsd:element name="NFSFilePollerSourceProtocolHandler" type="ConfigElement" />
-			<xsd:element name="SFTPFilePollerSourceProtocolHandler" type="ConfigElement" />
-			<xsd:element name="FTPServerSourceProtocolHandler" type="ConfigElement" />
-			<xsd:element name="HTTPSourceProtocolHandler" type="ConfigElement" />
-			<xsd:element name="HTTPSSourceProtocolHandler" type="ConfigElement" />
-			<xsd:element name="IMSCalloutSourceProtocolHandler" type="ConfigElement" />
-			<xsd:element name="IMSConnectSourceProtocolHandler" type="ConfigElement" />
-			<xsd:element name="TibcoEMSSourceProtocolHandler" type="ConfigElement" />
-			<xsd:element name="WebSphereJMSSourceProtocolHandler" type="ConfigElement" />
-			<xsd:element name="MQFTESourceProtocolHandler" type="ConfigElement" />
-			<xsd:element name="MQSourceProtocolHandler" type="ConfigElement" />
-			<xsd:element name="POPPollerSourceProtocolHandler" type="ConfigElement" />
-			<xsd:element name="SSHServerSourceProtocolHandler" type="ConfigElement" />
-			<xsd:element name="StatelessTCPSourceProtocolHandler" type="ConfigElement" />
-			<xsd:element name="XTCProtocolHandler" type="ConfigElement" />
-			<xsd:element name="SQLDataSource" type="ConfigElement" />
-			<xsd:element name="Statistics" type="ConfigElement" />
-			<xsd:element name="StylePolicy" type="ConfigElement" />
-			<xsd:element name="StylePolicyAction" type="ConfigElement" />
-			<xsd:element name="StylePolicyRule" type="ConfigElement" />
-			<xsd:element name="WSStylePolicyRule" type="ConfigElement" />
-			<xsd:element name="Throttler" type="ConfigElement" />
-			<xsd:element name="UDDIRegistry" type="ConfigElement" />
-			<xsd:element name="URLMap" type="ConfigElement" />
-			<xsd:element name="URLRefreshPolicy" type="ConfigElement" />
-			<xsd:element name="URLRewritePolicy" type="ConfigElement" />
-			<xsd:element name="User" type="ConfigElement" />
-			<xsd:element name="UserGroup" type="ConfigElement" />
-			<xsd:element name="WCCService" type="ConfigElement" />
-			<xsd:element name="WebAppErrorHandlingPolicy" type="ConfigElement" />
-			<xsd:element name="WebAppFW" type="ConfigElement" />
-			<xsd:element name="WebAppRequest" type="ConfigElement" />
-			<xsd:element name="WebAppResponse" type="ConfigElement" />
-			<xsd:element name="WebAppSessionPolicy" type="ConfigElement" />
-			<xsd:element name="WebServiceMonitor" type="ConfigElement" />
-			<xsd:element name="WebServicesAgent" type="ConfigElement" />
-			<xsd:element name="UDDISubscription" type="ConfigElement" />
-			<xsd:element name="WSRRSavedSearchSubscription" type="ConfigElement" />
-			<xsd:element name="WSRRSubscription" type="ConfigElement" />
-			<xsd:element name="WebTokenService" type="ConfigElement" />
-			<xsd:element name="WSEndpointRewritePolicy" type="ConfigElement" />
-			<xsd:element name="WSRRServer" type="ConfigElement" />
-			<xsd:element name="WSStylePolicy" type="ConfigElement" />
-			<xsd:element name="XC10Grid" type="ConfigElement" />
-			<xsd:element name="XMLManager" type="ConfigElement" />
-			<xsd:element name="xmltrace" type="ConfigElement" />
-			<xsd:element name="ZHybridTargetControlService" type="ConfigElement" />
-			<xsd:element name="ZosNSSClient" type="ConfigElement" />
-		</xsd:choice>
-		<xsd:attribute name="domain" type="xsd:string" />
-	</xsd:complexType>
+   <xsd:complexType name="Config">
+      <xsd:annotation>
+         <xsd:appinfo>Swat4DP</xsd:appinfo>
+         <xsd:documentation>derived from xml-mgmt.xsd type AnyConfigElement</xsd:documentation>
+      </xsd:annotation>
+      <xsd:choice maxOccurs="unbounded">
+         <xsd:element name="B2BProfile" type="ConfigElement"/>
+         <xsd:element name="AAAPolicy" type="ConfigElement"/>
+         <xsd:element name="Domain" type="ConfigElement"/>
+         <xsd:element name="LDAPSearchParameters" type="ConfigElement"/>
+         <xsd:element name="ProcessingMetadata" type="ConfigElement"/>
+         <xsd:element name="RADIUSSettings" type="ConfigElement"/>
+         <xsd:element name="RBMSettings" type="ConfigElement"/>
+         <xsd:element name="SAMLAttributes" type="ConfigElement"/>
+         <xsd:element name="SOAPHeaderDisposition" type="ConfigElement"/>
+         <xsd:element name="TAM" type="ConfigElement"/>
+         <xsd:element name="TFIMEndpoint" type="ConfigElement"/>
+         <xsd:element name="XACMLPDP" type="ConfigElement"/>
+         <xsd:element name="AccessControlList" type="ConfigElement"/>
+         <xsd:element name="AppSecurityPolicy" type="ConfigElement"/>
+         <xsd:element name="CompactFlash" type="ConfigElement"/>
+         <xsd:element name="CompileOptionsPolicy" type="ConfigElement"/>
+         <xsd:element name="ConfigDeploymentPolicy" type="ConfigElement"/>
+         <xsd:element name="ConformancePolicy" type="ConfigElement"/>
+         <xsd:element name="CertMonitor" type="ConfigElement"/>
+         <xsd:element name="CRLFetch" type="ConfigElement"/>
+         <xsd:element name="CryptoCertificate" type="ConfigElement"/>
+         <xsd:element name="CryptoFWCred" type="ConfigElement"/>
+         <xsd:element name="CryptoIdentCred" type="ConfigElement"/>
+         <xsd:element name="CryptoKerberosKDC" type="ConfigElement"/>
+         <xsd:element name="CryptoKerberosKeytab" type="ConfigElement"/>
+         <xsd:element name="CryptoKey" type="ConfigElement"/>
+         <xsd:element name="CryptoProfile" type="ConfigElement"/>
+         <xsd:element name="CryptoSSKey" type="ConfigElement"/>
+         <xsd:element name="CryptoValCred" type="ConfigElement"/>
+         <xsd:element name="OAuthSupportedClient" type="ConfigElement"/>
+         <xsd:element name="OAuthSupportedClientGroup" type="ConfigElement"/>
+         <xsd:element name="SSHClientProfile" type="ConfigElement"/>
+         <xsd:element name="SSLProxyProfile" type="ConfigElement"/>
+         <xsd:element name="DeploymentPolicyParametersBinding" type="ConfigElement"/>
+         <xsd:element name="ErrorReportSettings" type="ConfigElement"/>
+         <xsd:element name="SystemSettings" type="ConfigElement"/>
+         <xsd:element name="TimeSettings" type="ConfigElement"/>
+         <xsd:element name="DomainAvailability" type="ConfigElement"/>
+         <xsd:element name="SchemaExceptionMap" type="ConfigElement"/>
+         <xsd:element name="DocumentCryptoMap" type="ConfigElement"/>
+         <xsd:element name="XPathRoutingMap" type="ConfigElement"/>
+         <xsd:element name="LogTarget" type="ConfigElement"/>
+         <xsd:element name="FormsLoginPolicy" type="ConfigElement"/>
+         <xsd:element name="FTPQuoteCommands" type="ConfigElement"/>
+         <xsd:element name="MultiProtocolGateway" type="ConfigElement"/>
+         <xsd:element name="WSGateway" type="ConfigElement"/>
+         <xsd:element name="GeneratedPolicy" type="ConfigElement"/>
+         <xsd:element name="HTTPInputConversionMap" type="ConfigElement"/>
+         <xsd:element name="HTTPUserAgent" type="ConfigElement"/>
+         <xsd:element name="ILMTAgent" type="ConfigElement"/>
+         <xsd:element name="ImportPackage" type="ConfigElement"/>
+         <xsd:element name="IMSConnect" type="ConfigElement"/>
+         <xsd:element name="IncludeConfig" type="ConfigElement"/>
+         <xsd:element name="InteropService" type="ConfigElement"/>
+         <xsd:element name="EthernetInterface" type="ConfigElement"/>
+         <xsd:element name="VLANInterface" type="ConfigElement"/>
+         <xsd:element name="LinkAggregation" type="ConfigElement"/>
+         <xsd:element name="IPMILanChannel" type="ConfigElement"/>
+         <xsd:element name="IPMIUser" type="ConfigElement"/>
+         <xsd:element name="IPMulticast" type="ConfigElement"/>
+         <xsd:element name="IScsiChapConfig" type="ConfigElement"/>
+         <xsd:element name="IScsiHBAConfig" type="ConfigElement"/>
+         <xsd:element name="IScsiInitiatorConfig" type="ConfigElement"/>
+         <xsd:element name="IScsiTargetConfig" type="ConfigElement"/>
+         <xsd:element name="IScsiVolumeConfig" type="ConfigElement"/>
+         <xsd:element name="TibcoEMSServer" type="ConfigElement"/>
+         <xsd:element name="WebSphereJMSServer" type="ConfigElement"/>
+         <xsd:element name="JSONSettings" type="ConfigElement"/>
+         <xsd:element name="Language" type="ConfigElement"/>
+         <xsd:element name="LDAPConnectionPool" type="ConfigElement"/>
+         <xsd:element name="LoadBalancerGroup" type="ConfigElement"/>
+         <xsd:element name="LogLabel" type="ConfigElement"/>
+         <xsd:element name="Matching" type="ConfigElement"/>
+         <xsd:element name="MCFHttpHeader" type="ConfigElement"/>
+         <xsd:element name="MCFHttpMethod" type="ConfigElement"/>
+         <xsd:element name="MCFHttpURL" type="ConfigElement"/>
+         <xsd:element name="MCFXPath" type="ConfigElement"/>
+         <xsd:element name="MessageContentFilters" type="ConfigElement"/>
+         <xsd:element name="FilterAction" type="ConfigElement"/>
+         <xsd:element name="MessageMatching" type="ConfigElement"/>
+         <xsd:element name="CountMonitor" type="ConfigElement"/>
+         <xsd:element name="DurationMonitor" type="ConfigElement"/>
+         <xsd:element name="MessageType" type="ConfigElement"/>
+         <xsd:element name="MPGWErrorAction" type="ConfigElement"/>
+         <xsd:element name="MPGWErrorHandlingPolicy" type="ConfigElement"/>
+         <xsd:element name="MQGW" type="ConfigElement"/>
+         <xsd:element name="MQhost" type="ConfigElement"/>
+         <xsd:element name="MQproxy" type="ConfigElement"/>
+         <xsd:element name="MQQM" type="ConfigElement"/>
+         <xsd:element name="MQQMGroup" type="ConfigElement"/>
+         <xsd:element name="MTOMPolicy" type="ConfigElement"/>
+         <xsd:element name="NameValueProfile" type="ConfigElement"/>
+         <xsd:element name="DNSNameService" type="ConfigElement"/>
+         <xsd:element name="HostAlias" type="ConfigElement"/>
+         <xsd:element name="NetworkSettings" type="ConfigElement"/>
+         <xsd:element name="NTPService" type="ConfigElement"/>
+         <xsd:element name="NFSClientSettings" type="ConfigElement"/>
+         <xsd:element name="NFSDynamicMounts" type="ConfigElement"/>
+         <xsd:element name="NFSStaticMount" type="ConfigElement"/>
+         <xsd:element name="ODR" type="ConfigElement"/>
+         <xsd:element name="ODRConnectorGroup" type="ConfigElement"/>
+         <xsd:element name="Pattern" type="ConfigElement"/>
+         <xsd:element name="PeerGroup" type="ConfigElement"/>
+         <xsd:element name="PolicyAttachments" type="ConfigElement"/>
+         <xsd:element name="PolicyParameters" type="ConfigElement"/>
+         <xsd:element name="RaidVolume" type="ConfigElement"/>
+         <xsd:element name="SQLRuntimeSettings" type="ConfigElement"/>
+         <xsd:element name="SecureCloudConnector" type="ConfigElement"/>
+         <xsd:element name="MgmtInterface" type="ConfigElement"/>
+         <xsd:element name="SSHService" type="ConfigElement"/>
+         <xsd:element name="TelnetService" type="ConfigElement"/>
+         <xsd:element name="WebGUI" type="ConfigElement"/>
+         <xsd:element name="XMLFirewallService" type="ConfigElement"/>
+         <xsd:element name="XSLProxyService" type="ConfigElement"/>
+         <xsd:element name="HTTPService" type="ConfigElement"/>
+         <xsd:element name="SSLProxyService" type="ConfigElement"/>
+         <xsd:element name="TCPProxyService" type="ConfigElement"/>
+         <xsd:element name="XSLCoprocService" type="ConfigElement"/>
+         <xsd:element name="ShellAlias" type="ConfigElement"/>
+         <xsd:element name="SimpleCountMonitor" type="ConfigElement"/>
+         <xsd:element name="SLMAction" type="ConfigElement"/>
+         <xsd:element name="SLMCredClass" type="ConfigElement"/>
+         <xsd:element name="SLMPolicy" type="ConfigElement"/>
+         <xsd:element name="SLMRsrcClass" type="ConfigElement"/>
+         <xsd:element name="SLMSchedule" type="ConfigElement"/>
+         <xsd:element name="SNMPSettings" type="ConfigElement"/>
+         <xsd:element name="FTPFilePollerSourceProtocolHandler" type="ConfigElement"/>
+         <xsd:element name="NFSFilePollerSourceProtocolHandler" type="ConfigElement"/>
+         <xsd:element name="SFTPFilePollerSourceProtocolHandler" type="ConfigElement"/>
+         <xsd:element name="FTPServerSourceProtocolHandler" type="ConfigElement"/>
+         <xsd:element name="HTTPSourceProtocolHandler" type="ConfigElement"/>
+         <xsd:element name="HTTPSSourceProtocolHandler" type="ConfigElement"/>
+         <xsd:element name="IMSCalloutSourceProtocolHandler" type="ConfigElement"/>
+         <xsd:element name="IMSConnectSourceProtocolHandler" type="ConfigElement"/>
+         <xsd:element name="TibcoEMSSourceProtocolHandler" type="ConfigElement"/>
+         <xsd:element name="WebSphereJMSSourceProtocolHandler" type="ConfigElement"/>
+         <xsd:element name="MQFTESourceProtocolHandler" type="ConfigElement"/>
+         <xsd:element name="MQSourceProtocolHandler" type="ConfigElement"/>
+         <xsd:element name="POPPollerSourceProtocolHandler" type="ConfigElement"/>
+         <xsd:element name="SSHServerSourceProtocolHandler" type="ConfigElement"/>
+         <xsd:element name="StatelessTCPSourceProtocolHandler" type="ConfigElement"/>
+         <xsd:element name="XTCProtocolHandler" type="ConfigElement"/>
+         <xsd:element name="SQLDataSource" type="ConfigElement"/>
+         <xsd:element name="Statistics" type="ConfigElement"/>
+         <xsd:element name="StylePolicy" type="ConfigElement"/>
+         <xsd:element name="StylePolicyAction" type="ConfigElement"/>
+         <xsd:element name="StylePolicyRule" type="ConfigElement"/>
+         <xsd:element name="WSStylePolicyRule" type="ConfigElement"/>
+         <xsd:element name="Throttler" type="ConfigElement"/>
+         <xsd:element name="UDDIRegistry" type="ConfigElement"/>
+         <xsd:element name="URLMap" type="ConfigElement"/>
+         <xsd:element name="URLRefreshPolicy" type="ConfigElement"/>
+         <xsd:element name="URLRewritePolicy" type="ConfigElement"/>
+         <xsd:element name="User" type="ConfigElement"/>
+         <xsd:element name="UserGroup" type="ConfigElement"/>
+         <xsd:element name="WCCService" type="ConfigElement"/>
+         <xsd:element name="WebAppErrorHandlingPolicy" type="ConfigElement"/>
+         <xsd:element name="WebAppFW" type="ConfigElement"/>
+         <xsd:element name="WebAppRequest" type="ConfigElement"/>
+         <xsd:element name="WebAppResponse" type="ConfigElement"/>
+         <xsd:element name="WebAppSessionPolicy" type="ConfigElement"/>
+         <xsd:element name="WebServiceMonitor" type="ConfigElement"/>
+         <xsd:element name="WebServicesAgent" type="ConfigElement"/>
+         <xsd:element name="UDDISubscription" type="ConfigElement"/>
+         <xsd:element name="WSRRSavedSearchSubscription" type="ConfigElement"/>
+         <xsd:element name="WSRRSubscription" type="ConfigElement"/>
+         <xsd:element name="WebTokenService" type="ConfigElement"/>
+         <xsd:element name="WSEndpointRewritePolicy" type="ConfigElement"/>
+         <xsd:element name="WSRRServer" type="ConfigElement"/>
+         <xsd:element name="WSStylePolicy" type="ConfigElement"/>
+         <xsd:element name="XC10Grid" type="ConfigElement"/>
+         <xsd:element name="XMLManager" type="ConfigElement"/>
+         <xsd:element name="xmltrace" type="ConfigElement"/>
+         <xsd:element name="ZHybridTargetControlService" type="ConfigElement"/>
+         <xsd:element name="ZosNSSClient" type="ConfigElement"/>
+      </xsd:choice>
+      <xsd:attribute name="domain" type="xsd:string"/>
+   </xsd:complexType>
 
-	<xsd:attributeGroup name="ConfigAttributes">
+   <xsd:attributeGroup name="ConfigAttributes">
 
-		<xsd:annotation>
-			<xsd:appinfo>Swat4DP</xsd:appinfo>
-			<xsd:documentation>taken from xml-mgmt-base.xsd</xsd:documentation>
-		</xsd:annotation>
-		<xsd:attribute name="name" type="xsd:string" />
-		<xsd:attribute name="local" type="xsd:boolean" />
-		<xsd:attribute name="intrinsic" type="xsd:boolean" />
-		<xsd:attribute name="read-only" type="xsd:boolean" />
-		<xsd:attribute name="external" type="xsd:boolean" />
-		<xsd:attribute name="locked" type="xsd:boolean" />
-	</xsd:attributeGroup>
+      <xsd:annotation>
+         <xsd:appinfo>Swat4DP</xsd:appinfo>
+         <xsd:documentation>taken from xml-mgmt-base.xsd</xsd:documentation>
+      </xsd:annotation>
+      <xsd:attribute name="name" type="xsd:string"/>
+      <xsd:attribute name="local" type="xsd:boolean"/>
+      <xsd:attribute name="intrinsic" type="xsd:boolean"/>
+      <xsd:attribute name="read-only" type="xsd:boolean"/>
+      <xsd:attribute name="external" type="xsd:boolean"/>
+      <xsd:attribute name="locked" type="xsd:boolean"/>
+   </xsd:attributeGroup>
 
 
 </xsd:schema>
