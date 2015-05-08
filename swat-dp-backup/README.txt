@@ -24,9 +24,9 @@ $ mvn.bat install:install-file -DgroupId=com.sardak.antform -DartifactId=antform
 
 
 Notes:
-1) you have to add the CA certificates to cacerts in your Eclipse Java runtime
+1) you have to add the CA certificates to the trustore which is in ther certs directory
 
-$ keytool -importcert -trustcacerts -alias <you-name-it> -file <root-ca-cert-file> -keystore cacerts
+$ keytool -importcert -trustcacerts -alias <you-name-it> -file <root-ca-cert-file> -keystore <your truststore>
 
 
 If you change the dependencies you have to regenerate the maven ant files (goal ant:ant)

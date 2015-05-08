@@ -33,7 +33,7 @@ import com.ibm.datapower.wamt.clientAPI.ProgressContainer;
 
 
 /**
- * Copyright (C) 2012 schlag&rahm gmbh, Switzerland. All rights reserved.
+ * Copyright (C) 2012 schlag&amp;rahm gmbh, Switzerland. All rights reserved.
  * 
  * TODO SecureBackup class
  *
@@ -61,7 +61,7 @@ public class SecureBackup extends Task {
 		hostname = null;
 		port = 5550;
 		username = System.getProperty("user.name");
-		certname = "DataPowerSecureBackup";
+		certname = "SecureBackup";
 		includeISCSI = false;
 		includeRAID = false;
 		targetBaseDir = null;
