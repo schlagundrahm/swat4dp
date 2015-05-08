@@ -1,11 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
+        <!-- export config
+        <xsd:element name="do-export">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="user-comment" type="xsd:string" minOccurs="0"/>
+              <xsd:element name="object" minOccurs="1" maxOccurs="unbounded">
+                <xsd:complexType>
+                  <xsd:attribute name="class" type="tns:export-class"/>
+                  <xsd:attribute name="name" type="tns:export-name"/>
+                  <xsd:attribute name="ref-objects" type="xsd:boolean"/>
+                  <xsd:attribute name="ref-files" type="xsd:boolean"/>
+                  <xsd:attribute name="include-debug" type="xsd:boolean"/>
+                </xsd:complexType>
+              </xsd:element>
+              <xsd:element name="deployment-policy" type="tns:ConfigConfigDeploymentPolicy" minOccurs="0" maxOccurs="1"/>
+            </xsd:sequence>
+            <xsd:attribute name="format" type="tns:export-format"/>
+            <xsd:attribute name="all-files" type="xsd:boolean"/>
+            <xsd:attribute name="persisted" type="xsd:boolean"/>
+            <xsd:attribute name="deployment-policy" type="xsd:string"/>
+          </xsd:complexType>
+        </xsd:element>
+        -->
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-    <soapenv:Body>
-        <dp:request xmlns:dp="http://www.datapower.com/schemas/management" domain="@domain.name@">
-            <dp:do-export format="ZIP">
-                <dp:object class="@export.service.object.class@" name="@export.service.object.name@" ref-objects="true" ref-files="true" />
-                @export.service.objects.additional@
-            </dp:do-export>
-        </dp:request>
-    </soapenv:Body>
+   <soapenv:Body>
+      <dp:request xmlns:dp="http://www.datapower.com/schemas/management" domain="@domain.name@">
+         <dp:do-export format="ZIP">
+            <dp:object class="@export.service.object.class@" name="@export.service.object.name@" ref-objects="true" ref-files="true"/>
+            @export.service.objects.additional@
+         </dp:do-export>
+      </dp:request>
+   </soapenv:Body>
 </soapenv:Envelope>
