@@ -164,6 +164,7 @@
 						<param name="serviceName" expression="@{service}" />
 						<param name="serviceObjectName" expression="@{object}" />
 						<param name="log-level" expression="${swat.log.level}" />
+						<param name="useIndexInRuleName" expression="${swat.settings.splitting.policy.useIndexInRuleName}" />
 					</xslt>
 				</then>
 			</if>
