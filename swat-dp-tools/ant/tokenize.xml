@@ -104,81 +104,10 @@
 				        pattern="${service.object.name}(.*)"
 				        replace="@service.object.name@$1" />
 				<regexp path="//configuration//text()" pattern="${service.dir}(.*)" replace="@service.dir@$1" />
-
-				<!-- replace path="//configuration/${service.object.class}/UserSummary/text()"
-				         withText="@service.summary@" / -->
-				<!-- replace path="//configuration/${service.object.class}/@name" withText="@service.object.name@" / -->
 				
 				<replace path="//configuration/${service.object.class}/DebugMode/text()" withText="@debug.mode@" />
 				<replace path="//configuration/${service.object.class}/DebugHistory/text()"
 				         withText="@debug.history@" />
-
-				<!-- XMLFW objects -->
-				<!-- we now use the tokenize-service.xsl stylesheet for this part
-				<replace path="//configuration/XMLFirewallService/LocalAddress/text()"
-				         withText="@frontend.server.host@" />
-				<replace path="//configuration/XMLFirewallService/LocalPort/text()" withText="@frontend.server.port@" />
-				<replace path="//configuration/XMLFirewallService/RemoteAddress/text()"
-				         withText="@backend.server.host@" />
-				<replace path="//configuration/XMLFirewallService/RemotePort/text()" withText="@backend.server.port@" />
-				<replace path="//configuration/XMLFirewallService/HTTPTimeout/text()" withText="@frontend.timeout@" />
-				<replace path="//configuration/XMLFirewallService/HTTPPersistTimeout/text()"
-				         withText="@frontend.timeout.persistent@" />
-				-->
-				
-				<!-- Front Side Handler objects -->
-				<!-- we now use the tokenize-service.xsl stylesheet for this part
-				<replace path="//configuration/HTTPSSourceProtocolHandler/LocalAddress/text()"
-				         withText="@frontend.server.host@" />
-				<replace path="//configuration/HTTPSSourceProtocolHandler/LocalPort/text()"
-				         withText="@frontend.server.port@" />
-				-->
-
-				<!-- WS-Proxy objects -->
-				<replace path="//configuration/WSGateway/FrontTimeout/text()" withText="@frontend.timeout@" />
-				<replace path="//configuration/WSGateway/BackTimeout/text()" withText="@backend.timeout@" />
-				<replace path="//configuration/WSGateway/FrontPersistentTimeout/text()"
-				         withText="@frontend.timeout.persistent@" />
-				<replace path="//configuration/WSGateway/BackPersistentTimeout/text()"
-				         withText="@backend.timeout.persistent@" />
-				<replace path="//configuration/WSGateway/WSDLCachePolicy/TTL/text()" withText="@wsdl.ttl@" />
-				<replace path="//configuration/WSGateway/BackendUrl/text()" withText="@backend.url@" />
-
-				<replace path="//configuration/WSEndpointRewritePolicy/WSEndpointRemoteRewriteRule/RemoteEndpointHostname/text()"
-				         withText="@backend.server.host@" />
-				<replace path="//configuration/WSEndpointRewritePolicy/WSEndpointRemoteRewriteRule/RemoteEndpointPort/text()"
-				         withText="@backend.server.port@" />
-				<replace path="//configuration/WSEndpointRewritePolicy/WSEndpointRemoteRewriteRule/RemoteEndpointURI/text()"
-				         if="backend.uri"
-				         withText="@backend.uri@" />
-
-				<replace path="//configuration/WSEndpointRewritePolicy/WSEndpointLocalRewriteRule/LocalEndpointURI/text()"
-				         if="frontend.uri"
-				         withText="@backend.uri@" />
-
-				<regexp path="//configuration/WSGateway/BaseWSDL/*/text()"
-				        if="wsdl.name"
-				        pattern="${wsdl.name}"
-				        replace="@wsdl.name@" />
-
-				<!-- MPGW -->
-				<!-- we now use the tokenize-service.xsl stylesheet for this part
-				<replace path="//configuration/MultiProtocolGateway/BackendUrl/text()" withText="@backend.url@" />
-				<replace path="//configuration/MultiProtocolGateway/FrontProtocol/text()"
-				         withText="@service.object.name@" />
-				<replace path="//configuration/MultiProtocolGateway/RequestType/text()" withText="@request.type@" />
-				<replace path="//configuration/MultiProtocolGateway/ResponseType/text()" withText="@response.type@" />
-				<replace path="//configuration/MultiProtocolGateway/FrontTimeout/text()"
-				         withText="@frontend.timeout@" />
-				<replace path="//configuration/MultiProtocolGateway/FrontPersistentTimeout/text()"
-				         withText="@frontend.timeout.persistent@" />
-				<replace path="//configuration/MultiProtocolGateway/BackTimeout/text()" withText="@backend.timeout@" />
-				<replace path="//configuration/MultiProtocolGateway/BackPersistentTimeout/text()"
-				         withText="@backend.timeout.persistent@" />
-				<replace path="//configuration/MultiProtocolGateway/XMLManager/text()" withText="@xml.manager@" />
-				<replace path="//configuration/MultiProtocolGateway/SSLProxyProfile/text()"
-				         withText="@backend.ssl.profile@" />
-				-->
 
 				<!-- WAF objects -->
 				<replace path="//configuration/WebAppFW/FrontSide/LocalAddress/text()"
@@ -216,8 +145,8 @@
 
 
 				<!-- Log Targets -->
-				<replace path="//configuration/LogTarget/@name" withText="@service.object.name@" />
-				<replace path="//configuration/LogTarget/UserSummary/text()"
+				<replace path="//configuration/LogTarget[@name = '${service.object.name}']/@name" withText="@service.object.name@" />
+				<replace path="//configuration/LogTarget[@name = '${service.object.name}']/UserSummary/text()"
 				         withText="LogTarget for the @service.object.name@ @service.object.class@" />
 				<replace path="//configuration/LogTarget/LogEvents[Class='all']/Priority/text()"
 				         withText="@log.level.general@" />
