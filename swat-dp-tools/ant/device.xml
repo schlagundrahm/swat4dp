@@ -30,7 +30,17 @@
 			<load-device-props-macro device="@{device}" />
 
 			<!-- Export the objects from domain -->
-			<device-export-objects-macro device="@{device}" />
+			<if>
+				<not>
+					<isset property="swat.skip.export" />
+				</not>
+				<then>
+					<device-export-objects-macro device="@{device}" />
+				</then>
+				<else>
+					<echo message="ATTENTION: swat.skip.export is enabled - check build.properties and comment (unset) the property." />
+				</else>
+			</if>
 
 			<!-- Split the export file -->
 			<device-split-objects-macro device="@{device}" domain="default" />
