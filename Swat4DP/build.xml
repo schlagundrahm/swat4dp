@@ -366,6 +366,22 @@
 			</fileset>
 		</showfile>
 	</target>
+	
+	<!-- ================================= 
+          target: 94-swat-show-env-properties              
+         ================================= -->
+	<target name="94-swat-show-env-properties"
+	        depends="declare,load-env-props"
+	        description="show environment settings">
+		<echo message="searching '${mgr.target.env.name}' properties in ${swat.dp.customer.home} ..." />
+		<echo message=" " />
+		<showfile byline="true">
+			<regexp pattern="^[^#]*(wsdl).location*=" />
+			<fileset dir="${swat.dp.customer.home}">
+				<include name="/${swat.settings.project.services.prefix}*/config/${mgr.target.env.name}.properties" />
+			</fileset>
+		</showfile>
+	</target>
 
 	<!-- ================================= 
           target: 94-swat-encrypt-user-settings              
