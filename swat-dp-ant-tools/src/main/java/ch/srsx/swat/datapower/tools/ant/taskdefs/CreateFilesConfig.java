@@ -4,10 +4,10 @@
  * Ant Tools for Swat4DP
  * Schlag&rahm WebSphere Administration Toolkit for DataPower
  * 
- * Copyright (c) 2009-2015 schlag&rahm AG, Switzerland. All rights reserved.
+ * Copyright (c) 2009-2013 schlag&rahm AG, Switzerland. All rights reserved.
  *
  *      http://www.schlagundrahm.ch
- *
+ * 
  */
 package ch.srsx.swat.datapower.tools.ant.taskdefs;
 
