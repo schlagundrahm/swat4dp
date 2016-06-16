@@ -49,8 +49,12 @@
 						<available file="config/export/service-export-file-list.xml" />
 						<then>
 							<service-export-filestore-macro device="@{device}"
-						                              env="@{env}"
-						                              domain="@{domain}" />
+						                                    env="@{env}"
+						                                    domain="@{domain}" />
+							
+							<service-export-files-macro device="@{device}"
+						                                env="@{env}"
+						                                domain="@{domain}" />
 						</then>
 					</if>
 				</then>
@@ -137,13 +141,79 @@
 			                                                tmp.dir="download"
 			                                                check.response="true" />
 
-			<!-- Create the get-file requests according the service-export-file-list -->
-			<service-prepare-export-files-macro domain="@{domain}"
-			                                    env="@{env}"
-			                                    file-list="config/export/service-export-file-list.xml" />
-
 		</sequential>
 	</macrodef>
+	
+	<!-- = = = = = = = = = = = = = = = = =
+	          macrodef: service-export-files-macro          
+	         = = = = = = = = = = = = = = = = = -->
+		<macrodef name="service-export-files-macro">
+			<attribute name="env" />
+			<attribute name="device" />
+			<attribute name="domain" />
+
+			<sequential>
+				<!-- Create the get-file requests according the service-export-file-list -->
+				<service-prepare-export-files-macro domain="@{domain}"
+				                                    env="@{env}"
+				                                    file-list="config/export/service-export-file-list.xml" />
+
+				<for param="getfile">
+					
+						<mappedresources>
+							<fileset dir="${basedir}/dist/download/files/" excludes="get-file.xml"/>
+							<mapper type="regexp" from="([\w-\.]*)\.xml" to="\1"/>
+						</mappedresources>
+					
+					<sequential>
+						<echo message="Download @{getfile} ..." />
+						<soma-run-single-request-on-single-device-macro soma.request="@{getfile}"
+						                                                device="@{device}"
+						                                                tmp.dir="download/files"
+						                                                check.response="false" />
+						
+						
+						<!-- Base64 Decode the extracted file -->
+						
+						<!-- base64-decode-macro infile="dist/download/files/@{soma.request}.b64"
+						                     outfile="dist/@{tmp.dir}/@{soma.request}.zip" / -->
+					</sequential>
+				</for>
+				
+				<for param="response">
+					<fileset dir="${basedir}/dist/download/files/" includes="*-response.xml" excludes="get-file.xml"/>
+					<sequential>
+						<xslt processor="trax"
+						      in="@{response}"
+						      style="${swat.dp.tools}/soma/xsl/extract-file-from-getfile-response.xsl"
+						      out="@{response}.b64"
+						      classpathref="swat.dp.tools.classpath">
+							<param name="device" expression="@{device}" />
+							<param name="domain" expression="@{domain}" />
+							<factory name="net.sf.saxon.TransformerFactoryImpl" />
+						</xslt>
+					</sequential>
+				</for>
+				
+				<for param="file">
+					<fileset dir="${basedir}/dist/download/service-export/" includes="**/*.b64" />
+
+					<sequential>
+						<propertyregex property="newfile"
+						               input="@{file}"
+						               regexp="(.*)\.b64"
+						               select="\1"
+						               casesensitive="false" />
+						<echo message="DEBUG: decode @{file} to ${newfile}" />
+						<base64-decode-macro infile="@{file}"
+						                     outfile="${newfile}" />
+						<var name="newfile" unset="true"/>
+						<delete file="@{file}" />
+					</sequential>
+				</for>
+
+			</sequential>
+		</macrodef>
 
 	<!-- = = = = = = = = = = = = = = = = =
           macrodef: service-prepare-export-objects-macro          
@@ -163,6 +233,7 @@
 						<filtersfile file="build.properties" />
 						<filtersfile file="config/@{env}.properties" />
 						<filtersfile file="${swat.dp.infra}/build.properties" />
+						<filter token="build.number" value="${FILESTAMP}"/>
 					</filterset>
 
 					<!-- Copy and filter the object-list -->
@@ -225,6 +296,7 @@
 						<filtersfile file="build.properties" />
 						<filtersfile file="config/@{env}.properties" />
 						<filtersfile file="${swat.dp.infra}/build.properties" />
+						<filter token="build.number" value="${FILESTAMP}"/>
 					</filterset>
 
 					<!-- Copy and filter the file-list -->
@@ -235,6 +307,8 @@
 					</copy>
 
 					<!-- Step 2: Create all getfile requests -->
+					<!-- Clear the upload directories -->
+					<delete dir="dist/download/files" />
 					<echo message="Step 2: Create all getfile requests" />
 					<create-file-export-requests-macro input="dist/download/service-export-file-list.xml"
 					                                   output="dist/download/files/get-file.xml"
