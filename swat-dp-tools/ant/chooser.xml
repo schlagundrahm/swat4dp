@@ -83,6 +83,8 @@
 	<macrodef name="load-zone-props-macro">
 		<attribute name="zone" />
 		<sequential>
+			<echo message="Loading ${swat.dp.infra}/config/zones/@{zone}/@{zone}.properties" />
+			<loadproperties srcfile="${swat.dp.infra}/config/zones/@{zone}/@{zone}.properties" />
 			<echo message="Loading ${swat.dp.infra}/config/zones/@{zone}/envs/envs.properties" />
 			<loadproperties srcfile="${swat.dp.infra}/config/zones/@{zone}/envs/envs.properties" />
 		</sequential>
