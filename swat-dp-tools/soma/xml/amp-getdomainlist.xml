@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+    <soapenv:Body>
+        <GetDomainListRequest xmlns="http://www.datapower.com/schemas/appliance/management/3.0" />
+    </soapenv:Body>
+</soapenv:Envelope>
