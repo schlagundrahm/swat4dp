@@ -165,6 +165,36 @@
 		         inheritall="true"
 		         inheritrefs="true" />
 	</target>
+	
+	<!-- ================================= 
+	      target: 25-domain-documentation 
+	     ================================= -->
+	<target name="25-domain-documentation" depends="declare,load-domain-props" description="running domain-documentation">
+		
+		<concat destfile="${basedir}/dist/${env.name}/index.html">
+			<string>Index Page</string>
+		</concat>
+		<!-- Running documentation task for all services, one by one -->
+		<echo message="Creating documentation for all services ..." />
+		<foreach target="39-service-documentation"
+		         list="${swat.service.list}"
+		         delimiter=","
+		         param="mgr.target.service.name"
+		         inheritall="true"
+		         inheritrefs="true" />
+		
+		<foreach target="addServiceToIndexPage"
+		         list="${swat.service.list}"
+		         delimiter=","
+		         param="mgr.target.service.name"
+		         inheritall="true"
+		         inheritrefs="true" />
+		
+		<concat destfile="${basedir}/dist/${env.name}/index.html" append="yes">
+			<string>--- EOF ---</string>
+		</concat>
+		
+	</target>
 
 	<!-- ================================= 
           target: 30-service-deploy 
@@ -275,6 +305,16 @@
 		     inheritrefs="true"
 		     useNativeBasedir="true" />
 	</target>
+	
+	<!-- ================================= 
+	      target: 39-service-documentation 
+	     ================================= -->
+	<target name="39-service-documentation" depends="declare,load-service-props" description="create service documentation">
+		<ant antfile="${swat.current.service.home}/build.xml"
+		     target="39-service-documentation"
+		     inheritrefs="true"
+		     useNativeBasedir="true" />
+	</target>
 
 	<!-- ================================= 
           target: 40-service-template-seed 
@@ -331,6 +371,18 @@
 			<regexp pattern="^[^#]*(pw|password|passwd|auth).*=" />
 			<fileset dir="${swat.dp.infra}">
 				<include name="**/*.properties" />
+			</fileset>
+		</showfile>
+	</target>
+	
+	<target name="93-swat-show-device-serial"
+	        depends="declare"
+	        description="show all serial and entitlement numbers">
+		<echo message="searching serials in ${swat.dp.devices}} ..." />
+		<showfile byline="true">
+			<regexp pattern="^.*(serial|entitlement)=" />
+			<fileset dir="${swat.dp.devices}">
+				<include name="config/*.properties" />
 			</fileset>
 		</showfile>
 	</target>
@@ -584,4 +636,23 @@
 			</fileset>
 		</replaceregexp>
 	</target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: addServiceToIndexPage                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="addServiceToIndexPage" depends="declare,load-service-props">
+    	
+    	
+    	<echo message="addServiceToIndexPage: ${swat.current.service.home} - ${mgr.target.service.name}" />
+    	<copy todir="${basedir}/dist/${env.name}">
+    	    <fileset dir="${swat.current.service.home}/dist/docs/${env.name}">
+    	      <exclude name="*.html"/>
+    	    </fileset>
+    	</copy>
+    	<concat destfile="${basedir}/dist/${env.name}/index.html" append="yes">
+    		<string>&lt;a href=${mgr.target.service.name}.html /&gt;</string>
+    	</concat>
+            
+    </target>
+
 </project>
