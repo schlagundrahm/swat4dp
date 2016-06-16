@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+        <!-- get filestore snapshot
+        <xsd:element name="get-filestore">
+          <xsd:complexType>
+            <xsd:attribute name="location" type="tns:filestore-location"/>
+            <xsd:attribute name="annotated" type="xsd:boolean"/>
+            <xsd:attribute name="layout-only" type="xsd:boolean"/>
+            <xsd:attribute name="no-subdirectories" type="xsd:boolean"/>
+          </xsd:complexType>
+        </xsd:element>
+        -->
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dp="http://www.datapower.com/schemas/management">
+   <soapenv:Body>
+      <dp:request domain="@domain.name@" xmlns:dp="http://www.datapower.com/schemas/management">
+         <dp:get-filestore location="local:" annotated="true" layout-only="false" no-subdirectories="false"/>
+      </dp:request>
+   </soapenv:Body>
+</soapenv:Envelope>
