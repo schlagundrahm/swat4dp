@@ -1,9 +1,12 @@
 /*
- * Copyright © 2011 schlag&rahm gmbh, Switzerland. All rights reserved.
+ * Created by Pierce Shah
  * 
- * Created by Pierce Shah on Nov 3, 2011
+ * Ant Tools for Swat4DP
+ * Schlag&rahm WebSphere Administration Toolkit for DataPower
+ * 
+ * Copyright (c) 2009-2013 schlag&rahm AG, Switzerland. All rights reserved.
  *
- * http://www.schlagundrahm.ch
+ *      http://www.schlagundrahm.ch
  *
  */
 package ch.srsx.swat.datapower.tools.ant.taskdefs;
@@ -313,7 +316,7 @@ public class CompareConfig extends Task {
 		@SuppressWarnings("unchecked")
 		Collection<Entry<String, String>> same = CollectionUtils.intersection(c1.entrySet(), c2.entrySet());
 
-		if (!same.isEmpty()) {
+		if (same != null && !same.isEmpty()) {
 			log("these files are identical", 0);
 			for (Entry<String, String> entry : same) {
 				log("[1=2]: " + entry.getKey());
