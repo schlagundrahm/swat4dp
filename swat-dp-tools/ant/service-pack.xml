@@ -59,7 +59,7 @@
 			<createfilesconfig env="@{env}"
 			                   createDpConfig="true"
 			                   domain="${domain.name}"
-			                   comment="${service.summary}"
+			                   comment="Swat4DP configuration package for service object: ${service.name}"
 			                   targetdir="${import-dir}"
 			                   targetfile="files.xml">
 				<fileset dir="${files-dir}">
@@ -108,7 +108,7 @@
 	<macrodef name="service-pack2compare-macro">
 		<attribute name="env" />
 		<sequential>
-			<echo message="Start preparing the comparison file-structure for the service ${service.name} for environment @{env}..." />
+			<echo message="Start preparing the comparison file-structure for the service ${service.name} for environment @{env} [${FILESTAMP}]..." />
 
 			<!-- Prepare all temporary directories for the pack -->
 			<service-prepare-import-dirs-macro env="@{env}" />
@@ -126,6 +126,7 @@
 				<filtersfile file="${swat.dp.infra}/build.properties" />
 				<filtersfile file="${pws.filter.file}" />
 				<filter token="domain.name" value="${domain.name}"/>
+				<filter token="build.number" value="${FILESTAMP}"/>
 			</filterset>
 
 			<!-- Copy and filter the local files (common and env-specific) -->
