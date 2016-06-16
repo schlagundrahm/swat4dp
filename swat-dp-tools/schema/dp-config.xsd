@@ -42,6 +42,7 @@
       <xsd:choice maxOccurs="unbounded">
          <xsd:element name="B2BProfile" type="ConfigElement"/>
          <xsd:element name="AAAPolicy" type="ConfigElement"/>
+         <xsd:element name="CookieAttributePolicy" type="ConfigElement"/>
          <xsd:element name="Domain" type="ConfigElement"/>
          <xsd:element name="LDAPSearchParameters" type="ConfigElement"/>
          <xsd:element name="ProcessingMetadata" type="ConfigElement"/>
@@ -72,7 +73,10 @@
          <xsd:element name="OAuthSupportedClient" type="ConfigElement"/>
          <xsd:element name="OAuthSupportedClientGroup" type="ConfigElement"/>
          <xsd:element name="SSHClientProfile" type="ConfigElement"/>
+         <xsd:element name="SSLClientProfile" type="ConfigElement"/>
          <xsd:element name="SSLProxyProfile" type="ConfigElement"/>
+         <xsd:element name="SSLServerProfile" type="ConfigElement"/>
+         <xsd:element name="SSLSNIServerProfile" type="ConfigElement"/>
          <xsd:element name="DeploymentPolicyParametersBinding" type="ConfigElement"/>
          <xsd:element name="ErrorReportSettings" type="ConfigElement"/>
          <xsd:element name="SystemSettings" type="ConfigElement"/>
