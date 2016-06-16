@@ -688,6 +688,20 @@
 			<xsl:copy-of select="@*" />
 			<xsl:for-each select="*">
 				<xsl:choose>
+					<xsl:when test="local-name(.)='mAdminState'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('dns.state')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='UserSummary'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="string('dns.summary')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
 					<xsl:when test="local-name(.)='SearchDomains'">
 						<xsl:element name="{name()}">
 							<xsl:for-each select="*">
@@ -1043,6 +1057,13 @@
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
+					<xsl:when test="local-name(.)='StandbyControl'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('linkaggregate.',$label,'.standby')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
 					<xsl:when test="local-name(.)='Group'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
@@ -1051,6 +1072,13 @@
 						</xsl:call-template>
 					</xsl:when>
 					<xsl:when test="local-name(.)='VirtualIP'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('linkaggregate.',$label,'.standby.vip')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='SecondaryVirtualIP'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
 								<xsl:value-of select="concat('linkaggregate.',$label,'.standby.vip')" />
@@ -1128,6 +1156,13 @@
 			<xsl:copy-of select="@*" />
 			<xsl:for-each select="*">
 				<xsl:choose>
+					<xsl:when test="local-name(.)='UserSummary'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ethernet.',$label,'.summary')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
 					<xsl:when test="local-name(.)='LinkAggMode'">
 						<xsl:call-template name="set-token">
 							<xsl:with-param name="key">
@@ -1170,10 +1205,73 @@
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
+					<xsl:when test="local-name(.)='StandbyControl'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ehternet.',$label,'.standby')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Group'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ethernet.',$label,'.standby.group')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='VirtualIP'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ethernet.',$label,'.standby.vip')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='SecondaryVirtualIP'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ethernet.',$label,'.standby.vip.secondary.',count(./preceding-sibling::SecondaryVirtualIP)+1)" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Preempt'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ethernet.',$label,'.standby.preempt')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Priority'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ethernet.',$label,'.standby.priority')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Authentication'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ethernet.',$label,'.standby.authentication')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='SelfBalance'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ethernet.',$label,'.standby.selfbalancing')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
 					<xsl:when test="local-name(.)='StandbyControls'">
 						<xsl:call-template name="set-standby-controls">
 							<xsl:with-param name="int-prefix">
 								<xsl:value-of select="concat('ethernet.',$label)" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='LinkAggInterface'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('ethernet.',$label,'.linkaggregate')" />
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
@@ -1240,6 +1338,13 @@
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
+					<xsl:when test="local-name(.)='SecondaryAddress'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('vlan.',$index,'.ip.secondary.',count(./preceding-sibling::SecondaryAddress)+1)" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
 					<xsl:when test="local-name(.)='StaticRoutes'">
 						<xsl:call-template name="set-static-routes">
 							<xsl:with-param name="int-prefix">
@@ -1247,10 +1352,73 @@
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
+					<xsl:when test="local-name(.)='StandbyControl'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('vlan.',$index,'.standby')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Group'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('vlan.',$index,'.standby.group')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='VirtualIP'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('vlan.',$index,'.standby.vip')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='SecondaryVirtualIP'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('vlan.',$index,'.standby.vip.secondary.',count(./preceding-sibling::SecondaryVirtualIP)+1)" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Preempt'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('vlan.',$index,'.standby.preempt')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Priority'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('vlan.',$index,'.standby.priority')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='Authentication'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('vlan.',$index,'.standby.authentication')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='SelfBalance'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('vlan.',$index,'.standby.selfbalancing')" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
 					<xsl:when test="local-name(.)='StandbyControls'">
 						<xsl:call-template name="set-standby-controls">
 							<xsl:with-param name="int-prefix">
 								<xsl:value-of select="concat('vlan.',$index)" />
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:when test="local-name(.)='LinkAggInterface'">
+						<xsl:call-template name="set-token">
+							<xsl:with-param name="key">
+								<xsl:value-of select="concat('vlan.',$index,'.linkaggregate')" />
 							</xsl:with-param>
 						</xsl:call-template>
 					</xsl:when>
