@@ -337,6 +337,7 @@
 		<attribute name="do-unquiesce" default="true" />
 		<attribute name="all-devices" default="true" />
 		<attribute name="primary" default="true" />
+	    <attribute name="do-save" default="false" />
 		<sequential>
 			<!-- Prepare local variables -->
 			<property name="local.env" value="@{env}" />
@@ -425,10 +426,26 @@
 				</else>
 			</if>
 
+            <!-- prepare soma-request save-config -->
+            <if>
+                <equals arg1="@{do-save}" arg2="true" />
+                <then>
+                    <soma-prepare-request-macro soma.request="config-save"
+                                                env="${local.env}"
+                                                domain="${local.domain}"
+                                                content.exists="false"
+                                                content.dir="dist" />
+                    <var name="save.req.list" value="config-save" />
+                </then>
+                <else>
+                    <var name="save.req.list" value="" />
+                </else>
+            </if>
 			<!-- prepare soma-request list -->
 			<join-vars-macro result="inter1" arg1="${quiesce.req.list}" arg2="${import.req.list}" />
 			<join-vars-macro result="inter2" arg1="${inter1}" arg2="${flush.req.list}" />
-			<join-vars-macro result="soma.request.list" arg1="${inter2}" arg2="${unquiesce.req.list}" />
+			<join-vars-macro result="inter3" arg1="${inter2}" arg2="${unquiesce.req.list}" />
+		    <join-vars-macro result="soma.request.list" arg1="${inter3}" arg2="${save.req.list}" />
 			<echo message="Joined the list of requests to be [${soma.request.list}]." />
 			<fail message="No requests in the list to be run, stop process.">
 				<condition>
