@@ -230,6 +230,7 @@
 											<echo message="  ** ${curl.exec} --data-binary @${input-file} ${mgmt.prot}://${mgmt.host}:${mgmt.port}/service/mgmt/current -k -u ${mgr.target.user.name}:******* -o${output-file}" />
 											
 											<exec executable="${curl.exec}">
+												<!-- arg value="tlsv1.2" / -->
 												<arg value="--data-binary" />
 												<arg value="@${input-file}" />
 												<arg value="${mgmt.prot}://localhost:${mgmt.ssh.tunnel.local.port}/service/mgmt/current" />
@@ -336,8 +337,15 @@
 					<loadfile property="response.msg"
 					          srcfile="dist/@{tmp.dir}/@{soma.request}-response.txt"
 					          failonerror="false" />
-					<echo message="Result of the '@{soma.request}' SOMA request: " />
-					<echo message="${response.msg}" />
+					<if>
+						<not>
+							<contains string="@{soma.request}" substring="filestore" />
+						</not>
+						<then>
+							<echo message="Result of the '@{soma.request}' SOMA request: " />
+							<echo message="${response.msg}" />
+						</then>
+					</if>
 
 					<fail message="The SOMA request '@{soma.request}' returned an error! Details are stored in the 'dist/@{tmp.dir}/@{soma.request}-response.properties' file."
 					      if="failure-properties" />
