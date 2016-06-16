@@ -1,0 +1,85 @@
+.svgboxtitle {
+	margin: 0.2em 0 0.2em 0;
+	font-weight: 600;
+	font-family: 'Titillium Web', sans-serif;
+	position: relative;  
+	font-size: 12px;
+	line-height: 20px;
+	padding: 5px 5px 5px 5px;
+	color: #355681;
+	box-shadow: 
+		inset 0 0 0 1px rgba(53,86,129, 0.4), 
+		inset 0 0 5px rgba(53,86,129, 0.5),
+		inset -285px 0 35px white;
+	border-radius: 0 10px 0 10px;
+}
+
+.svgboxsummary {
+	margin: 0.2em 0 0.2em 0;
+	font-weight: 600;
+	font-family: 'Titillium Web', sans-serif;
+	position: relative;  
+	font-size: 10px;
+	line-height: 12px;
+	padding: 5px 5px 5px 5px;
+	color: #355681;
+}
+
+.svgboxdetails {
+	margin: 0.2em 0 0.2em 0;
+	font-weight: normal;
+	font-family: 'Titillium Web', sans-serif;
+	position: relative;  
+	font-size: 12px;
+	line-height: 12px;
+	padding: 5px 5px 5px 5px;
+}
+
+.svgfsh {
+	font-size: 10; 
+	text-anchor: start; 
+	dominant-baseline: hanging;
+}
+
+.svgfshtitle {
+	margin: 0.1em 0 0.1em 0;
+	font-weight: normal;
+	font-size: 12px;
+	font-family: 'Titillium Web', sans-serif;
+	
+	text-anchor: start;
+}
+
+.svgfshdetails {
+	margin: 0.2em 0 0.2em 0;
+	font-weight: normal;
+	font-family: 'Titillium Web', sans-serif;
+	position: relative;  
+	font-size: 10px;
+	line-height: 12px;
+	padding: 5px 5px 5px 5px;
+}
+
+.svgarrowcaption {
+	font-size: 10px;
+	line-height: 40px;
+	background: #355681;
+	background: rgba(53,86,129, 0.8);
+	border: 1px solid #fff;
+	padding: 5px 15px;
+	color: white;
+	box-shadow: inset 0 0 5px rgba(53,86,129, 0.5);
+	font-family: 'Titillium Web', sans-serif;
+}
+
+.svgsslprofile {
+	font-weight: 400;
+	font-size: 12px;
+	font-family: 'Titillium Web', sans-serif;
+}
+
+.svgcryptoprofile, .svgcryptocredentials {
+	font-weight: normal;
+	font-size: 10px;
+	font-family: 'Titillium Web', sans-serif;
+}
