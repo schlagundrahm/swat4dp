@@ -679,7 +679,7 @@
 			<delete file="@{output}" />
 			<xslt processor="trax"
 			      in="dist/import/@{env}/export.xml"
-			      style="${swat.dp.tools}/soma/xsl/create-html-service-doc.xsl"
+			      style="${swat.dp.tools}/soma/xsl/create-html-service-doc.css.xsl"
 			      out="dist/docs/@{env}/@{service}.html"
 			      classpathref="swat.dp.tools.classpath">
 				<param name="project" expression="${ant.project.name}" />
