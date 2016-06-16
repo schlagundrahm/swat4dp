@@ -137,6 +137,7 @@
 				</then>
 				<else>
 					<!-- Define the Env Filter -->
+					<echo message="env filter = config/@{env}.properties" />
 					<filterset id="@{filter}" onmissingfiltersfile="ignore">
 						<!-- Env settings  -->
 						<filtersfile file="config/@{env}.properties" />
@@ -187,6 +188,7 @@
 					</if>
 
 					<!-- Define the Crypto Filter -->
+					<echo message="crypto filter = ${swat.dp.infra}/config/crypto.properties" />
 					<filterset id="@{filter}" onmissingfiltersfile="ignore">
 						<!-- Specific Crypto -->
 						<filter token="crypto.cn" value="${local.crypto.cn}" />
