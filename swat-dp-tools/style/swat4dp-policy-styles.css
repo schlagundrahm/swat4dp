@@ -1,0 +1,122 @@
+
+.policy table {
+	border-collapse: collapse;
+	text-align: left;
+	width: 100%;
+}
+
+.policy {
+	font: normal 12px/150% Arial, Helvetica, sans-serif;
+	background: #FFFFFF;
+	overflow: hidden;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.policy table td, .policy table th {
+	padding: 5px 10px;
+}
+
+.policy table thead th {
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #006699
+		), color-stop(1, #00557F));
+	background: -moz-linear-gradient(center top, #006699 5%, #00557F 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#006699',
+		endColorstr='#00557F');
+	background-color: #006699;
+	color: #FFFFFF;
+	font-size: 15px;
+	font-weight: bold;
+	border-left: 0px solid #0070A8;
+}
+
+.policymaps table thead th {
+	background: #009999;
+	background-color: #009999;
+	color: #000000;
+	font-size: 12px;
+	font-weight: bold;
+}
+
+.policy table thead th:first-child {
+	font-size: 16px;
+	text-align: center;
+	border: none;
+}
+
+.policymaps table thead th:first-child {
+	font-size: 12px;
+	text-align: left;
+	border: none;
+}
+
+.policymaps table thead tr:nth-child(3) th {
+	font-size: 15px;
+	text-align: left;
+}
+
+.policymaps table tbody tr:nth-child(1) td, .policymaps table tbody tr:nth-child(2) td {
+	font-size: 15px;
+	text-align: left;
+}
+
+.policymaps table tbody tr:nth-child(3) td {
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #006699
+		), color-stop(1, #00557F));
+	background: -moz-linear-gradient(center top, #006699 5%, #00557F 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#006699',
+		endColorstr='#00557F');
+	background-color: #006699;
+	color: #FFFFFF;
+	font-size: 15px;
+	font-weight: bold;
+	border-left: 0px solid #0070A8;
+}
+
+.policy table tbody td {
+	color: #00557F;
+	border-left: 1px solid #E1EEF4;
+	font-size: 12px;
+	font-weight: normal;
+}
+
+.policy table tbody .alt td {
+	background: #E1EEf4;
+	color: #00557F;
+}
+
+.policy table tbody td:first-child {
+	border-left: none;
+}
+
+.policy table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+.policy table tr:nth-child(even) {
+	background: #F2F2F2;
+}
+
+.policy table tr:hover td{
+	background: -o-linear-gradient(bottom, #E1EEf4 5%, #3398ff 100%);
+	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #E1EEf4), color-stop(1, #3398ff) );
+	background: -moz-linear-gradient( center top, #E1EEf4 5%, #3398ff 100% );
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#E1EEf4", endColorstr="#3398ff");
+	background: -o-linear-gradient(top,#E1EEf4,3398ff);
+	background-color: #E1EEf4;
+}
+
+.policy table tfoot td div {
+	border-top: 1px solid #006699;
+	background: #E1EEf4;
+}
+
+.policy table tfoot td {
+	padding: 0;
+	font-size: 12px
+}
+
+.policy table tfoot td div {
+	padding: 2px;
+}
