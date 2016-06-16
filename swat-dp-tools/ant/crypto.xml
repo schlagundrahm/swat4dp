@@ -32,10 +32,11 @@
          = = = = = = = = = = = = = = = = = -->
 	<macrodef name="key-generate-on-device-macro">
 		<attribute name="device" />
+		<attribute name="env" default="${swat.env.short}" />
 		<attribute name="domain" />
 		<attribute name="crypto.prefix" />
 		<sequential>
-			<echo message="run keygen on @{device} - domain: @{domain} " />
+			<echo message="run keygen on @{device} - domain: @{domain} - env: @{env}" />
 			<load-device-props-macro device="@{device}" />
 
 			<!-- Adjust properties for the crypto prefix -->
@@ -45,6 +46,7 @@
 
 			<!-- prepare soma-request keygen -->
 			<soma-prepare-request-macro soma.request="keygen"
+			                            env="@{env}"
 			                            domain="@{domain}"
 			                            device="@{device}"
 			                            tmp.dir="crypto/@{device}"
@@ -58,6 +60,7 @@
 
 			<!-- prepare soma-request getfile (download CSR) -->
 			<soma-prepare-request-macro soma.request="getfile"
+			                            env="@{env}"
 			                            domain="@{domain}"
 			                            device="@{device}"
 			                            dp.file.name="temporary:///${local.file.name}"
