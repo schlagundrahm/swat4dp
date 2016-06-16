@@ -148,6 +148,7 @@
 			      out="@{output}"
 			      classpathref="swat.dp.tools.classpath">
 				<param name="domain" expression="@{domain}" />
+				<param name="filestore" expression="${basedir}/dist/download/filestore-export-response.xml" />
 				<factory name="net.sf.saxon.TransformerFactoryImpl" />
 			</xslt>
 		</sequential>
@@ -661,6 +662,32 @@
 				<fileset dir="@{dst-dir}" excludesfile="${binary.excludes}" includes="**/*@{file-extension}" />
 			</copy>
 			<delete dir="@{dst-dir}" failonerror="false" />
+		</sequential>
+	</macrodef>
+	
+	<!-- ================================= 
+          macrodef: create-service-docu-macro 
+         ================================= -->
+	<macrodef name="create-service-docu-macro">
+		<attribute name="env" />
+		<attribute name="domain" />
+		<attribute name="service" />
+		<attribute name="class" />
+		<sequential>
+			<!-- Create a  -->
+			<echo message="Create service documentation for ${service.name}" />
+			<delete file="@{output}" />
+			<xslt processor="trax"
+			      in="dist/import/@{env}/export.xml"
+			      style="${swat.dp.tools}/soma/xsl/create-html-service-doc.xsl"
+			      out="dist/docs/@{env}/@{service}.html"
+			      classpathref="swat.dp.tools.classpath">
+				<param name="project" expression="${ant.project.name}" />
+				<param name="service" expression="@{service}" />
+				<param name="class" expression="@{class}" />
+				<param name="env" expression="@{env}" />
+				<factory name="net.sf.saxon.TransformerFactoryImpl" />
+			</xslt>
 		</sequential>
 	</macrodef>
 </project>
