@@ -19,7 +19,6 @@
                     <Days>365</Days>
                     <Password>@keygen.pw@</Password>
                     <PasswordAlias>@keygen.pw.alias@</PasswordAlias>
-                    <KwkExportable>@keygen.use.hsm@</KwkExportable>
                     <ExportKey>@keygen.export.key@</ExportKey>
                     <GenSSCert>@keygen.generate.sscert@</GenSSCert>
                     <ExportSSCert>@keygen.generate.sscert@</ExportSSCert>
