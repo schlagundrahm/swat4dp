@@ -226,4 +226,17 @@
 	<target name="39-service-project-clean" description="Clean the dist-folder of the project">
 		<delete dir="${basedir}/dist" />
 	</target>
+	
+	<!-- ================================= 
+		  target: 39-service-documentation 
+		 ================================= -->
+	<target name="39-service-documentation" description="Create the service documentation">
+		<!-- Step 1: Pack the service for the environment -->
+		<echo message="Step 1: Pack service" />
+		<service-pack-macro env="${mgr.target.env.name}" />
+		<create-service-docu-macro env="${mgr.target.env.name}"
+                                   domain="${domain.name}"
+                                   service="${service.name}"
+                                   class="${service.object.class}" />
+	</target>
 </project>
