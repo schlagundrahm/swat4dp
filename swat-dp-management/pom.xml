@@ -253,7 +253,7 @@
         <dependency>
         	<groupId>ch.srsx.swat.datapower.tools.ant</groupId>
         	<artifactId>swat-dp-ant-tools</artifactId>
-        	<version>0.0.1-SNAPSHOT</version>
+        	<version>1.0.4-SNAPSHOT</version>
         </dependency>
   </dependencies>
 
