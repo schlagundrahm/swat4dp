@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- ================================================================================================= -->
+<!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
+<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- ================================================================================================= -->
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.8.2 or above. -->
+<!-- ====================================================================== -->
+<project name="swat-dp-tools.service-split" default="info" basedir=".">
+
+	<dirname file="${ant.file.swat-dp-tools.service-split}" property="ant_servicesplit.dir" />
+	<import file="${ant_servicesplit.dir}/taskdefs.xml" />
+
+	<!-- ================================= 
+	          target: info 
+	         ================================= -->
+	<target name="info">
+		<echo message="Macros for service splitting for swat-dp-tools" />
+	</target>
+
+	<!-- ================================= 
+	      macrodef: service-split-objects-macro 
+	      ================================= -->
+	<macrodef name="service-split-objects-macro">
+		<attribute name="device" />
+		<attribute name="domain" />
+		<attribute name="service" />
+		<attribute name="object" />
+		<attribute name="class" />
+		<sequential>
+			<!-- Properties used in this task -->
+			<property name="export-dir" value="dist/download/service-export" />
+			<property name="export-file" value="${export-dir}/export.xml" />
+			<property name="export-filtered-file" value="${export-dir}/export-filtered.xml" />
+			<property name="files-dir" value="dist/export/@{device}-@{domain}/master/common" />
+			<property name="split-dir" value="dist/export/@{device}-@{domain}/xcfg/common" />
+			<property name="xcfg-files-prefix" value="@{service}" />
+
+			<!-- Load the split configuration -->
+			<property name="split-config-file" value="split-service-objects.properties" />
+			<loadproperties srcfile="${swat.dp.tools}/config/${split-config-file}" />
+
+			<!-- Set the style-sheets for the split actions -->
+			<property name="split-files-style" value="${swat.dp.tools}/soma/xsl/split-files-style.xsl" />
+			<property name="split-objects-style" value="${swat.dp.tools}/soma/xsl/split-objects-style.xsl" />
+			<property name="split-objects-intrinsic-style"
+			          value="${swat.dp.tools}/soma/xsl/split-objects-intrinsic-style.xsl" />
+			<property name="split-objects-nocat-style"
+			          value="${swat.dp.tools}/soma/xsl/split-objects-nocat-style.xsl" />
+			<property name="split-style-policy-style" value="${swat.dp.tools}/soma/xsl/split-style-policy-style.xsl" />
+
+			<!-- Clear the dirs first -->
+			<delete dir="${files-dir}" />
+			<mkdir dir="${files-dir}" />
+			<delete dir="${split-dir}" />
+			<mkdir dir="${split-dir}" />
+
+			<!-- Copy the local files -->
+			<echo message="Copying the local files..." />
+			<copy todir="${files-dir}" overwrite="true" verbose="true">
+				<fileset dir="${export-dir}" includes="local/**" />
+			</copy>
+
+			<!-- Now start to split according to the settings in the files, groups must be maintained here, objects in the file -->
+			<echo message="Start splitting the export-file ${export-file}..." />
+
+			<!-- First, if this is not the 'common' service, filter out the common objects -->
+			<echo message="Filter out the common objects" />
+			<if>
+				<and>
+					<not>
+						<equals arg1="@{service}" arg2="common" />
+					</not>
+					<available file="${swat.current.service.common.home}" type="dir" />
+				</and>
+				<then>
+					<!-- Step 0: Remove the file object-list file first -->
+					<echo message="Step 0: Remove the file object-list file first" />
+					<delete file="dist/object-list/common-import-object-list.xml" />
+					<delete file="${export-filtered-file}" />
+
+					<!-- Step 1: Make sure, we see the object list in the common project, copy it over -->
+					<if>
+						<not>
+							<available file="${swat.current.service.common.home}/dist/object-list/${swat.env.name}/import-object-list.xml" />
+						</not>
+						<then>
+							<echo message="Step 1a: Running target 34-service-object-list-create on the common project" />
+							<ant antfile="${swat.current.service.common.home}/build.xml"
+							     target="34-service-object-list-create"
+							     inheritrefs="true"
+							     useNativeBasedir="true" />
+						</then>
+						<else>
+							<echo message="Step 1a: File is present, skipping" />
+						</else>
+					</if>
+
+					<echo message="Step 1b: We see the object list in the common project, copy it over" />
+					<copy tofile="dist/object-list/common-import-object-list.xml" overwrite="true" verbose="true">
+						<fileset dir="${swat.current.service.common.home}/dist/object-list/${swat.env.name}"
+						         includes="import-object-list.xml" />
+					</copy>
+
+					<!-- Step 2: Filter the export with the content of the common project -->
+					<echo message="Step 2: Filter the export with the content of the common project" />
+					<filter-with-object-list-macro input="${export-file}"
+					                               output="${export-filtered-file}"
+					                               object-list="../../../${ant.project.name}/dist/object-list/common-import-object-list.xml" />
+				</then>
+				<else>
+					<copy tofile="${export-filtered-file}" overwrite="true" verbose="true">
+						<fileset file="${export-file}" />
+					</copy>
+				</else>
+			</if>
+
+			<!-- Now split away the crypto, fsh, lbgs, style-helpers -->
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-objects-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-10-crypto.xcfg"
+			                       objects="'${svc.10.objects}'" />
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-objects-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-15-fsh.xcfg"
+			                       objects="'${svc.15.objects}'" />
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-objects-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-20-lbgs.xcfg"
+			                       objects="'${svc.20.objects}'" />
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-objects-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-25-style-helper.xcfg"
+			                       objects="'${svc.25.objects}'" />
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-objects-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-26-name-value-profiles.xcfg"
+			                       objects="'${svc.26.objects}'" />
+
+			<!-- Now split away all style-rules, and separate them out, one by one -->
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-objects-style}"
+			                       output="${split-dir}/temp-40-1.xcfg"
+			                       objects="'${svc.30.objects},${svc.40.objects}'" />
+			<if>
+				<available file="${split-dir}/temp-40-1.xcfg" />
+				<then>
+					<xslt processor="trax"
+					      in="${split-dir}/temp-40-1.xcfg"
+					      style="${split-style-policy-style}"
+					      out="${split-dir}/temp-40-2.xcfg"
+					      classpathref="swat.dp.tools.classpath">
+						<factory name="net.sf.saxon.TransformerFactoryImpl" />
+						<param name="serviceName" expression="@{service}" />
+						<param name="serviceObjectName" expression="@{object}" />
+					</xslt>
+				</then>
+			</if>
+			<delete dir="${split-dir}" includes="temp-*.xcfg" />
+
+			<!-- Now split away the style-policy -->
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-objects-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-40-style-policy.xcfg"
+			                       objects="'${svc.40.objects}'" />
+
+			<!-- Now split away the aux-objects, monitors, service and log-targets -->
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-objects-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-60-aux-objects.xcfg"
+			                       objects="'${svc.60.objects}'" />
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-objects-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-65-monitors.xcfg"
+			                       objects="'${svc.65.objects}'" />
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-objects-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-80-service.xcfg"
+			                       objects="'${svc.80.objects}'" />
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-objects-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-90-logtargets.xcfg"
+			                       objects="'${svc.90.objects}'" />
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-objects-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-95-deployment-policies.xcfg"
+			                       objects="'${svc.95.objects}'" />
+
+			<!-- Now split away the intrinsic objects -->
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-objects-intrinsic-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-98-intrinsic.xcfg"
+			                       objects="''" />
+
+			<!-- And now split away the uncategorized objects -->
+			<extract-objects-macro input="${export-filtered-file}"
+			                       style="${split-objects-nocat-style}"
+			                       output="${split-dir}/${xcfg-files-prefix}-99-nocat.xcfg"
+			                       objects="'${svc.99.objects}'" />
+
+			<echo message="Done splitting the export-file ${export-file}. Please check the files in ${split-dir}." />
+			
+			<fail message="ATTENTION: common project does not exist - it is strongly advised to create one!">
+				<condition>
+					<not>
+						<available file="${swat.current.service.common.home}" type="dir" />
+					</not>
+				</condition>
+			</fail>
+		</sequential>
+	</macrodef>
+</project>

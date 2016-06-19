@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- ================================================================================================= -->
+<!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
+<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- ================================================================================================= -->
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.8.2 or above. -->
+<!-- ====================================================================== -->
+<project name="swat-dp-tools.taskdefs" default="info" basedir=".">
+
+	<!-- The build.properties file defines the path to local jar files -->
+	<property file="build.properties" />
+
+	<dirname file="${ant.file.swat-dp-tools.taskdefs}" property="ant_taskdefs.dir" />
+
+	<!-- ================================= 
+          target: info              
+         ================================= -->
+	<target name="info" depends="declare" description="show taskdefs classpath">
+		<echo message="ant_taskdefs.dir = ${ant_taskdefs.dir}" />
+		<echoproperties prefix="swat" />
+		<!-- Format path -->
+		<echo message="swat.dp.tools.classpath :" />
+		<pathconvert pathsep="${line.separator}"
+		             property="echo.tools.classpath"
+		             refid="swat.dp.tools.classpath" />
+		<echo message="${echo.tools.classpath}" />
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: declare                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="declare">
+
+		<echo message="declare swat.dp.tools.classpath and load additional task definitions" />
+
+		<!-- Create the time stamp -->
+		<tstamp>
+			<format property="FILESTAMP" pattern="yyyyMMdd_HHmmss" />
+		</tstamp>
+
+		<!-- define the classpath for the additional tasks -->
+		<path id="swat.dp.tools.classpath">
+			<fileset dir="${ant_taskdefs.dir}/../lib">
+				<include name="**/*.jar" />
+			</fileset>
+		</path>
+
+		<!-- Task Definitions -->
+		<!-- declare antcontrib tasks -->
+		<taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="swat.dp.tools.classpath" />
+		<taskdef resource="com/sardak/antform/taskdefs.properties" classpathref="swat.dp.tools.classpath" />
+		<taskdef resource="ch/srsx/swat/datapower/tools/ant/antlib.xml" classpathref="swat.dp.tools.classpath" />
+		<taskdef resource="ch/srsx/tools/ant/antlib.xml" classpathref="swat.dp.tools.classpath" />
+		<taskdef name="xmltask"
+		         classname="com.oopsconsultancy.xmltask.ant.XmlTask"
+		         classpathref="swat.dp.tools.classpath" />
+		<taskdef name="http"
+		         classname="org.missinglink.ant.task.http.HttpClientTask"
+		         classpathref="swat.dp.tools.classpath" />
+
+	</target>
+</project>

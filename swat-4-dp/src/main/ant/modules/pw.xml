@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- ================================================================================================= -->
+<!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
+<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- ================================================================================================= -->
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.8.2 or above. -->
+<!-- ====================================================================== -->
+<project name="swat-dp-tools.pw" default="info" basedir=".">
+
+	<dirname file="${ant.file.swat-dp-tools.pw}" property="ant_pw.dir" />
+	<import file="${ant_pw.dir}/taskdefs.xml" />
+
+	<target name="info">
+		<echo message="Macros for pws for swat-dp-tools" />
+	</target>
+
+	<!-- INITIALIZATION OF PASSWORDS -->
+	<macrodef name="init-env-passwords-macro">
+		<attribute name="env" />
+		<sequential>
+			<if>
+				<isset property="pws.env.list" />
+				<then>
+					<!-- Run through the list and prompt for passwords, set them as tokens in the filterset -->
+					<foreach list="${pws.env.list}"
+					         delimiter=","
+					         param="pw.item"
+					         target="prompt-for-variable-env-pw"
+					         inheritall="true"
+					         inheritrefs="true" />
+				</then>
+				<else>
+					<echo message="Property pws.env.list not present, not prompting for any passwords." />
+				</else>
+			</if>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="init-device-passwords-macro">
+		<attribute name="device" />
+		<sequential>
+			<if>
+				<isset property="pws.device.list" />
+				<then>
+					<!-- Run through the list and prompt for passwords, set them as tokens in the filterset -->
+					<foreach list="${pws.device.list}"
+					         delimiter=","
+					         param="pw.item"
+					         target="prompt-for-variable-device-pw"
+					         inheritall="true"
+					         inheritrefs="true" />
+				</then>
+				<else>
+					<echo message="Property pws.device.list not present, not prompting for any passwords." />
+				</else>
+			</if>
+		</sequential>
+	</macrodef>
+
+	<target name="prompt-for-variable-env-pw">
+		<echo message="Checking password ${pw.item}" />
+		<propertycopy name="pw-lbl" from="${pw.item}.lbl" silent="true" />
+		<prompt-for-variable-passwd-macro pw-item="${pw.item}"
+		                                  pw-lbl="${pw-lbl}"
+		                                  pw-specifier="${env.name}" />
+	</target>
+
+	<target name="prompt-for-variable-device-pw">
+		<echo message="Checking password ${pw.item}" />
+		<propertycopy name="pw-lbl" from="${pw.item}.lbl" silent="true" />
+		<prompt-for-variable-passwd-macro pw-item="${pw.item}"
+		                                  pw-lbl="${pw-lbl}"
+		                                  pw-specifier="${device.name}" />
+	</target>
+
+	<macrodef name="prompt-for-variable-passwd-macro">
+		<attribute name="pw-item" />
+		<attribute name="pw-lbl" />
+		<attribute name="pw-specifier" />
+		<sequential>
+			<if>
+				<isset property="@{pw-item}.@{pw-specifier}" />
+				<then>
+					<echo message="Password for @{pw-item} already set for specifier @{pw-specifier}, no prompt needed." />
+					<propertycopy name="local-pw-value" from="@{pw-item}.@{pw-specifier}" />
+					<if>
+						<matches pattern="^\{aes\}.+" string="${local-pw-value}" />
+						<then>
+							<decrypt-password-macro password.text="${local-pw-value}"
+							                        password.property="local-pw-value" />
+						</then>
+					</if>
+					<echo file="${pws.filter.file}"
+					      append="true"
+					      message="@{pw-item}=${local-pw-value}${line.separator}" />
+				</then>
+				<else>
+					<dialog-password-macro title="Password Prompt [@{pw-lbl}]" 
+						label="@{pw-lbl}: " 
+						property="pw-value" 
+						tooltip="Set the password for the User @{pw-lbl} and specifier @{pw-specifier}."
+						fail-message="Password has to be set, abort." />
+					<if>
+						<isset property="pw-value" />
+						<then>
+							<echo message="Property @{pw-item} set for specifier @{pw-specifier} with ${pw-value}" />
+							<echo file="${pws.filter.file}"
+							      append="true"
+							      message="@{pw-item}=${pw-value}${line.separator}" />
+						</then>
+						<else>
+							<fail message="No password given, abort build." unless="pw-value" />
+						</else>
+					</if>
+				</else>
+			</if>
+		</sequential>
+	</macrodef>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: encrypt-password                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="encrypt-password">
+		<propertycopy property="prop.value" from="usersettings.${prop.key}" silent="true" />
+		<echo message="${prop.key} = ********" />
+		<if>
+			<not>
+				<equals arg1="${prop.value}" arg2="" />
+			</not>
+			<then>
+				<crypto mode="encrypt"
+				        keyfile="${user.home}/swat4dp-secret.key"
+				        property="prop.value.encrypted"
+				        input="${prop.value}"
+				        useprefix="true" />
+
+				<propertyfile file="${swat.dp.infra}/settings/${user.name}.properties">
+					<entry key="swat.crypto.key" value="swat4dp-secret.key" />
+					<entry key="${prop.key}" value="${prop.value.encrypted}" />
+				</propertyfile>
+			</then>
+		</if>
+	</target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: decrypt-password                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="decrypt-password">
+		<propertycopy property="prop.value" from="usersettings.${prop.key}" silent="true" />
+		<echo message="${prop.key} = ${prop.value}" />
+		<if>
+			<not>
+				<equals arg1="${prop.value}" arg2="" />
+			</not>
+			<then>
+				<crypto mode="decrypt"
+				        keyfile="${user.home}/swat4dp-secret.key"
+				        property="prop.value.decrypted"
+				        input="${prop.value}"
+				        useprefix="true" />
+
+				<propertyfile file="${swat.dp.infra}/settings/${user.name}.properties">
+					<entry key="swat.crypto.key" value="swat4dp-secret.key" operation="del" />
+					<entry key="${prop.key}" value="${prop.value.decrypted}" />
+				</propertyfile>
+			</then>
+		</if>
+	</target>	
+</project>

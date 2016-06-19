@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dp="http://www.datapower.com/schemas/management">
+    <soapenv:Body>
+        <dp:request domain="@domain.name@" xmlns:dp="http://www.datapower.com/schemas/management">
+            <dp:do-action>
+                <Keygen>
+                    <!-- LDAPOrder>off</LDAPOrder -->
+                    <C>@keygen.country@</C>
+                    <ST>@keygen.state@</ST>
+                    <L>@keygen.location@</L>
+                    <O>@keygen.organisation@</O>
+                    <OU>@keygen.organisation.unit@</OU>
+                    <!-- OU1></OU1 -->
+                    <!-- OU2></OU2 -->
+                    <!-- OU3></OU3 -->
+                    <CN>@crypto.cn@</CN>
+                    <KeyLength>2048</KeyLength>
+                    <!-- FileName>will be generated</FileName -->
+                    <Days>365</Days>
+                    <!-- Password></Password -->
+                    <!-- PasswordAlias></PasswordAlias -->
+                    <KwkExportable>@keygen.use.hsm@</KwkExportable>
+                    <ExportKey>@keygen.export.key@</ExportKey>
+                    <GenSSCert>@keygen.generate.sscert@</GenSSCert>
+                    <ExportSSCert>@keygen.generate.sscert@</ExportSSCert>
+                    <GenObject>@keygen.generate.object@</GenObject>
+                    <ObjectName>@crypto.object.name@</ObjectName>
+                    <HSM>@keygen.use.hsm@</HSM>
+                    <UsingKey>@keygen.existing.key.name@</UsingKey>
+                </Keygen>
+            </dp:do-action>
+        </dp:request>
+    </soapenv:Body>
+</soapenv:Envelope>
