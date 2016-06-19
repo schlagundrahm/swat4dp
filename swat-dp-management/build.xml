@@ -565,6 +565,7 @@
          ================================= -->
 	<target name="secBackup" depends="init" description="Secure Backup">
 		<property name="secbackup.path" value="local:///disk/securebackup" />
+		<property name="secbackup.cert" value="DataPowerSecureBackup" />
 
 		<antform title="DataPower Configuration Management">
 			<label>Secure Backup.</label>
@@ -578,6 +579,9 @@
 			                   property="secbackup.includeRAID"
 			                   tooltip="Whether to include the content of the harddisk array."
 			                   values="off,on" />
+			<textProperty label="Certificate : "
+			              property="secbackup.cert"
+			              tooltip="The Crypto Cert object name." />
 			<controlbar>
 				<button label="Cancel" type="cancel" />
 				<button label="Ok" type="ok" />
@@ -588,7 +592,7 @@
 
 		<dp:action domain="default">
 			<SecureBackup>
-				<cert>DataPowerSecureBackup</cert>
+				<cert>${secbackup.cert}</cert>
 				<destination>${secbackup.path}/${DSTAMP}</destination>
 				<include-iscsi>off</include-iscsi>
 				<include-raid>${secbackup.includeRAID}</include-raid>
@@ -1063,8 +1067,14 @@
 		<!--compareconfig cfgFile1="${basedir}/tmp/HS-Test1.zip"
 				         cfgFile2="${basedir}/tmp/HS-Test2.zip" includefiles="true" /-->
 		<!-- compare cfgFile1="${basedir}/tmp/hs-test-export.zip" cfgFile2="${basedir}/tmp/hs-test-export2.zip" includeDpAuxDir="true" / -->
-		<compareconfig cfgFile1="${basedir}/tmp/ucc/dp-int-gb-prod-domain.zip"
-						         cfgFile2="${basedir}/tmp/ucc/dp-int-ur-prod-domain.zip" includefiles="true" />
+		<!-- compareconfig cfgFile1="${basedir}/tmp/emtg-prod-export-20150706.zip"
+						         cfgFile2="${basedir}/tmp/emtg-qs-export-20150706.zip" includefiles="true" / -->
+		<!-- compareconfig cfgFile1="C:\Users\IBM_ADMIN\Documents\10 Customers\EMTG\Release 201510\export-emtg-prod-smpp1b2b.zip"
+								         cfgFile2="C:\Users\IBM_ADMIN\Documents\10 Customers\EMTG\Release 201510\export-emtg-prod-smpp2b2b.zip" includefiles="true" / -->
+		
+		
+		<compareconfig cfgFile1="C:\Users\IBM_ADMIN\Documents\10 Customers\EMTG\RfC\SR3505332\emtg.inbound.mpgw-QS.zip"
+										         cfgFile2="C:\Users\IBM_ADMIN\Documents\10 Customers\EMTG\RfC\SR3505332\rollback\emtg.inbound.mpgw-PROD.zip" includefiles="true" />
 	</target>
 
 
