@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<dp:request xmlns:dp="http://www.datapower.com/schemas/management">
-	<dp:get-filestore location="local:" annotated="false"
-		layout-only="false" no-subdirectories="false" />
-</dp:request>
-
-
