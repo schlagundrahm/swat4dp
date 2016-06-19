@@ -2,10 +2,10 @@
    ==  The Schlag&rahm Websphere Administration Toolkit (SWAT)            ==
    ==      -           -         -              -                         ==
    ==  SWAT DatapPower Backup Module for IBM DataPower SOA appliances     ==
-   ==                      ---   Swat4DPops   ---                         ==
+   ==                    ---   Swat4DPbackup   ---                        ==
    =========================================================================
 
-   schlag&rahm SWAT DataPower Operator Module
+   schlag&rahm SWAT DataPower Backup Module
    Copyright 2006-2013 schlag&rahm AG
 
    This product includes software developed at

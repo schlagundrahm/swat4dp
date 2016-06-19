@@ -1,10 +1,10 @@
 *+*+*+*+**+**+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*
 This is a legal agreement between schlag&rahm AG (S&R) and the Licensee, 
-who is being licensed to use the SWAT for DataPower Operator (Swat4DPops).
+who is being licensed to use the SWAT for DataPower Backup Module (Swat4DPbackup).
 
 Free License: 
 -------------
- The license for this version of Swat4DPops requires no payment by the user 
+ The license for this version of Swat4DPbackup requires no payment by the user 
  to S&R or any other party.
 
 Technical support: 
@@ -16,7 +16,7 @@ Technical support:
 License: 
 --------
  The Licensee is allowed to use all of the programs, data, 
- and documentation included with Swat4DPops.
+ and documentation included with Swat4DPbackup.
 
 * You may:
 - Install and use the Product on an unlimited number of computer systems.
@@ -25,18 +25,18 @@ License:
   of the original copyright holder.
 
 * You may not:
-- Re-distribute Swat4DPops or parts of it, including placing the product on the Internet.
-- Sell licenses for the Swat4DPops or parts of it;
-- Include the Swat4DPops in any other product;
-- Remove any proprietary notices on Swat4DPops and/or included third-party libraries.
-- Use the name SWAT, Swat4DP or Swat4DPops to endorse or promote products, solutions or services.
+- Re-distribute Swat4DPbackup or parts of it, including placing the product on the Internet.
+- Sell licenses for the Swat4DPbackup or parts of it;
+- Include the Swat4DPbackup in any other product;
+- Remove any proprietary notices on Swat4DPbackup and/or included third-party libraries.
+- Use the name SWAT, Swat4DP or Swat4DPbackup to endorse or promote products, solutions or services.
 
 
 Title: 
 ------
- Title, ownership rights, and intellectual property rights in and to Swat4DPops
+ Title, ownership rights, and intellectual property rights in and to Swat4DPbackup
  and all components shall remain in schlag&rahm AG or the original 
- copyright holders. The Swat4DPops product and all product elements within 
+ copyright holders. The Swat4DPbackup product and all product elements within 
  it are protected by the copyright laws of Switzerland and international
  copyright treaties.
 
@@ -52,7 +52,7 @@ No Warranties:
  
  S&R does not warrant or assume responsibility for the accuracy or 
  completeness of any information, text, graphics, links or other 
- items contained within Swat4DPops.
+ items contained within Swat4DPbackup.
  
  S&R makes no warranties respecting any harm that may be caused by 
  the transmission of a computer virus, worm, time bomb, logic bomb, 
