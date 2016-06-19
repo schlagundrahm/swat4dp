@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+    <soapenv:Body>
+        <dp:request xmlns:dp="http://www.datapower.com/schemas/management" domain="@domain.name@">
+            <dp:do-action>
+                <SaveConfig />
+            </dp:do-action>
+        </dp:request>
+    </soapenv:Body>
+</soapenv:Envelope>

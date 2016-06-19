@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- ================================================================================================= -->
+<!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
+<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- ================================================================================================= -->
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.8.2 or above. -->
+<!-- ====================================================================== -->
+<project name="swat-dp-tools.service-crypto" default="info" basedir=".">
+
+	<dirname file="${ant.file.swat-dp-tools.service-crypto}" property="ant_servicecrypto.dir" />
+	<import file="${ant_servicecrypto.dir}/taskdefs.xml" />
+
+	<!-- ================================= 
+          target: info              
+         ================================= -->
+	<target name="info">
+		<echo message="DataPower Service Crypto Tool macros for swat-dp-tools" />
+	</target>
+
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: service-key-generate-macro         
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="service-key-generate-macro">
+		<attribute name="crypto.prefix" />
+		<attribute name="dist-only" default="false" />
+		<sequential>
+			<!-- Load device-set settings based on the chosen enviroment -->
+			<load-device-set-props-macro device-set="${swat.device-set.name}" />
+
+			<!-- Adjust properties for the crypto prefix -->
+			<propertycopy name="local.crypto.cn" from="@{crypto.prefix}.cn" />
+
+			<!-- Create the key on the master device, download the csr, send it per email -->
+			<if>
+				<equals arg1="@{dist-only}" arg2="false" />
+				<then>
+					<key-generate-on-device-macro device="${swat.device.master}" crypto.prefix="@{crypto.prefix}" />
+				</then>
+			</if>
+
+			<!-- Export the generated key locally -->
+			<export-crypto-object-macro device="${swat.device.master}" crypto.prefix="@{crypto.prefix}" file.name="${local.crypto.cn}.${FILESTAMP}.kwk" />
+
+			<!-- Extract and decode the CSR file from the response -->
+			<extract-file-macro tmp.dir="crypto" soma.request="getfile" file.name="${local.crypto.cn}.${FILESTAMP}.kwk" />
+
+			<!-- Propagate the key to other devices in set -->
+			<property name="current.crypto.prefix" value="@{crypto.prefix}" />
+			<property name="current.file.name" value="${local.crypto.cn}.${FILESTAMP}.kwk" />
+			<foreach target="import-crypto-object"
+			         list="${swat.device.list}"
+			         delimiter=","
+			         param="current.device"
+			         inheritall="true"
+			         inheritrefs="true" />
+		</sequential>
+	</macrodef>
+
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: service-cert-distribute-macro         
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="service-cert-distribute-macro">
+   		<attribute name="crypto.prefix" />
+		<sequential>
+			<!-- Load device-set settings based on the chosen enviroment -->
+			<load-device-set-props-macro device-set="${swat.device-set.name}" />
+
+			<!-- Adjust properties for the crypto prefix -->
+			<propertycopy name="local.crypto.cn" from="@{crypto.prefix}.cn" />
+
+			<!-- Propagate cert to devices in set -->
+			<property name="current.crypto.prefix" value="@{crypto.prefix}" />
+			<property name="current.file.name" value="${local.crypto.cn}.pem" />
+			<foreach target="upload-signer-cert"
+			         list="${swat.device.list}"
+			         delimiter=","
+			         param="current.device"
+			         inheritall="true"
+			         inheritrefs="true" />
+		</sequential>
+	</macrodef>
+
+</project>
