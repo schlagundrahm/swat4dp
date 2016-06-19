@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dp="http://www.datapower.com/schemas/management">
+    <soapenv:Body>
+        <dp:request domain="@domain.name@" xmlns:dp="http://www.datapower.com/schemas/management">
+            <dp:do-action>
+                <CryptoImport>
+                    <!-- object type is either 'key' or 'cert' -->
+                    <ObjectType>@crypto.object.type@</ObjectType>
+                    <ObjectName>@crypto.object.name@</ObjectName>
+                    <!-- complete file path - start with cert, sharedcert or temporary -->
+                    <InputFilename>@file.name@</InputFilename>
+                    <!-- ImportPassword></ImportPassword -->
+                    <!-- ImportPasswordAlias></ImportPasswordAlias -->
+                    <KwkExportable>on</KwkExportable>
+                </CryptoImport>
+            </dp:do-action>
+        </dp:request>
+    </soapenv:Body>
+</soapenv:Envelope>

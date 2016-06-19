@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- ================================================================================================= -->
+<!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
+<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- ================================================================================================= -->
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.8.2 or above. -->
+<!-- ====================================================================== -->
+<project name="swat-dp-tools.device-targets" default="info" basedir=".">
+
+	<dirname file="${ant.file.swat-dp-tools.device-targets}" property="ant_devicetargets.dir" />
+	<import file="${ant_devicetargets.dir}/taskdefs.xml" />
+	<import file="${ant_devicetargets.dir}/chooser.xml" />
+
+	<!-- - - - - - - - - - - - - - - - - - 
+		  target: info 
+		 - - - - - - - - - - - - - - - - - -->
+	<target name="info">
+		<echo message="Common device targets for swat-dp-tools" />
+		<echoproperties prefix="swat" />
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+		  target: init 
+		 - - - - - - - - - - - - - - - - - -->
+	<target name="init">
+		<!-- Create a time stamp -->
+		<tstamp>
+			<format property="FILESTAMP" pattern="yyyyMMdd_HHmmss" />
+		</tstamp>
+		<echo message="***** device-targets initialized at ${FILESTAMP} *****" />
+		<echo message="current basedir = ${basedir}" />
+		<echo message="current project = ${ant.project.name}" />
+		<echo message="---------- predefined properties ----------" />
+		<echoproperties regex="(mgr\.|confirm|overwrite)" />
+	</target>
+
+	<!-- ================================= 
+          target: 10-device-deploy 
+         ================================= -->
+	<target name="10-device-deploy"
+	        depends="declare,init,load-device-props,choose-deployment-policy"
+	        description="Deploy the default domain to the given device.">
+		<device-pack-macro device="${mgr.target.device.name}" />
+		<device-deploy-macro device="${mgr.target.device.name}" deployment.policy="${mgr.target.deployment-policy.name}" />
+	</target>
+
+	<!-- ================================= 
+          target: 11-device-export 
+         ================================= -->
+	<target name="11-device-export"
+	        depends="declare,init,choose-device"
+	        description="Export the default domain of the given device.">
+		<device-export-macro device="${mgr.target.device.name}" />
+	</target>
+
+	<!-- ================================= 
+          target: 12-device-pack2compare 
+         ================================= -->
+	<target name="12-device-pack2compare"
+	        depends="declare,init,choose-device"
+	        description="Pack the default domain of the given device.">
+		<device-pack2compare-macro device="${mgr.target.device.name}" />
+	</target>
+
+	<!-- ================================= 
+          target: 15-device-key-generate 
+         ================================= -->
+	<target name="15-device-key-generate"
+	        depends="declare,init,choose-device-set"
+	        description="generate private key, self-signed certificate and a CSR">
+		<device-key-generate-macro device-set="${mgr.target.device-set.name}" crypto.prefix="device-id" />
+	</target>
+
+	<!-- ================================= 
+          target: 18-device-xcfg-reformat 
+         ================================= -->
+	<target name="18-device-xcfg-reformat" depends="declare" description="reorder once...">
+		<xcfg-reformat-macro src-dir="xcfg" dst-dir="xcfg-formatted" conf-type="device" />
+	</target>
+
+	<!-- ================================= 
+          target: 19-device-project-clean 
+         ================================= -->
+	<target name="19-device-project-clean" description="Clean the dist-folder of the project">
+		<delete dir="${basedir}/dist" />
+	</target>
+
+	<!-- ================================= 
+	      target: 50-ops-ping-host 
+	     ================================= -->
+	<target name="50-ops-ping-host"
+	        depends="declare,init,choose-device"
+	        description="Check pinging a remote host from a device.">
+		<ping-host-macro device="${mgr.target.device.name}" />
+	</target>
+
+</project>
