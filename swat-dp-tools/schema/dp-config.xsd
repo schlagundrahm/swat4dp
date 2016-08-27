@@ -2,11 +2,12 @@
 <xsd:schema xmlns:dpfff="http://www.datapower.com/schemas/management" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
    elementFormDefault="qualified">
 
-	<!-- xsd:import schemaLocation="xml-mgmt.xsd" namespace="http://www.datapower.com/schemas/management" / -->
-	<!-- IMPORTANT NOTE -->
-	<!-- currently we can not use the xml-mgmt schemas for validation as some elements are missing -->
-	<!-- e.g. InterfaceIndex is a child element of EthernetInterface but it is not defined (missing) in the complex type ConfigEthernetInterface (see xml-mgmt.xsd) -->
-	<!-- TODO: maybe this is only an issue with older boxes - to be verified -->
+   <!-- xsd:import schemaLocation="xml-mgmt.xsd" namespace="http://www.datapower.com/schemas/management" / -->
+   <!-- IMPORTANT NOTE -->
+   <!-- currently we can not use the xml-mgmt schemas for validation as some elements are missing -->
+   <!-- e.g. InterfaceIndex is a child element of EthernetInterface but it is not defined (missing) in the complex type ConfigEthernetInterface -->
+   <!-- (see xml-mgmt.xsd) -->
+   <!-- TODO: maybe this is only an issue with older boxes - to be verified -->
 
 
    <xsd:element name="datapower-configuration" type="DpConfig">
@@ -76,6 +77,7 @@
          <xsd:element name="SSLClientProfile" type="ConfigElement"/>
          <xsd:element name="SSLProxyProfile" type="ConfigElement"/>
          <xsd:element name="SSLServerProfile" type="ConfigElement"/>
+         <xsd:element name="SSLSNIMapping" type="ConfigElement"/>
          <xsd:element name="SSLSNIServerProfile" type="ConfigElement"/>
          <xsd:element name="DeploymentPolicyParametersBinding" type="ConfigElement"/>
          <xsd:element name="ErrorReportSettings" type="ConfigElement"/>
