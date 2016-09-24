@@ -59,7 +59,7 @@
 			<createfilesconfig env="@{env}"
 			                   createDpConfig="true"
 			                   domain="${domain.name}"
-			                   comment="Swat4DP configuration package for service object: ${service.name}"
+			                   comment="${service.summary}"
 			                   targetdir="${import-dir}"
 			                   targetfile="files.xml">
 				<fileset dir="${files-dir}">
