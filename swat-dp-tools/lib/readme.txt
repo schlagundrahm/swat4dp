@@ -22,6 +22,5 @@
 [7]  mail-1.4.jar					http://www.oracle.com/technetwork/java/javamail/index.html
 [8]  ml-ant-http-1.1.3.jar			http://code.google.com/p/missing-link/
 [9]  saxon9he.jar					http://saxon.sourceforge.net/
-[10] srsx-ant-tools-1.0.5.jar		http://www.schlagundrahm.ch
-[11] swat-dp-ant-tools-1.0.2.jar	http://www.schlagundrahm.ch
-[12] xmltask-v1.16.jar				http://www.oopsconsultancy.com/software/xmltask/
+[10] swat-dp-ant-tools-1.0.2.jar	http://www.schlagundrahm.ch
+[11] xmltask-v1.16.jar				http://www.oopsconsultancy.com/software/xmltask/
