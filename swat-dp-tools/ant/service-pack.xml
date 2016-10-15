@@ -125,8 +125,10 @@
 				<filtersfile file="config/@{env}.properties" />
 				<filtersfile file="${swat.dp.infra}/build.properties" />
 				<filtersfile file="${pws.filter.file}" />
+			    <filter token="version" value="${project.version}" />
+			    <filter token="build.number" value="${buildNumber}" />
+			    <filter token="build.revision" value="${buildRevision}" />
 				<filter token="domain.name" value="${domain.name}"/>
-				<filter token="build.number" value="${FILESTAMP}"/>
 			</filterset>
 
 			<!-- Copy and filter the local files (common and env-specific) -->
