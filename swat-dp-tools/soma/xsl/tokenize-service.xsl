@@ -56,6 +56,13 @@
                      </xsl:with-param>
                   </xsl:call-template>
                </xsl:when>
+               <xsl:when test="local-name(.)='UserSummary'">
+                  <xsl:call-template name="set-token">
+                     <xsl:with-param name="key">
+                        <xsl:value-of select="string('service.summary')" />
+                     </xsl:with-param>
+                  </xsl:call-template>
+               </xsl:when>
                <xsl:when test="local-name(.)='LocalAddress'">
                   <xsl:call-template name="set-token">
                      <xsl:with-param name="key">
@@ -182,6 +189,13 @@
                   <xsl:call-template name="set-token">
                      <xsl:with-param name="key">
                         <xsl:value-of select="string('service.state')" />
+                     </xsl:with-param>
+                  </xsl:call-template>
+               </xsl:when>
+               <xsl:when test="local-name(.)='UserSummary'">
+                  <xsl:call-template name="set-token">
+                     <xsl:with-param name="key">
+                        <xsl:value-of select="string('service.summary')" />
                      </xsl:with-param>
                   </xsl:call-template>
                </xsl:when>
@@ -317,6 +331,13 @@
                   <xsl:call-template name="set-token">
                      <xsl:with-param name="key">
                         <xsl:value-of select="string('service.state')" />
+                     </xsl:with-param>
+                  </xsl:call-template>
+               </xsl:when>
+               <xsl:when test="local-name(.)='UserSummary'">
+                  <xsl:call-template name="set-token">
+                     <xsl:with-param name="key">
+                        <xsl:value-of select="string('service.summary')" />
                      </xsl:with-param>
                   </xsl:call-template>
                </xsl:when>
@@ -755,6 +776,20 @@
                   </xsl:call-template>
                </xsl:when>
                <xsl:when test="local-name(.)='SSLProxy'">
+                  <xsl:call-template name="set-token">
+                     <xsl:with-param name="key">
+                        <xsl:value-of select="concat('fsh.',$index,'.ssl')" />
+                     </xsl:with-param>
+                  </xsl:call-template>
+               </xsl:when>
+               <xsl:when test="local-name(.)='SSLServer'">
+                  <xsl:call-template name="set-token">
+                     <xsl:with-param name="key">
+                        <xsl:value-of select="concat('fsh.',$index,'.ssl')" />
+                     </xsl:with-param>
+                  </xsl:call-template>
+               </xsl:when>
+               <xsl:when test="local-name(.)='SSLSNIServer'">
                   <xsl:call-template name="set-token">
                      <xsl:with-param name="key">
                         <xsl:value-of select="concat('fsh.',$index,'.ssl')" />
