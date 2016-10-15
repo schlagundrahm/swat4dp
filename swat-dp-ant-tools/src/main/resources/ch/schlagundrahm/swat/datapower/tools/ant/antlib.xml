@@ -1,8 +1,8 @@
 <antlib>
    <!-- Tasks -->
-   <taskdef name="base64" classname="ch.srsx.swat.datapower.tools.ant.taskdefs.Base64Task" onerror="ignore" />
-   <taskdef name="showfile" classname="ch.srsx.swat.datapower.tools.ant.taskdefs.ShowFile" onerror="ignore" />
-   <taskdef name="validatecertificate" classname="ch.srsx.swat.datapower.tools.ant.taskdefs.ValidateCertificate" onerror="ignore" />
-   <taskdef name="compareconfig" classname="ch.srsx.swat.datapower.tools.ant.taskdefs.CompareConfig" onerror="ignore" />
-   <taskdef name="createfilesconfig" classname="ch.srsx.swat.datapower.tools.ant.taskdefs.CreateFilesConfig" onerror="ignore" />
+   <taskdef name="base64" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.Base64Task" onerror="ignore" />
+   <taskdef name="showfile" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.ShowFile" onerror="ignore" />
+   <taskdef name="validatecertificate" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.ValidateCertificate" onerror="ignore" />
+   <taskdef name="compareconfig" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.CompareConfig" onerror="ignore" />
+   <taskdef name="createfilesconfig" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.CreateFilesConfig" onerror="ignore" />
 </antlib>

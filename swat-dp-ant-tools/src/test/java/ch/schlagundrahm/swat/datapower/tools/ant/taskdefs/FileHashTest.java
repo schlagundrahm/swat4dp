@@ -1,4 +1,4 @@
-package ch.srsx.swat.datapower.tools.ant.taskdefs;
+package ch.schlagundrahm.swat.datapower.tools.ant.taskdefs;
 
 import java.io.File;
 import java.io.FileInputStream;

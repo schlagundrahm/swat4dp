@@ -9,7 +9,7 @@
  *      http://www.schlagundrahm.ch
  *
  */
-package ch.srsx.swat.datapower.tools.ant.taskdefs;
+package ch.schlagundrahm.swat.datapower.tools.ant.taskdefs;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -158,31 +158,6 @@ public class CompareConfig extends Task {
 	 */
 	public void setIncludeConfigFolder(boolean includeConfigFolder) {
 		this.includeConfigFolder = includeConfigFolder;
-	}
-
-	public static void main(String[] args) {
-		CompareConfig cc = new CompareConfig();
-		cc.cfgFile1 = new File("\\\\swisscards06\\sce76698$\\My Documents\\Workspaces\\SC\\sc-dp-management\\tmp\\dp-domain-HAS-test.zip");
-		cc.cfgFile2 = new File("\\\\swisscards06\\sce76698$\\My Documents\\Workspaces\\SC\\sc-dp-management\\tmp\\hs-test-export.zip");
-		// cc.cfgFile2 = new
-		// File("\\\\swisscards06\\sce76698$\\My Documents\\Workspaces\\SC\\sc-dp-management\\tmp\\hs-test-export2.zip");
-
-		// cc.cfgFile1 = new
-		// File("\\\\swisscards06\\sce76698$\\My Documents\\Workspaces\\SC\\sc-dp-management\\tmp\\srv-hub-int-test.zip");
-		// cc.cfgFile2 = new
-		// File("\\\\swisscards06\\sce76698$\\My Documents\\Workspaces\\SC\\sc-dp-management\\tmp\\srv-hub-int-prod.zip");
-
-		// cc.cfgFile1 = new
-		// File("\\\\swisscards06\\sce76698$\\My Documents\\Workspaces\\SC\\sc-dp-management\\tmp\\1\\export.xml");
-		// cc.cfgFile2 = new
-		// File("\\\\swisscards06\\sce76698$\\My Documents\\Workspaces\\SC\\sc-dp-management\\tmp\\2\\export.xml");
-
-		cc.includeExportDetails = false;
-		cc.nodeTypeDiff = false;
-		cc.nodeValueDiff = true;
-		cc.includeFiles = true;
-		cc.execute();
-
 	}
 
 	@Override
