@@ -1,255 +1,267 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>ch.srsx.swat.datapower</groupId>
-  <artifactId>swat-dp-pom</artifactId>
-  <version>1.0.4-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  
-  <name>swat-dp-pom</name>
-  <description>schlag&amp;rahm master project object model for SWAT4DP projects</description>
-  
-  <url>https://github.com/schlagundrahm/swat4dp</url>
+    <groupId>ch.schlagundrahm.swat.datapower</groupId>
+    <artifactId>swat-dp-pom</artifactId>
+    <version>1.0.4-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-  <inceptionYear>2006</inceptionYear>
+    <name>swat-dp-pom</name>
+    <description>schlag&amp;rahm master project object model for SWAT4DP projects</description>
 
-  <organization>
-    <name>schlag&amp;rahm AG</name>
-    <url>http://www.schlagundrahm.ch</url>
-  </organization>
-  
+    <url>https://github.com/schlagundrahm/swat4dp</url>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <logback.version>1.0.4</logback.version>
-  </properties>
+    <inceptionYear>2006</inceptionYear>
 
-  <ciManagement>
-    <notifiers>
-      <notifier>
-        <type>mail</type>
-        <configuration>
-          <address>pshah@schlagundrahm.ch</address>
-        </configuration>
-      </notifier>
-    </notifiers>
-  </ciManagement>
-  
-  
-  <!-- Developer Section -->
-  <developers>
-    <developer>
-      <id>psha</id>
-      <name>Pierce Shah</name>
-      <email>psha@ch.ibm.com</email>
-      <url>http://www.shah.ch</url>
-      <organization>IBM (Schweiz) AG</organization>
-      <organizationUrl>http://www.ibm.com</organizationUrl>
-      <roles>
-        <role>DataPower Engineer</role>
-        <role>Software Engineer</role>
-      </roles>
-      <timezone>CET</timezone>
-      <properties>
-        <property>foobar</property>
-      </properties>
-    </developer>
-    <developer>
-      <id>rhirt</id>
-      <name>Reto Hirt</name>
-      <email>rhirt@schlagundrahm.ch</email>
-      <url>http://www.schlagundrahm.ch</url>
-      <organization>schlag&amp;rahm AG</organization>
-      <organizationUrl>
-        http://www.schlagundrahm.ch
-      </organizationUrl>
-      <roles>
-        <role>Owner</role>
-        <role>Software Architect</role>
-        <role>Software Engineer</role>
-      </roles>
-      <timezone>CET</timezone>
-    </developer>
-  </developers>
+    <organization>
+        <name>schlag&amp;rahm AG</name>
+        <url>http://www.schlagundrahm.ch</url>
+    </organization>
 
-  <!-- Dependency section -->
-  <dependencies>
-    <!-- Logging -->
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>${logback.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-      <version>1.6.5</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>log4j-over-slf4j</artifactId>
-      <version>1.6.5</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jul-to-slf4j</artifactId>
-      <version>1.6.5</version>
-      <type>jar</type>
-    </dependency>
+    <scm>
+        <url>https://github.com/schlagundrahm/swat4dp</url>
+        <connection>scm:git:git://github.com/schlagundrahm/swat4dp.git</connection>
+        <developerConnection>scm:git:git://github.com/schlagundrahm/swat4dp.git</developerConnection>
+    </scm>
 
-    <!-- Testing -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.10</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-  
-<build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-site-plugin</artifactId>
-        <version>3.1</version>
-        <configuration>
-          <locales>en</locales>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
-  <!-- Reports section -->
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>taglist-maven-plugin</artifactId>
-        <version>2.4</version>
-        <configuration>
-          <tagListOptions>
-            <tagClasses>
-              <tagClass>
-                <displayName>Todo Work</displayName>
-                <tags>
-                  <tag>
-                    <matchString>todo</matchString>
-                    <matchType>ignoreCase</matchType>
-                  </tag>
-                  <tag>
-                    <matchString>FIXME</matchString>
-                    <matchType>exact</matchType>
-                  </tag>
-                  <tag>
-                    <matchString>@todo</matchString>
-                    <matchType>exact</matchType>
-                  </tag>
-                  <tag>
-                    <matchString>@deprecated</matchString>
-                    <matchType>exact</matchType>
-                  </tag>
-                </tags>
-              </tagClass>
-              <tagClass>
-                <displayName>Special Tags</displayName>
-                <tags>
-                  <tag>
-                    <matchString>foobar</matchString>
-                    <matchType>ignoreCase</matchType>
-                  </tag>
-                  <tag>
-                    <matchString>${user.name}</matchString>
-                    <matchType>exact</matchType>
-                  </tag>
-                </tags>
-              </tagClass>
-            </tagClasses>
-          </tagListOptions>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.4</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.8.1</version>
-        <configuration>
-          <source>1.8</source>
-          <!-- MUDO needs much more configuration -->
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>2.12</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jxr-plugin</artifactId>
-        <version>2.3</version>
-        <configuration>
-          <!-- String uses at the bottom of the Xref HTML files. -->
-          <bottom>Copyright (c) ${project.inceptionYear} schlag und rahm ag. All Rights Reserved.</bottom>
-          <!-- Folder where the Xref files will be copied to. -->
-          <destDir>${project.build.directory}/site/xref</destDir>
-          <!-- Title of main page of the Xref HTML files. -->
-          <docTitle>${project.name} ${project.version} Reference</docTitle>
-          <!-- File input encoding. -->
-          <inputEncoding>ISO-8859-1</inputEncoding>
-          <!-- Folder where Javadoc is generated for this project. -->
-          <javadocDir>${project.build.directory}/site/apidocs</javadocDir>
-          <!-- Output folder where the main page of the report will be generated. -->
-          <outputDirectory>${project.build.directory}/site</outputDirectory>
-          <!-- File output encoding. -->
-          <outputEncoding>ISO-8859-1</outputEncoding>
-          <!-- project -->
-          <project>${project}</project>
-          <!-- Style sheet used for the Xref HTML files. Should not be used. If used, should be an absolute path, like "${basedir}/myStyles.css". -->
-          <stylesheet>stylesheet.css</stylesheet>
-          <!-- Directory where Velocity templates can be found to generate overviews, frames and summaries. Should not be used. If used, should be an absolute 
-            path, like "${basedir}/myTemplates". -->
-          <templateDir>templates</templateDir>
-          <!-- Title of window of the Xref HTML files. -->
-          <windowTitle>${project.name} ${project.version} Reference</windowTitle>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-changelog-plugin</artifactId>
-        <version>2.2</version>
-        <reportSets>
-          <reportSet>
-            <id>single-report</id>
-            <configuration>
-              <type>range</type>
-              <range>30</range>
-            </configuration>
-            <reports>
-              <report>changelog</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-    </plugins>
-  </reporting>
-  
-  <issueManagement>
-    <system>GitHub Issues</system>
-    <url>https://github.com/schlagundrahm/swat4dp/issues</url>
-  </issueManagement>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <logback.version>1.0.4</logback.version>
+    </properties>
+
+    <ciManagement>
+        <notifiers>
+            <notifier>
+                <type>mail</type>
+                <configuration>
+                    <address>pshah@schlagundrahm.ch</address>
+                </configuration>
+            </notifier>
+        </notifiers>
+    </ciManagement>
+
+    <!-- Developer Section -->
+    <developers>
+        <developer>
+            <id>psha</id>
+            <name>Pierce Shah</name>
+            <email>psha@ch.ibm.com</email>
+            <url>http://www.shah.ch</url>
+            <organization>IBM (Schweiz) AG</organization>
+            <organizationUrl>http://www.ibm.com</organizationUrl>
+            <roles>
+                <role>DataPower Engineer</role>
+                <role>Software Engineer</role>
+            </roles>
+            <timezone>CET</timezone>
+            <properties>
+                <property>foobar</property>
+            </properties>
+        </developer>
+        <developer>
+            <id>rhirt</id>
+            <name>Reto Hirt</name>
+            <email>rhirt@schlagundrahm.ch</email>
+            <url>http://www.schlagundrahm.ch</url>
+            <organization>schlag&amp;rahm AG</organization>
+            <organizationUrl>http://www.schlagundrahm.ch</organizationUrl>
+            <roles>
+                <role>Owner</role>
+                <role>Software Architect</role>
+                <role>Software Engineer</role>
+            </roles>
+            <timezone>CET</timezone>
+        </developer>
+    </developers>
+
+    <!-- Dependency section -->
+    <dependencies>
+        <!-- Logging -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.6.5</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <version>1.6.5</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+            <version>1.6.5</version>
+            <type>jar</type>
+        </dependency>
+
+        <!-- Testing -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <locales>en</locales>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- Reports section -->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>taglist-maven-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <tagListOptions>
+                        <tagClasses>
+                            <tagClass>
+                                <displayName>Todo Work</displayName>
+                                <tags>
+                                    <tag>
+                                        <matchString>todo</matchString>
+                                        <matchType>ignoreCase</matchType>
+                                    </tag>
+                                    <tag>
+                                        <matchString>FIXME</matchString>
+                                        <matchType>exact</matchType>
+                                    </tag>
+                                    <tag>
+                                        <matchString>@todo</matchString>
+                                        <matchType>exact</matchType>
+                                    </tag>
+                                    <tag>
+                                        <matchString>@deprecated</matchString>
+                                        <matchType>exact</matchType>
+                                    </tag>
+                                </tags>
+                            </tagClass>
+                            <tagClass>
+                                <displayName>Special Tags</displayName>
+                                <tags>
+                                    <tag>
+                                        <matchString>foobar</matchString>
+                                        <matchType>ignoreCase</matchType>
+                                    </tag>
+                                    <tag>
+                                        <matchString>${user.name}</matchString>
+                                        <matchType>exact</matchType>
+                                    </tag>
+                                </tags>
+                            </tagClass>
+                        </tagClasses>
+                    </tagListOptions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.4</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.8.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <!-- MUDO needs much more configuration -->
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>2.12</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <!-- String uses at the bottom of the Xref HTML files. -->
+                    <bottom>Copyright (c) ${project.inceptionYear} schlagundrahm ag. All Rights Reserved.</bottom>
+                    <!-- Folder where the Xref files will be copied to. -->
+                    <destDir>${project.build.directory}/site/xref</destDir>
+                    <!-- Title of main page of the Xref HTML files. -->
+                    <docTitle>${project.name} ${project.version} Reference</docTitle>
+                    <!-- File input encoding. -->
+                    <inputEncoding>UTF-8</inputEncoding>
+                    <!-- Folder where Javadoc is generated for this project. -->
+                    <javadocDir>${project.build.directory}/site/apidocs</javadocDir>
+                    <!-- Output folder where the main page of the report will be generated. -->
+                    <outputDirectory>${project.build.directory}/site</outputDirectory>
+                    <!-- File output encoding. -->
+                    <outputEncoding>UTF-8</outputEncoding>
+                    <!-- project -->
+                    <project>
+                        ${project}
+                    </project>
+                    <!--
+                        Style sheet used for the Xref HTML files. Should not be used.
+                        If used, should be an absolute path, like "${basedir}/myStyles.css".
+                    -->
+                    <stylesheet>stylesheet.css</stylesheet>
+                    <!--
+                        Directory where Velocity templates can be found to generate overviews, frames and summaries.
+                        Should not be used. If used, should be an absolute path, like "${basedir}/myTemplates".
+                    -->
+                    <templateDir>templates</templateDir>
+                    <!-- Title of window of the Xref HTML files. -->
+                    <windowTitle>${project.name} ${project.version} Reference</windowTitle>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changelog-plugin</artifactId>
+                <version>2.2</version>
+                <reportSets>
+                    <reportSet>
+                        <id>single-report</id>
+                        <configuration>
+                            <type>range</type>
+                            <range>30</range>
+                        </configuration>
+                        <reports>
+                            <report>changelog</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/schlagundrahm/swat4dp/issues</url>
+    </issueManagement>
 </project>
