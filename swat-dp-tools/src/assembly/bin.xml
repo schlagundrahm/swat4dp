@@ -11,6 +11,14 @@
             <outputDirectory>/ant</outputDirectory>
         </fileSet>
         <fileSet>
+            <directory>${project.basedir}/bin</directory>
+            <outputDirectory>/ant</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/cli</directory>
+            <outputDirectory>/ant</outputDirectory>
+        </fileSet>
+        <fileSet>
             <directory>${project.basedir}/config</directory>
             <outputDirectory>/config</outputDirectory>
         </fileSet>
@@ -45,6 +53,11 @@
             <source>build.properties</source>
             <outputDirectory>/</outputDirectory>
             <filtered>false</filtered>
+        </file>
+        <file>
+            <source>README.md</source>
+            <outputDirectory>/</outputDirectory>
+            <filtered>true</filtered>
         </file>
     </files>
 </assembly>
