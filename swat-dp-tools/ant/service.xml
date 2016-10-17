@@ -490,6 +490,205 @@
 		</sequential>
 	</macrodef>
 
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: artifact-deploy-macro          
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="artifact-deploy-macro">
+		<attribute name="env" />
+	    <attribute name="sourcedir" />
+	    <attribute name="artifact" />
+	    <attribute name="version" />
+		<attribute name="deployment.policy" default="" />
+		<attribute name="do-quiesce" default="true" />
+		<attribute name="do-import" default="true" />
+		<attribute name="flushCache" default="false" />
+		<attribute name="do-unquiesce" default="true" />
+		<attribute name="all-devices" default="true" />
+		<attribute name="primary" default="true" />
+	    <attribute name="do-save" default="false" />
+		<sequential>
+			<!-- Prepare local variables -->
+			<property name="local.env" value="@{env}" />
+		    <property name="local.dir" value="@{sourcedir}" />
+		    <property name="local.version" value="@{version}" />
+		    <property name="local.file" value="@{artifact}-@{version}-${local.env}.zip" />
+		    <propertyregex property="local.zone" input="@{artifact}" regexp="[^\s\\/]-swat-dp-services-([a-z]+)-([a-z]+)-([a-z]+)" select="\1" />
+		    <propertyregex property="local.domain.short" input="@{artifact}" regexp="[^\s\\/]-swat-dp-services-([a-z]+)-([a-z]+)-([a-z]+)" select="\2" />
+		    <propertyregex property="local.service" input="@{artifact}" regexp="[^\s\\/]-swat-dp-services-([a-z]+)-([a-z]+)-([a-z]+)" select="\3" />
+		    <propertyregex property="artifact.env" input="@{artifact}" regexp="[^\s\\/]*-([test|qtst|prod])\.zip" select="\1" />
+		    
+		    <!-- load important properties that would be in the project's build.properties from the Maven POM artifact -->
+		    <echo message="Loading service POM: ${local.dir}/@{artifact}-@{version}.pom" />
+		    <xmlproperty file="${local.dir}/@{artifact}-@{version}.pom" keepRoot="false"/>
+		    <property name="service.object.name" value="${properties.swat.service.object.name}"/>
+		    <property name="service.object.class" value="${properties.swat.service.object.class}"/>
+		    <fail message="The property serivce.object.name is not defined! Check the @{artifact} POM.">
+		        <condition>
+		            <contains string="${service.object.name}" substring="{"/>
+		        </condition>
+		    </fail>
+		    <fail message="The property serivce.object.class is not defined! Check the @{artifact} POM.">
+		        <condition>
+		            <contains string="${service.object.class}" substring="{"/>
+		        </condition>
+		    </fail>
+		    
+		    <load-env-props-macro zone="${local.zone}" env="${local.env}" />
+		    <load-domain-props-macro zone="${local.zone}"
+		                             env="${local.env}"
+		                             domain="${local.domain.short}" />
+		    <property name="local.device.set" value="${swat.device-set.name}" />
+		    <property name="local.domain" value="${swat.domain.name}" />
+		    
+		    <echoproperties prefix="local" /> 
+		    <echoproperties prefix="service" />
+		    <echoproperties prefix="swat" />
+		    
+		    <filterset id="service.filter.id"> 
+		        <propertyset>
+		            <propertyref name="service.object.name"/>
+		            <propertyref name="service.object.class"/>
+		        </propertyset>
+		    </filterset>
+
+			<!-- prepare soma-request service-import -->
+			<if>
+				<equals arg1="@{do-import}" arg2="true" />
+				<then>
+					<soma-prepare-request-macro soma.request="service-import"
+					                            env="${local.env}"
+					                            domain="${local.domain}"
+					                            content.exists="true"
+					                            content.dir="${local.dir}"
+					                            content.file="${local.file}"
+					                            deployment.policy="@{deployment.policy}" />
+					<var name="import.req.list" value="service-import" />
+				</then>
+				<else>
+					<var name="import.req.list" value="" />
+				</else>
+			</if>
+				<!-- prepare soma-request flush-caches -->
+			<if>
+				<or>
+					<istrue value="@{flushCache}" />
+					<istrue value="${deploy.flushcache}" />
+				</or>
+				<then>
+					<soma-prepare-request-macro soma.request="flush-stylesheet-cache"
+					                            env="${local.env}"
+					                            domain="${local.domain}"
+					                            content.exists="false" />
+					<soma-prepare-request-macro soma.request="flush-document-cache"
+					                            env="${local.env}"
+					                            domain="${local.domain}"
+					                            content.exists="false" />
+					<var name="flush.req.list" value="flush-stylesheet-cache,flush-document-cache" />
+				</then>
+				<else>
+					<var name="flush.req.list" value="" />
+				</else>
+			</if>
+				<!-- prepare soma-request service-quiesce/unquiesce -->
+			<if>
+				<equals arg1="${service.object.name}" arg2="n/a" />
+				<then>
+					<var name="quiesce.req.list" value="" />
+					<var name="unquiesce.req.list" value="" />
+				</then>
+				<else>
+					<if>
+						<equals arg1="@{do-quiesce}" arg2="true" />
+						<then>
+							<soma-prepare-request-macro soma.request="service-quiesce"
+							                            custom.filter="service.filter.id"
+							                            env="${local.env}"
+							                            domain="${local.domain}"
+							                            content.exists="false" />
+							<var name="quiesce.req.list" value="service-quiesce" />
+						</then>
+						<else>
+							<var name="quiesce.req.list" value="" />
+						</else>
+					</if>
+					<if>
+						<equals arg1="@{do-unquiesce}" arg2="true" />
+						<then>
+							<soma-prepare-request-macro soma.request="service-unquiesce"
+							                            custom.filter="service.filter.id"
+							                            env="${local.env}"
+							                            domain="${local.domain}"
+							                            content.exists="false" />
+							<var name="unquiesce.req.list" value="service-unquiesce" />
+						</then>
+						<else>
+							<var name="unquiesce.req.list" value="" />
+						</else>
+					</if>
+				</else>
+			</if>
+            <!-- prepare soma-request save-config -->
+            <if>
+                <equals arg1="@{do-save}" arg2="true" />
+                <then>
+                    <soma-prepare-request-macro soma.request="config-save"
+                                                env="${local.env}"
+                                                domain="${local.domain}"
+                                                content.exists="false" />
+                    <var name="save.req.list" value="config-save" />
+                </then>
+                <else>
+                    <var name="save.req.list" value="" />
+                </else>
+            </if>
+			<!-- prepare soma-request list -->
+			<join-vars-macro result="inter1" arg1="${quiesce.req.list}" arg2="${import.req.list}" />
+			<join-vars-macro result="inter2" arg1="${inter1}" arg2="${flush.req.list}" />
+			<join-vars-macro result="inter3" arg1="${inter2}" arg2="${unquiesce.req.list}" />
+		    <join-vars-macro result="soma.request.list" arg1="${inter3}" arg2="${save.req.list}" />
+			<echo message="Joined the list of requests to be [${soma.request.list}]." />
+			<fail message="No requests in the list to be run, stop process.">
+				<condition>
+					<equals arg1="${soma.request.list}" arg2="" />
+				</condition>
+			</fail>
+				<!-- run soma-request list on both devices (default) or on primary or on secondaries -->
+			<if>
+				<equals arg1="@{all-devices}" arg2="true" />
+				<then>
+					<soma-run-multi-requests-on-multi-devices-macro device.set="${local.device.set}"
+					                                                soma.requests="${soma.request.list}"
+					                                                check.response="true" />
+				</then>
+				<else>
+					<!-- Load the device-set properties to determine the devices -->
+					<load-device-set-props-macro device-set="${local.device.set}" />
+					<if>
+						<equals arg1="@{primary}" arg2="true" />
+						<then>
+							<soma-run-multi-requests-on-single-device-macro device="${swat.device.master}"
+							                                                soma.requests="${soma.request.list}"
+							                                                check.response="true"
+							                                                tmp.dir="upload" />
+						</then>
+						<else>
+							<!-- Run multi-requests on all secondary devices -->
+							<property name="current.soma.request.list" value="${soma.request.list}" />
+							<property name="current.check.response" value="true" />
+							<property name="current.tmp.dir" value="upload" />
+							<foreach target="service-deploy-on-secondary-devices"
+							         list="${swat.device.list}"
+							         delimiter=","
+							         param="current.device"
+							         inheritall="true"
+							         inheritrefs="true" />
+						</else>
+					</if>
+				</else>
+			</if>
+		</sequential>
+	</macrodef>
+
 	<!-- ================================= 
           target: service-deploy-on-secondary-devices              
          ================================= -->
