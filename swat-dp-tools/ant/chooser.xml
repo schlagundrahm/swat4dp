@@ -14,7 +14,6 @@
     <import file="${ant_chooser.dir}/taskdefs.xml" />
     <property name="swat.styles.dir" value="${ant_chooser.dir}/../style" />
 
-
     <!-- - - - - - - - - - - - - - - - - - 
           target: info              
          - - - - - - - - - - - - - - - - - -->
@@ -246,15 +245,47 @@
         <attribute name="domain" />
         <attribute name="service" />
         <sequential>
+            <propertyregex property="running.from.service.dir"
+                           input="${basedir}"
+                           regexp="^.*[/|\\][\w-]*@{service}$"
+                           select="true"
+                           casesensitive="false" />
             <service-create-project-prefix-macro zone="@{zone}" domain="@{domain}" />
             <property name="swat.current.service.common.home"
                       location="${swat.dp.customer.home}/${service.project.prefix}-common" />
             <property name="swat.current.service.home"
                       location="${swat.dp.customer.home}/${service.project.prefix}-@{service}" />
-            <echo message="Loading properties ${swat.current.service.home}/build.properties" />
-            <loadproperties srcfile="${swat.current.service.home}/build.properties" />
-            <echo message="Loading properties ${swat.current.service.home}/config/@{env}.properties" />
-            <loadproperties srcfile="${swat.current.service.home}/config/@{env}.properties" />
+            <echo message="Setting property swat.current.service.home = ${swat.current.service.home}" />
+
+            <if>
+                <istrue value="${running.from.service.dir}" />
+                <then>
+                    <echo message="Loading properties ${basedir}/build.properties" />
+                    <loadproperties srcfile="${basedir}/build.properties">
+                        <filterchain>
+                            <replacetokens>
+                                <token key="version" value="${project.version}" />
+                                <token key="build.number" value="${buildNumber}" />
+                            </replacetokens>
+                        </filterchain>
+                    </loadproperties>
+                    <echo message="Loading properties ${basedir}/config/@{env}.properties" />
+                    <loadproperties srcfile="${basedir}/config/@{env}.properties" />
+                </then>
+                <else>
+                    <echo message="Loading properties ${swat.current.service.home}/build.properties" />
+                    <loadproperties srcfile="${swat.current.service.home}/build.properties">
+                        <filterchain>
+                            <replacetokens>
+                                <token key="version" value="${project.version}" />
+                                <token key="build.number" value="${buildNumber}" />
+                            </replacetokens>
+                        </filterchain>
+                    </loadproperties>
+                    <echo message="Loading properties ${swat.current.service.home}/config/@{env}.properties" />
+                    <loadproperties srcfile="${swat.current.service.home}/config/@{env}.properties" />
+                </else>
+            </if>
         </sequential>
     </macrodef>
 
