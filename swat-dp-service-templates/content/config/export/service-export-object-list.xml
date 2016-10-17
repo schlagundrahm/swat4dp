@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <import-objects domain="@domain.name@">
-   <object type="LogTarget" name="@service.object.name@"/>
+    <object type="LogTarget" name="@service.object.name@" />
 </import-objects>
