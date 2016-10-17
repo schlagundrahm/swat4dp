@@ -621,6 +621,7 @@
 	<macrodef name="decrypt-password-macro">
 		<attribute name="password.text" />
 		<attribute name="password.property" />
+	    <attribute name="password.keyfile" default="${user.home}/swat4dp-secret.key" />
 		<sequential>
 			<echo message="decrypting password '@{password.text}' ..." />
 			<if>
@@ -629,7 +630,7 @@
 				</not>
 				<then>
 					<crypto mode="decrypt"
-        					        keyfile="${user.home}/swat4dp-secret.key"
+        					        keyfile="@{password.keyfile}"
         					        property="@{password.property}"
         					        input="@{password.text}"
         					        useprefix="true"
