@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
-<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Copyright (c) 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
 <!-- ================================================================================================= -->
 
 <!-- ====================================================================== -->
@@ -10,49 +10,49 @@
 <!-- ====================================================================== -->
 <project name="swat-dp-tools.crypto-hsm" default="info" basedir=".">
 
-	<dirname file="${ant.file.swat-dp-tools.crypto-hsm}" property="ant_cryptohsm.dir" />
-	<import file="${ant_cryptohsm.dir}/taskdefs.xml" />
+    <dirname file="${ant.file.swat-dp-tools.crypto-hsm}" property="ant_cryptohsm.dir" />
+    <import file="${ant_cryptohsm.dir}/taskdefs.xml" />
 
-	<!-- ================================= 
+    <!-- ================================= 
           target: info              
          ================================= -->
-	<target name="info">
-		<echo message="DataPower HSM Crypto Tool macros for swat-dp-tools" />
-	</target>
+    <target name="info">
+        <echo message="DataPower HSM Crypto Tool macros for swat-dp-tools" />
+    </target>
 
-	<!-- = = = = = = = = = = = = = = = = =
+    <!-- = = = = = = = = = = = = = = = = =
           macrodef: exchange-hsm-kwk-on-device-set-macro          
          = = = = = = = = = = = = = = = = = -->
-	<macrodef name="exchange-hsm-kwk-on-device-set-macro">
-		<attribute name="device-set" />
-		<attribute name="domain" default="default" />
-		<sequential>
-			<!-- Load device-set settings based on the chosen enviroment -->
-			<load-device-set-props-macro device-set="@{device-set}" />
+    <macrodef name="exchange-hsm-kwk-on-device-set-macro">
+        <attribute name="device-set" />
+        <attribute name="domain" default="default" />
+        <sequential>
+            <!-- Load device-set settings based on the chosen enviroment -->
+            <load-device-set-props-macro device-set="@{device-set}" />
 
-			<echo message="devices: ${swat.device.list}" />
+            <echo message="devices: ${swat.device.list}" />
 
-			<for list="${swat.device.list}" param="device">
-				<sequential>
-					<echo message="@{device}" />
-					<if>
-						<equals arg1="@{device}" arg2="${swat.device.master}" />
-						<then>
-							<property name="source-device" value="@{device}" />
-						</then>
-						<else>
-							<property name="destination-device" value="@{device}" />
-						</else>
-					</if>
-				</sequential>
-			</for>
+            <for list="${swat.device.list}" param="device">
+                <sequential>
+                    <echo message="@{device}" />
+                    <if>
+                        <equals arg1="@{device}" arg2="${swat.device.master}" />
+                        <then>
+                            <property name="source-device" value="@{device}" />
+                        </then>
+                        <else>
+                            <property name="destination-device" value="@{device}" />
+                        </else>
+                    </if>
+                </sequential>
+            </for>
 
-			<fail unless="source-device" message="source-device has not been set!" />
-			<fail unless="destination-device" message="destination-device has not been set!" />
+            <fail unless="source-device" message="source-device has not been set!" />
+            <fail unless="destination-device" message="destination-device has not been set!" />
 
-			<echo message="Cloning HSM key-wrapping-key between ${source-device} and ${destination-device}..." />
+            <echo message="Cloning HSM key-wrapping-key between ${source-device} and ${destination-device}..." />
 
-			<!--
+            <!--
                 To clone a key-wrapping key: 
                 ============================ 
                 1. Transfer key material from the source to the destination: 
@@ -90,162 +90,162 @@
                 e. Click Clone HSM Key Wrapping Key. 
                 f. Follow the instructions in the dialog box to complete the key cloning process.
             -->
-			
-			<exchange-hsm-kwk-macro source-device="${source-device}" destination-device="${destination-device}" />
 
-		</sequential>
-	</macrodef>
+            <exchange-hsm-kwk-macro source-device="${source-device}" destination-device="${destination-device}" />
+
+        </sequential>
+    </macrodef>
 
 
-	<!-- = = = = = = = = = = = = = = = = =
+    <!-- = = = = = = = = = = = = = = = = =
           macrodef: exchange-hsm-kwk-macro          
          = = = = = = = = = = = = = = = = = -->
-	<macrodef name="exchange-hsm-kwk-macro">
-		<attribute name="source-device" />
-		<attribute name="destination-device" />
-		<attribute name="domain" default="default" />
-		<sequential>
+    <macrodef name="exchange-hsm-kwk-macro">
+        <attribute name="source-device" />
+        <attribute name="destination-device" />
+        <attribute name="domain" default="default" />
+        <sequential>
 
-			<property name="source-device" value="@{source-device}" />
-			<property name="destination-device" value="@{destination-device}" />
+            <property name="source-device" value="@{source-device}" />
+            <property name="destination-device" value="@{destination-device}" />
 
-			<fail unless="source-device" message="source-device has not been set!" />
-			<fail unless="destination-device" message="destination-device has not been set!" />
+            <fail unless="source-device" message="source-device has not been set!" />
+            <fail unless="destination-device" message="destination-device has not been set!" />
 
-			<echo message="Cloning HSM key-wrapping-key between ${source-device} and ${destination-device}..." />
-			<delete dir="dist/crypto/hsm" />
+            <echo message="Cloning HSM key-wrapping-key between ${source-device} and ${destination-device}..." />
+            <delete dir="dist/crypto/hsm" />
 
-			<!-- Step 1: source-one -->
-			<var name="device" value="${source-device}" />
-			<echo message="Step 1: source-one [${device}]" />
-			<soma-prepare-request-macro soma.request="hsm-clone-kwk-step-1"
-			                            domain="@{domain}"
-			                            tmp.dir="crypto/hsm/step1" />
-			<soma-prepare-request-macro soma.request="getfile"
-			                            domain="@{domain}"
-			                            dp.file.name="temporary:///source-one.kwk"
-			                            tmp.dir="crypto/hsm/step1" />
-			<soma-prepare-request-macro soma.request="deletefile"
-			                            domain="@{domain}"
-			                            dp.file.name="temporary:///source-one.kwk"
-			                            tmp.dir="crypto/hsm/step1" />
-			<soma-run-multi-requests-on-single-device-macro device="${source-device}"
-			                                                soma.requests="hsm-clone-kwk-step-1,getfile,deletefile"
-			                                                tmp.dir="crypto/hsm/step1"
-			                                                check.response="true" />
-			<xslt processor="trax"
-			      in="dist/crypto/hsm//step1/getfile-response.xml"
-			      style="${swat.dp.tools}/soma/xsl/extract-file.xsl"
-			      out="dist/crypto/hsm/step1/source-one.kwk.b64"
-			      classpathref="swat.dp.tools.classpath" />
+            <!-- Step 1: source-one -->
+            <var name="device" value="${source-device}" />
+            <echo message="Step 1: source-one [${device}]" />
+            <soma-prepare-request-macro soma.request="hsm-clone-kwk-step-1"
+                                        domain="@{domain}"
+                                        tmp.dir="crypto/hsm/step1" />
+            <soma-prepare-request-macro soma.request="getfile"
+                                        domain="@{domain}"
+                                        dp.file.name="temporary:///source-one.kwk"
+                                        tmp.dir="crypto/hsm/step1" />
+            <soma-prepare-request-macro soma.request="deletefile"
+                                        domain="@{domain}"
+                                        dp.file.name="temporary:///source-one.kwk"
+                                        tmp.dir="crypto/hsm/step1" />
+            <soma-run-multi-requests-on-single-device-macro device="${source-device}"
+                                                            soma.requests="hsm-clone-kwk-step-1,getfile,deletefile"
+                                                            tmp.dir="crypto/hsm/step1"
+                                                            check.response="true" />
+            <xslt processor="trax"
+                  in="dist/crypto/hsm//step1/getfile-response.xml"
+                  style="${swat.dp.tools}/soma/xsl/extract-file.xsl"
+                  out="dist/crypto/hsm/step1/source-one.kwk.b64"
+                  classpathref="swat.dp.tools.classpath" />
 
-			<!-- input>Step 1 - done : Press Return key to continue...</input -->
+            <!-- input>Step 1 - done : Press Return key to continue...</input -->
 
-			<!-- Step 2: destination-two -->
-			<var name="device" value="${destination-device}" />
-			<echo message="Step 2: destination-two [${device}]" />
-			<soma-prepare-request-macro soma.request="setfile"
-			                            domain="@{domain}"
-			                            content.exists="true"
-			                            content.dir="dist/crypto/hsm/step1"
-			                            content.file="source-one.kwk.b64"
-			                            content.encoded="true"
-			                            tmp.dir="crypto/hsm/step2"
-			                            dp.file.name="temporary:///source-one.kwk" />
-			<soma-prepare-request-macro soma.request="hsm-clone-kwk-step-2" tmp.dir="crypto/hsm/step2" />
-			<soma-prepare-request-macro soma.request="getfile"
-			                            domain="@{domain}"
-			                            dp.file.name="temporary:///destination-two.kwk"
-			                            tmp.dir="crypto/hsm/step2" />
-			<soma-prepare-request-macro soma.request="deletefile"
-			                            domain="@{domain}"
-			                            dp.file.name="temporary:///destination-two.kwk"
-			                            tmp.dir="crypto/hsm/step2" />
-			<soma-run-multi-requests-on-single-device-macro device="${destination-device}"
-			                                                soma.requests="setfile,hsm-clone-kwk-step-2,getfile,deletefile"
-			                                                tmp.dir="crypto/hsm/step2"
-			                                                check.response="true" />
-			<xslt processor="trax"
-			      in="dist/crypto/hsm/step2/getfile-response.xml"
-			      style="${swat.dp.tools}/soma/xsl/extract-file.xsl"
-			      out="dist/crypto/hsm/step2/destination-two.kwk.b64"
-			      classpathref="swat.dp.tools.classpath" />
-			<soma-prepare-request-macro soma.request="deletefile"
-			                            domain="@{domain}"
-			                            dp.file.name="temporary:///source-one.kwk"
-			                            tmp.dir="crypto/hsm/step2" />
-			<soma-run-single-request-on-single-device-macro device="${destination-device}"
-			                                                soma.request="deletefile"
-			                                                tmp.dir="crypto/hsm/step2"
-			                                                check.response="true" />
+            <!-- Step 2: destination-two -->
+            <var name="device" value="${destination-device}" />
+            <echo message="Step 2: destination-two [${device}]" />
+            <soma-prepare-request-macro soma.request="setfile"
+                                        domain="@{domain}"
+                                        content.exists="true"
+                                        content.dir="dist/crypto/hsm/step1"
+                                        content.file="source-one.kwk.b64"
+                                        content.encoded="true"
+                                        tmp.dir="crypto/hsm/step2"
+                                        dp.file.name="temporary:///source-one.kwk" />
+            <soma-prepare-request-macro soma.request="hsm-clone-kwk-step-2" tmp.dir="crypto/hsm/step2" />
+            <soma-prepare-request-macro soma.request="getfile"
+                                        domain="@{domain}"
+                                        dp.file.name="temporary:///destination-two.kwk"
+                                        tmp.dir="crypto/hsm/step2" />
+            <soma-prepare-request-macro soma.request="deletefile"
+                                        domain="@{domain}"
+                                        dp.file.name="temporary:///destination-two.kwk"
+                                        tmp.dir="crypto/hsm/step2" />
+            <soma-run-multi-requests-on-single-device-macro device="${destination-device}"
+                                                            soma.requests="setfile,hsm-clone-kwk-step-2,getfile,deletefile"
+                                                            tmp.dir="crypto/hsm/step2"
+                                                            check.response="true" />
+            <xslt processor="trax"
+                  in="dist/crypto/hsm/step2/getfile-response.xml"
+                  style="${swat.dp.tools}/soma/xsl/extract-file.xsl"
+                  out="dist/crypto/hsm/step2/destination-two.kwk.b64"
+                  classpathref="swat.dp.tools.classpath" />
+            <soma-prepare-request-macro soma.request="deletefile"
+                                        domain="@{domain}"
+                                        dp.file.name="temporary:///source-one.kwk"
+                                        tmp.dir="crypto/hsm/step2" />
+            <soma-run-single-request-on-single-device-macro device="${destination-device}"
+                                                            soma.request="deletefile"
+                                                            tmp.dir="crypto/hsm/step2"
+                                                            check.response="true" />
 
-			<!-- input>Step 2 - done : Press Return key to continue...</input -->
+            <!-- input>Step 2 - done : Press Return key to continue...</input -->
 
-			<!-- Step 3: source-three -->
-			<var name="device" value="${source-device}" />
-			<echo message="Step 3: source-three [${device}]" />
-			<soma-prepare-request-macro soma.request="setfile"
-			                            domain="@{domain}"
-			                            content.exists="true"
-			                            content.dir="dist/crypto/hsm/step2"
-			                            content.file="destination-two.kwk.b64"
-			                            content.encoded="true"
-			                            tmp.dir="crypto/hsm/step3"
-			                            dp.file.name="temporary:///destination-two.kwk" />
-			<soma-prepare-request-macro soma.request="hsm-clone-kwk-step-3"
-			                            domain="@{domain}"
-			                            tmp.dir="crypto/hsm/step3" />
-			<soma-prepare-request-macro soma.request="getfile"
-			                            domain="@{domain}"
-			                            dp.file.name="temporary:///source-three.kwk"
-			                            tmp.dir="crypto/hsm/step3" />
-			<soma-prepare-request-macro soma.request="deletefile"
-			                            domain="@{domain}"
-			                            dp.file.name="temporary:///source-three.kwk"
-			                            tmp.dir="crypto/hsm/step3" />
-			<soma-run-multi-requests-on-single-device-macro device="${source-device}"
-			                                                soma.requests="setfile,hsm-clone-kwk-step-3,getfile,deletefile"
-			                                                tmp.dir="crypto/hsm/step3"
-			                                                check.response="true" />
-			<xslt processor="trax"
-			      in="dist/crypto/hsm/step3/getfile-response.xml"
-			      style="${swat.dp.tools}/soma/xsl/extract-file.xsl"
-			      out="dist/crypto/hsm/step3/source-three.kwk.b64"
-			      classpathref="swat.dp.tools.classpath" />
-			<soma-prepare-request-macro soma.request="deletefile"
-			                            domain="@{domain}"
-			                            dp.file.name="temporary:///destination-two.kwk"
-			                            tmp.dir="crypto/hsm/step3" />
-			<soma-run-single-request-on-single-device-macro device="${source-device}"
-			                                                soma.request="deletefile"
-			                                                tmp.dir="crypto/hsm/step3"
-			                                                check.response="true" />
+            <!-- Step 3: source-three -->
+            <var name="device" value="${source-device}" />
+            <echo message="Step 3: source-three [${device}]" />
+            <soma-prepare-request-macro soma.request="setfile"
+                                        domain="@{domain}"
+                                        content.exists="true"
+                                        content.dir="dist/crypto/hsm/step2"
+                                        content.file="destination-two.kwk.b64"
+                                        content.encoded="true"
+                                        tmp.dir="crypto/hsm/step3"
+                                        dp.file.name="temporary:///destination-two.kwk" />
+            <soma-prepare-request-macro soma.request="hsm-clone-kwk-step-3"
+                                        domain="@{domain}"
+                                        tmp.dir="crypto/hsm/step3" />
+            <soma-prepare-request-macro soma.request="getfile"
+                                        domain="@{domain}"
+                                        dp.file.name="temporary:///source-three.kwk"
+                                        tmp.dir="crypto/hsm/step3" />
+            <soma-prepare-request-macro soma.request="deletefile"
+                                        domain="@{domain}"
+                                        dp.file.name="temporary:///source-three.kwk"
+                                        tmp.dir="crypto/hsm/step3" />
+            <soma-run-multi-requests-on-single-device-macro device="${source-device}"
+                                                            soma.requests="setfile,hsm-clone-kwk-step-3,getfile,deletefile"
+                                                            tmp.dir="crypto/hsm/step3"
+                                                            check.response="true" />
+            <xslt processor="trax"
+                  in="dist/crypto/hsm/step3/getfile-response.xml"
+                  style="${swat.dp.tools}/soma/xsl/extract-file.xsl"
+                  out="dist/crypto/hsm/step3/source-three.kwk.b64"
+                  classpathref="swat.dp.tools.classpath" />
+            <soma-prepare-request-macro soma.request="deletefile"
+                                        domain="@{domain}"
+                                        dp.file.name="temporary:///destination-two.kwk"
+                                        tmp.dir="crypto/hsm/step3" />
+            <soma-run-single-request-on-single-device-macro device="${source-device}"
+                                                            soma.request="deletefile"
+                                                            tmp.dir="crypto/hsm/step3"
+                                                            check.response="true" />
 
-			<!-- input>Step 3 - done : Press Return key to continue...</input -->
+            <!-- input>Step 3 - done : Press Return key to continue...</input -->
 
-			<!-- Step 4: final (destination-four) -->
-			<var name="device" value="${destination-device}" />
-			<echo message="Step 4: final (destination-four) [${device}]" />
-			<soma-prepare-request-macro soma.request="setfile"
-			                            domain="@{domain}"
-			                            content.exists="true"
-			                            content.dir="dist/crypto/hsm/step3"
-			                            content.file="source-three.kwk.b64"
-			                            content.encoded="true"
-			                            tmp.dir="crypto/hsm/step4"
-			                            dp.file.name="temporary:///source-three.kwk" />
-			<soma-prepare-request-macro soma.request="hsm-clone-kwk-step-4"
-			                            domain="@{domain}"
-			                            tmp.dir="crypto/hsm/step4" />
-			<soma-prepare-request-macro soma.request="deletefile"
-			                            domain="@{domain}"
-			                            dp.file.name="temporary:///source-three.kwk"
-			                            tmp.dir="crypto/hsm/step4" />
-			<soma-run-multi-requests-on-single-device-macro device="${destination-device}"
-			                                                soma.requests="setfile,hsm-clone-kwk-step-4,deletefile"
-			                                                tmp.dir="crypto/hsm/step4"
-			                                                check.response="true" />
+            <!-- Step 4: final (destination-four) -->
+            <var name="device" value="${destination-device}" />
+            <echo message="Step 4: final (destination-four) [${device}]" />
+            <soma-prepare-request-macro soma.request="setfile"
+                                        domain="@{domain}"
+                                        content.exists="true"
+                                        content.dir="dist/crypto/hsm/step3"
+                                        content.file="source-three.kwk.b64"
+                                        content.encoded="true"
+                                        tmp.dir="crypto/hsm/step4"
+                                        dp.file.name="temporary:///source-three.kwk" />
+            <soma-prepare-request-macro soma.request="hsm-clone-kwk-step-4"
+                                        domain="@{domain}"
+                                        tmp.dir="crypto/hsm/step4" />
+            <soma-prepare-request-macro soma.request="deletefile"
+                                        domain="@{domain}"
+                                        dp.file.name="temporary:///source-three.kwk"
+                                        tmp.dir="crypto/hsm/step4" />
+            <soma-run-multi-requests-on-single-device-macro device="${destination-device}"
+                                                            soma.requests="setfile,hsm-clone-kwk-step-4,deletefile"
+                                                            tmp.dir="crypto/hsm/step4"
+                                                            check.response="true" />
 
-		</sequential>
-	</macrodef>
+        </sequential>
+    </macrodef>
 </project>

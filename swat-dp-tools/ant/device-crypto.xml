@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
-<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Copyright (c) 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
 <!-- ================================================================================================= -->
 
 <!-- ====================================================================== -->
@@ -10,34 +10,34 @@
 <!-- ====================================================================== -->
 <project name="swat-dp-tools.device-crypto" default="info" basedir=".">
 
-	<dirname file="${ant.file.swat-dp-tools.device-crypto}" property="ant_devicecrypto.dir" />
-	<import file="${ant_devicecrypto.dir}/taskdefs.xml" />
+    <dirname file="${ant.file.swat-dp-tools.device-crypto}" property="ant_devicecrypto.dir" />
+    <import file="${ant_devicecrypto.dir}/taskdefs.xml" />
 
-	<!-- ================================= 
+    <!-- ================================= 
           target: info              
          ================================= -->
-	<target name="info">
-		<echo message="DataPower Device Crypto Tool macros for swat-dp-tools" />
-	</target>
+    <target name="info">
+        <echo message="DataPower Device Crypto Tool macros for swat-dp-tools" />
+    </target>
 
-	<!-- = = = = = = = = = = = = = = = = =
+    <!-- = = = = = = = = = = = = = = = = =
           macrodef: device-set-key-generate-macro         
          = = = = = = = = = = = = = = = = = -->
-	<macrodef name="device-set-key-generate-macro">
-		<attribute name="device-set" />
-		<attribute name="crypto.prefix" />
-		<sequential>
-			<!-- Load device-set settings -->
-			<load-device-set-props-macro device-set="@{device-set}" />
+    <macrodef name="device-set-key-generate-macro">
+        <attribute name="device-set" />
+        <attribute name="crypto.prefix" />
+        <sequential>
+            <!-- Load device-set settings -->
+            <load-device-set-props-macro device-set="@{device-set}" />
 
-			<!-- Loop through the devices and generate the key -->
-			<property name="current.crypto.prefix" value="@{crypto.prefix}" />
-			<foreach target="key-generate-on-device"
-			         list="${swat.device.list}"
-			         delimiter=","
-			         param="current.device"
-			         inheritall="true"
-			         inheritrefs="true" />
-		</sequential>
-	</macrodef>
+            <!-- Loop through the devices and generate the key -->
+            <property name="current.crypto.prefix" value="@{crypto.prefix}" />
+            <foreach target="key-generate-on-device"
+                     list="${swat.device.list}"
+                     delimiter=","
+                     param="current.device"
+                     inheritall="true"
+                     inheritrefs="true" />
+        </sequential>
+    </macrodef>
 </project>
