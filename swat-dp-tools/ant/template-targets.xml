@@ -34,7 +34,10 @@
 		<echo message="current basedir = ${basedir}" />
 		<echo message="current project = ${ant.project.name}" />
 		<echo message="---------- predefined properties ----------" />
-		<echoproperties regex="(mgr\.|confirm|overwrite)" />
+		<!-- echoproperties regex="(mgr\.|confirm|overwrite)" / -->
+		<echoproperties regex="^mgr\.[a-z1-9]*\.(?!password|pwd|passwd)" />
+		<echo message="---------- swat switches ----------" />
+		<echoproperties regex="^swat\.[a-z1-9]*\.(?!password|pwd|passwd)" />
 	</target>
 
 	<!-- ================================= 
@@ -178,7 +181,7 @@
 			<regexpmapper from="(.*)${service.name}(.*)" to="\1${clone.target.service.name}\2" />
 		</copy>
 
-		<echo message="Copy remaing master files ..." />
+		<echo message="Copy remaining master files ..." />
 		<copy todir="${clone.target.dir}" filtering="false" verbose="true" overwrite="false">
 			<fileset dir="${clone.source.dir}">
 				<include name="**/master/**" />
