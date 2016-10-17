@@ -7,10 +7,16 @@
     <xsl:output method="xml" encoding="UTF-8" indent="yes" xalan:indent-amount="4" omit-xml-declaration="yes" />
     <xsl:strip-space elements="*" />
     
+    <xsl:param name="resultDir" />
     <xsl:param name="serviceName" />
     <xsl:param name="serviceObjectName" />
     <xsl:param name="useIndexInRuleName" />
     <xsl:param name="log-level" />
+
+    <xsl:variable name="dir">
+        <xsl:value-of select="replace($resultDir, '%5C', '/')"/>
+    </xsl:variable>
+    
 
     <xsl:variable name="serviceNameVar" select="$serviceName" />
 
@@ -18,6 +24,9 @@
     <xsl:variable name="serviceObjectNameLengthVar" select="string-length($serviceObjectNameVar)" />
 
     <xsl:template match="/">
+        <xsl:message>
+            <xsl:value-of select="concat('result directory: ', $dir)" />
+        </xsl:message>
         <!-- called  rules -->
         <xsl:for-each select="datapower-configuration/configuration/StylePolicyRule[Direction='rule']">
             <xsl:variable name="index" select="99 + position()" />
@@ -37,7 +46,12 @@
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:variable>
-            <xsl:result-document method="xml" href="{$filename}" omit-xml-declaration="yes">
+            <xsl:if test="number($log-level) &lt; 2" >
+                <xsl:message>
+                    <xsl:value-of select="concat('processing rule ', $rulename, ' [', $filename, '] ...')" />
+                </xsl:message>
+            </xsl:if>
+            <xsl:result-document method="xml" href="file:////{$dir}/{$filename}" omit-xml-declaration="yes">
                 <xsl:comment>
                     <xsl:value-of select="concat(' Called Rule Index ', $index, ' ')" />
                 </xsl:comment>
@@ -89,7 +103,12 @@
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:variable>
-            <xsl:result-document method="xml" href="{$filename}" omit-xml-declaration="yes">
+            <xsl:if test="number($log-level) &lt; 2" >
+                <xsl:message>
+                    <xsl:value-of select="concat('processing rule ', $rulename, ' [', $filename, '] ...')" />
+                </xsl:message>
+            </xsl:if>
+            <xsl:result-document method="xml" href="file:////{$dir}/{$filename}" omit-xml-declaration="yes">
                 <xsl:comment>
                     <xsl:value-of select="concat(' MPGW/XMLFW Rule Index ', $index, ' ')" />
                 </xsl:comment>
@@ -111,8 +130,8 @@
                                         <xsl:message>
                                             <xsl:value-of select="concat('adding condition ', $condname, ' ...')" />
                                         </xsl:message>
-                                    <xsl:copy-of select="../../StylePolicyAction[@name=$condname]" />
                                 </xsl:if>
+                                    <xsl:copy-of select="../../StylePolicyAction[@name=$condname]" />
                                 </xsl:for-each>
                             </xsl:if>
                             <xsl:copy-of select="../../StylePolicyAction[@name=$actname]" />
@@ -136,7 +155,12 @@
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:variable>
-            <xsl:result-document method="xml" href="{$filename}" omit-xml-declaration="yes">
+            <xsl:if test="number($log-level) &lt; 2" >
+                <xsl:message>
+                    <xsl:value-of select="concat('processing WSStylePolicy rule ', $rulename, ' [', $filename, '] ...')" />
+                </xsl:message>
+            </xsl:if>
+            <xsl:result-document method="xml" href="file:////{$dir}/{$filename}" omit-xml-declaration="yes">
                 <xsl:comment>
                     <xsl:value-of select="concat(' WSP Rule Index ', $index, ' ')" />
                 </xsl:comment>
@@ -146,9 +170,19 @@
                         <xsl:attribute name="domain"><xsl:value-of select="/datapower-configuration/configuration/@domain" /></xsl:attribute>
                         <xsl:for-each select="../../../WSStylePolicyRule[@name=$rulename]/Actions">
                             <xsl:variable name="actname" select="text()" />
+                            <xsl:if test="number($log-level) &lt; 2" >
+                                <xsl:message>
+                                    <xsl:value-of select="concat('adding action ', $actname, ' ...')" />
+                                </xsl:message>
+                            </xsl:if>
                             <xsl:if test="../../StylePolicyAction[@name=$actname]/Type/text() = 'conditional'">
                                 <xsl:for-each select="../../StylePolicyAction[@name=$actname]/Condition">
                                     <xsl:variable name="condname" select="ConditionAction/text()" />
+                                    <xsl:if test="number($log-level) &lt; 2" >
+                                        <xsl:message>
+                                            <xsl:value-of select="concat('adding condition ', $condname, ' ...')" />
+                                        </xsl:message>
+                                    </xsl:if>
                                     <xsl:copy-of select="../../StylePolicyAction[@name=$condname]" />
                                 </xsl:for-each>
                             </xsl:if>
@@ -173,7 +207,7 @@
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:variable>
-            <xsl:result-document method="xml" href="{$filename}" omit-xml-declaration="yes">
+            <xsl:result-document method="xml" href="file:////{$dir}/{$filename}" omit-xml-declaration="yes">
                 <xsl:comment>
                     <xsl:value-of select="concat(' WAF Error Rule Index ', $index, ' ')" />
                 </xsl:comment>
@@ -210,7 +244,7 @@
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:variable>
-            <xsl:result-document method="xml" href="{$filename}" omit-xml-declaration="yes">
+            <xsl:result-document method="xml" href="file:////{$dir}/{$filename}" omit-xml-declaration="yes">
                 <xsl:comment>
                     <xsl:value-of select="concat(' WAF Request Map Rule Index ', $index, ' ')" />
                 </xsl:comment>
@@ -266,7 +300,7 @@
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:variable>
-            <xsl:result-document method="xml" href="{$filename}" omit-xml-declaration="yes">
+            <xsl:result-document method="xml" href="file:////{$dir}/{$filename}" omit-xml-declaration="yes">
                 <xsl:comment>
                     <xsl:value-of select="concat(' WAF Response Map Rule Index ', $index, ' ')" />
                 </xsl:comment>
@@ -322,7 +356,7 @@
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:variable>
-            <xsl:result-document method="xml" href="{$filename}" omit-xml-declaration="yes">
+            <xsl:result-document method="xml" href="file:////{$dir}/{$filename}" omit-xml-declaration="yes">
                 <xsl:comment>
                     <xsl:value-of select="concat(' WAF Error Map Rule Index ', $index, ' ')" />
                 </xsl:comment>

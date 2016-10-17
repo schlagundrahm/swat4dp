@@ -155,12 +155,14 @@
 			<if>
 				<available file="${split-dir}/temp-40-1.xcfg" />
 				<then>
+				    <echo message="now split away all style-rules, and separate them out, one by one ..." />
 					<xslt processor="trax"
 					      in="${split-dir}/temp-40-1.xcfg"
 					      style="${split-style-policy-style}"
 					      out="${split-dir}/temp-40-2.xcfg"
 					      classpathref="swat.dp.tools.classpath">
 						<factory name="net.sf.saxon.TransformerFactoryImpl" />
+					    <param name="resultDir" expression="${basedir}/${split-dir}" />
 						<param name="serviceName" expression="@{service}" />
 						<param name="serviceObjectName" expression="@{object}" />
 						<param name="log-level" expression="${swat.log.level}" />
