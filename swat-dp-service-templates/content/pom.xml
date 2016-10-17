@@ -1,0 +1,62 @@
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ch.schlagundrahm.swat.datapower.services</groupId>
+        <artifactId>@swat.customer@-swat-dp-services-pom</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <groupId>ch.schlagundrahm.swat.datapower.services</groupId>
+    <artifactId>@service.project.name@</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    
+    <name>@domain.name@ @service.object.name@</name>
+    <description>@service.summary@</description>
+
+    <properties>
+        <git.baseurl>github.com/schlagundrahm/swat4dp</git.baseurl>
+        <svn.baseurl>https://github.com/schlagundrahm</svn.baseurl>
+        <svn.repo>swat4dp.git</svn.repo>
+        <swat.service.object.name>@service.object.name@</swat.service.object.name>
+        <swat.service.object.class>@service.object.class@</swat.service.object.class>
+    </properties>
+
+    <scm>
+        <url>https://${git.baseurl}</url>
+        <connection>scm:git:git://${git.baseurl}.git</connection>
+        <developerConnection>scm:git:git://${git.baseurl}.git</developerConnection>
+        <!-- SVN example -->
+        <!-- 
+        <url>${svn.baseurl}/${svn.repo}/trunk/${project.artifactId}</url>
+        <connection>scm:svn:${svn.baseurl}/${svn.repo}/trunk/${project.artifactId}</connection>
+        <developerConnection>scm:svn:${svn.baseurl}/${svn.repo}/trunk/${project.artifactId}</developerConnection>
+        -->
+    </scm>
+
+    <build>
+        <plugins>
+            <!-- defined in parent's pluginManagement section - download swat4dp tooling -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+            
+            <!-- defined in parent's pluginManagement section - build service for all environments -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+            </plugin>
+            
+            <!-- defined in parent's pluginManagement section - create service artifacts for all environments -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
