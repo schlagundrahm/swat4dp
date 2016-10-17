@@ -66,6 +66,15 @@
 	</target>
 
 	<!-- ================================= 
+          target: device-build 
+         ================================= -->
+	<target name="device-build"
+	        depends="declare,init"
+	        description="Pack the default domain of the given device.">
+		<device-pack-macro device="${mgr.target.device.name}" />
+	</target>
+
+	<!-- ================================= 
           target: 15-device-key-generate 
          ================================= -->
 	<target name="15-device-key-generate"
