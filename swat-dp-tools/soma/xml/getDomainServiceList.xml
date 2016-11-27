@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-	<soapenv:Body>
-		<dp:GetServiceListFromDomainRequest
-			xmlns:dp="http://www.datapower.com/schemas/appliance/management/3.0">
-			<dp:Domain>@domain.name@</dp:Domain>
-		</dp:GetServiceListFromDomainRequest>
-	</soapenv:Body>
+    <soapenv:Body>
+        <dp:GetServiceListFromDomainRequest xmlns:dp="http://www.datapower.com/schemas/appliance/management/3.0">
+            <dp:Domain>@domain.name@</dp:Domain>
+        </dp:GetServiceListFromDomainRequest>
+    </soapenv:Body>
 </soapenv:Envelope>

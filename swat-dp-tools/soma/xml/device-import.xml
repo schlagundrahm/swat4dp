@@ -2,7 +2,8 @@
     <soapenv:Header />
     <soapenv:Body>
         <dp:request domain="default">
-            <dp:do-import source-type="@soma.content.type@" dry-run="false" overwrite-files="true" overwrite-objects="true" deployment-policy="@deployment.policy@">
+            <dp:do-import source-type="@soma.content.type@" dry-run="false" overwrite-files="true" overwrite-objects="true"
+                deployment-policy="@deployment.policy@">
                 <dp:input-file>@soma.content@</dp:input-file>
             </dp:do-import>
         </dp:request>
