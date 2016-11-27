@@ -21,6 +21,13 @@
         <url>http://www.schlagundrahm.ch</url>
     </organization>
 
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
     <scm>
         <url>https://github.com/schlagundrahm/swat4dp</url>
         <connection>scm:git:git://github.com/schlagundrahm/swat4dp.git</connection>
