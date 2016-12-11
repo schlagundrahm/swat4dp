@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- ================================================================================================= -->
+<!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
+<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- ================================================================================================= -->
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.8.2 or above. -->
+<!-- ====================================================================== -->
+<project name="swat-dp-tools.domain-targets" default="info" basedir=".">
+
+    <dirname file="${ant.file.swat-dp-tools.domain-targets}" property="ant_domaintargets.dir" />
+    <import file="${ant_domaintargets.dir}/taskdefs.xml" />
+    <import file="${ant_domaintargets.dir}/chooser.xml" />
+    <import file="${ant_domaintargets.dir}/soma.xml" />
+
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: info 
+         - - - - - - - - - - - - - - - - - -->
+    <target name="info">
+        <echo message="Common domain targets for swat-dp-tools" />
+        <echoproperties prefix="swat" />
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: init 
+         - - - - - - - - - - - - - - - - - -->
+    <target name="init">
+        <!-- Create a time stamp -->
+        <tstamp>
+            <format property="FILESTAMP" pattern="yyyyMMdd_HHmmss" />
+        </tstamp>
+        <echo message="***** domain-targets initialized at ${FILESTAMP} *****" />
+        <echo message="current basedir = ${basedir}" />
+        <echo message="current project = ${ant.project.name}" />
+        <echo message="---------- predefined properties ----------" />
+        <echoproperties regex="(mgr\.target\.device|mgr\.target\.user|confirm|overwrite)" />
+    </target>
+
+
+    <!-- ================================= 
+          target: 24-domain-cleanup-on-device              
+         ================================= -->
+    <target name="24-domain-cleanup-on-device">
+        <!-- Step 0: Load current device settings -->
+        <load-device-props-macro device="${foreach.device.name}" />
+
+        <!-- Step 1: Export the objects from domain for device -->
+        <echo message="Step 1: Export all the objects from domain" />
+        <domain-export-objects-macro device="${foreach.device.name}" domain="${swat.domain.name}" />
+
+        <!-- Step 2: Pack all services into one import file -->
+        <echo message="Step 2: Pack all services into one import file" />
+        <delete dir="dist/import/${swat.env.name}/xcfg/common" />
+        <foreach target="domain-pack-service-xcfg"
+                 list="${swat.service.list}"
+                 delimiter=","
+                 param="mgr.target.service.name"
+                 inheritall="true"
+                 inheritrefs="true" />
+
+        <!-- Step 3: Combine the additional .xcfg files into one export file -->
+        <property name="xcfg-selection-expr"
+                  value="../../../${ant.project.name}/dist/import/${swat.env.name}/xcfg/common/?select=*.xcfg" />
+        <echo message="Step 3: Combining the files for expression ${xcfg-selection-expr} into import.xml..." />
+        <combine-xcfg-files-macro input="${swat.dp.tools}/soma/xml/empty-config.xml"
+                                  output="dist/import/${swat.env.name}/import.xml"
+                                  xcfg-selection-expr="${xcfg-selection-expr}" />
+
+        <!-- Step 4: Create the object list from the import file, see split.xml -->
+        <echo message="Step 4: Create the object list from the import file" />
+        <extract-object-list-macro input="dist/import/${swat.env.name}/import.xml"
+                                   output="dist/import/${swat.env.name}/import-object-list.xml" />
+
+        <!-- Step 5: Filter the export with the content of the import -->
+        <echo message="Step 5: Filter the export with the content of the import" />
+        <filter-with-object-list-macro input="dist/download/domain-export/export.xml"
+                                       output="dist/cleanup/${foreach.device.name}-${swat.env.name}-export-filtered.xml"
+                                       object-list="../../../${ant.project.name}/dist/import/${swat.env.name}/import-object-list.xml" />
+
+        <!-- Step 6: Create a delete object request from the filtered export file -->
+        <echo message="Step 6: Create a delete object request from the filtered export file" />
+        <create-delete-object-list-request-macro input="dist/cleanup/${foreach.device.name}-${swat.env.name}-export-filtered.xml"
+                                                 output="dist/cleanup/${foreach.device.name}-${swat.env.name}-config-delete.xml" />
+
+        <!-- Step 7: Check whether there are any objects to delete -->
+        <echo message="Step 7: Check whether there are any objects to delete" />
+        <extract-xpath-macro input-file="dist/cleanup/${foreach.device.name}-${swat.env.name}-config-delete.xml"
+                             xpath="count(//*[local-name()='del-config']/*)"
+                             property-name="numObjects" />
+        <if>
+            <equals arg1="${numObjects}" arg2="0" />
+            <then>
+                <!-- Step 8: No objects to be deleted, continue -->
+                <echo message="Step 8: No objects to be deleted for [${swat.domain.name}/${device.label}], continue." />
+            </then>
+            <else>
+                <!-- Step 8: Confirm the deletion of the objects (ant-form) -->
+                <echo message="Step 8: Confirm the deletion of the objects (ant-form)" />
+                <dialog-confirm-macro title="Cleanup Objects [${swat.domain.name}/${device.label}]"
+                                      label="Are you sure, you want to delete the identified objects in Domain [${swat.domain.name}] on Device [${device.label}]?"
+                                      content="Please view the file ${basedir}/dist/cleanup/${foreach.device.name}-${swat.env.name}-config-delete.xml for the detailed content."
+                                      fail-message="Objects will not be deleted, action cancelled by user." />
+
+                <!-- Step 9: Run the delete object request against the chosen device (no preparation necessary) -->
+                <echo message="Step 9: Run the delete object request against the chosen device" />
+                <soma-run-single-request-on-single-device-macro device="${foreach.device.name}"
+                                                                soma.request="${foreach.device.name}-${swat.env.name}-config-delete"
+                                                                tmp.dir="cleanup"
+                                                                check.response="true" />
+            </else>
+        </if>
+    </target>
+
+    <!-- ================================= 
+          target: 25-domain-checkpoints 
+         ================================= -->
+    <target name="25-domain-checkpoints"
+            depends="declare,init,load-domain-props"
+            description="Get domain checkpoints of a given device.">
+        <!-- Load implicitly chosen device-set settings -->
+        <load-device-set-props-macro device-set="${swat.device-set.name}" />
+        <foreach target="get-domain-checkpoints-on-device"
+                 list="${swat.device.list}"
+                 delimiter=","
+                 param="mgr.target.device.name"
+                 inheritall="true"
+                 inheritrefs="true" />
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: get-domain-checkpoints-on-device                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="get-domain-checkpoints-on-device" depends="declare,load-domain-props">
+        <get-status-macro device="${mgr.target.device.name}"
+                          domain="${swat.domain.name}"
+                          status="DomainCheckpointStatus" />
+    </target>
+
+    <!-- ================================= 
+              target: 26-domain-password-alias 
+             ================================= -->
+    <target name="26-domain-password-alias-deploy" depends="declare,load-domain-props">
+        <dialog-password-alias-macro title="Deploy Password Map Alias on domain ${swat.domain.name}" />
+        <add-password-alias-macro env="${mgr.target.env.name}" domain="${swat.domain.name}" />
+    </target>
+
+</project>

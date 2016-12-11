@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dp="http://www.datapower.com/schemas/management">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <dp:request domain="@domain.name@">
+         <dp:do-import source-type="@soma.content.type@" dry-run="@soma.dry.run@" overwrite-files="@soma.overwrite.files@" overwrite-objects="@soma.overwrite.objects@"
+            deployment-policy="@deployment.policy@">
+            <dp:input-file>@soma.content@</dp:input-file>
+            <dp:object import-debug="true" />
+         </dp:do-import>
+      </dp:request>
+   </soapenv:Body>
+</soapenv:Envelope>

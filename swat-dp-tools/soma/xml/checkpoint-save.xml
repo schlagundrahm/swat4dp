@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope
+    xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:dp="http://www.datapower.com/schemas/management">
+    <soapenv:Body>
+        <dp:request
+            domain="@domain.name@"
+            xmlns:dp="http://www.datapower.com/schemas/management">
+            <dp:do-action>
+                <SaveCheckpoint>
+                    <ChkName>@checkpoint.name@</ChkName>
+                </SaveCheckpoint>
+            </dp:do-action>
+        </dp:request>
+    </soapenv:Body>
+</soapenv:Envelope>

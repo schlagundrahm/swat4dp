@@ -72,8 +72,8 @@
     </target>
 
     <!-- ================================= 
-        target: 18-device-xcfg-reformat 
-       ================================= -->
+          target: 18-device-xcfg-reformat 
+         ================================= -->
     <target name="18-device-xcfg-reformat"
             depends="declare,choose-device"
             description="reformatting xcfg of device project">
@@ -84,7 +84,7 @@
     </target>
 
     <!-- ================================= 
-      target: 19-device-project-clean 
+          target: 19-device-project-clean 
          ================================= -->
     <target name="19-device-project-clean" depends="declare" description="cleaning device project">
         <ant antfile="${swat.dp.devices}/build.xml"
@@ -150,8 +150,8 @@
     </target>
 
     <!-- ================================= 
-        target: 24-domain-cleanup 
-       ================================= -->
+          target: 24-domain-cleanup 
+         ================================= -->
     <target name="24-domain-cleanup" depends="declare,load-domain-props" description="running domain-cleanup">
         <!-- Load implicitly chosen device-set settings -->
         <load-device-set-props-macro device-set="${swat.device-set.name}" />
@@ -211,6 +211,28 @@
                 <include name="**/*.jpg" />
             </fileset>
         </copy>
+    </target>
+    
+    <!-- ================================= 
+          target: 26-domain-checkpoints 
+         ================================= -->
+    <target name="26-domain-checkpoints" depends="declare,load-domain-props" description="get domain checkpoints">
+        <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
+             target="26-domain-checkpoints"
+             inheritrefs="true"
+             useNativeBasedir="false" />
+    </target>
+
+    <!-- ================================= 
+          target: 27-domain-password-alias 
+         ================================= -->
+    <target name="27-domain-password-alias"
+            depends="declare,load-domain-props"
+            description="add or overwrite a PasswordAlias">
+        <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
+             target="26-domain-password-alias-deploy"
+             inheritrefs="true"
+             useNativeBasedir="false" />
     </target>
 
     <!-- ================================= 
@@ -304,8 +326,8 @@
     </target>
 
     <!-- ================================= 
-        target: 38-service-xcfg-reformat 
-       ================================= -->
+          target: 38-service-xcfg-reformat 
+         ================================= -->
     <target name="38-service-xcfg-reformat"
             depends="declare,load-service-props"
             description="reformatting xcfg of service project">
@@ -316,8 +338,8 @@
     </target>
 
     <!-- ================================= 
-        target: 39-service-project-clean 
-       ================================= -->
+          target: 39-service-project-clean 
+         ================================= -->
     <target name="39-service-project-clean" depends="declare,load-service-props" description="cleaning service project">
         <ant antfile="${swat.current.service.home}/build.xml"
              target="39-service-project-clean"
@@ -326,8 +348,8 @@
     </target>
 
     <!-- ================================= 
-        target: 39-service-documentation 
-       ================================= -->
+          target: 39-service-documentation 
+         ================================= -->
     <target name="39-service-documentation"
             depends="declare,load-service-props"
             description="create service documentation">
@@ -381,8 +403,19 @@
     </target>
 
     <!-- ================================= 
-        target: 90-swat-clean-all-projects 
-       ================================= -->
+           target: 51-ops-get-cpu-usage 
+          ================================= -->
+    <target name="51-ops-get-cpu-usage" depends="declare,choose-device" description="running StatusCPUUsage on device">
+        <property name="mgr.target.domain.name" value="default" />
+        <ant antfile="${swat.dp.devices}/build.xml"
+             target="51-ops-get-cpu-usage"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 90-swat-clean-all-projects 
+         ================================= -->
     <target name="90-swat-clean-all-projects" depends="declare" description="--> clean all dist folders">
         <delete verbose="true" includeemptydirs="true">
             <fileset dir="${basedir}/../">
@@ -550,9 +583,9 @@
     </target>
 
     <!-- ================================= 
-          target: 51-ops-sanitize-error-report 
+          target: 59-ops-sanitize-error-report 
          ================================= -->
-    <target name="51-ops-sanitize-error-report"
+    <target name="59-ops-sanitize-error-report"
             depends="declare"
             description="sanitize a given DataPower error report by replacing clear text passwords">
         <antform title="DataPower Error Report and Configuration Export Sanitizer">
@@ -642,6 +675,103 @@
         </zip>
         <!-- clean up -->
         <delete dir="${basedir}/sanitized" />
+    </target>
+
+
+    <!-- ================================= 
+          target: 60-mvn-deploy-artifact     
+         ================================= -->
+    <target name="60-mvn-deploy-artifact"
+            depends="declare,load-service-props,choose-deployment-policy"
+            description="--> deploy DataPower Maven artifact">
+
+        <property name="version" value="${project.version}" />
+
+        <echoproperties prefix="swat" />
+
+        <property name="nexus.search.url"
+                  value="http://nexus.intra.stzh.ch/nexus/service/local/data_index?q=${swat.current.service}" />
+        <property name="nexus.tmp.dir" value="${basedir}/nexus" />
+        <delete dir="${nexus.tmp.dir}" />
+        <mkdir dir="${nexus.tmp.dir}" />
+        <property name="nexus.search.result" value="${nexus.tmp.dir}/nexus-serach-result.html" />
+
+        <exec executable="${curl.exec}">
+            <arg value="${nexus.search.url}" />
+            <arg value="-A" />
+            <arg value="Mozilla/5.0 (Windows NT 5.1; rv:25.0) Gecko/20100101 Firefox/25.0" />
+            <arg value="-H" />
+            <arg value="Accept: text/xml,application/xhtml+xml,application/xml" />
+            <arg value="-o${nexus.search.result}" />
+        </exec>
+
+        <xmltask source="${nexus.search.result}" failWithoutMatch="true">
+            <copy path="//artifact[artifactId/text()='${swat.current.service}' and classifier/text()='${swat.env.name}']//version/text()"
+                  propertySeparator=","
+                  property="nexus.result.artifact.versions"
+                  append="true" />
+        </xmltask>
+
+        <antform title="DataPower Deployment - Select Maven Artifact Version">
+            <label>Choose the version to be deployed for artifactId=${swat.current.service}, classifier=${swat.env.name}.</label>
+            <selectionproperty label="Select Maven artifact version : "
+                               property="deploy.artifact.version"
+                               tooltip="Select the artifact version."
+                               values="${nexus.result.artifact.versions}" />
+            <controlbar>
+                <button label="Cancel" type="cancel" target="cancel" />
+                <button label="Ok" type="ok" />
+            </controlbar>
+        </antform>
+
+        <xmltask source="${nexus.search.result}" failWithoutMatch="true">
+            <copy path="//artifact[artifactId/text()='${swat.current.service}' and classifier/text()='${swat.env.name}' and version/text()='${deploy.artifact.version}']//artifactLink/text()"
+                  property="nexus.result.artifact.link" />
+        </xmltask>
+
+        <mkdir dir="${swat.current.service.home}\target\deploy" />
+
+        <property name="nexus.artifact.file"
+                  value="${swat.current.service.home}\target\deploy\${swat.current.service}-${deploy.artifact.version}-${swat.env.name}.zip" />
+
+        <exec executable="${curl.exec}">
+            <arg value="-L" />
+            <arg value="${nexus.result.artifact.link}" />
+            <arg value="-o" />
+            <arg value="${nexus.artifact.file}" />
+        </exec>
+
+        <if>
+            <length file="${nexus.artifact.file}" when="greater" length="0" />
+            <then>
+                <property name="deploy.file" value="${nexus.artifact.file}" />
+            </then>
+        </if>
+
+        <fail message="No configuration/artifact file has been selected for deployment!">
+            <condition>
+                <or>
+                    <not>
+                        <isset property="deploy.file" />
+                    </not>
+                    <length string="${deploy.file}" when="less" length="3" />
+                    <not>
+                        <length file="${deploy.file}" when="greater" length="0" />
+                    </not>
+                </or>
+            </condition>
+        </fail>
+
+        <ant antfile="${swat.current.service.home}/build.xml"
+             target="artifact-deploy"
+             inheritrefs="true"
+             useNativeBasedir="true">
+            <property name="env" value="${swat.env.name}" />
+            <property name="artifact.id" value="${swat.current.service}" />
+            <property name="SVCVERSION" value="${deploy.artifact.version}" />
+            <property name="deploy.policy" value="${mgr.target.deployment-policy.name}" />
+        </ant>
+
     </target>
 
     <!-- - - - - - - - - - - - - - - - - - 
