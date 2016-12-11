@@ -255,6 +255,7 @@
                       location="${swat.dp.customer.home}/${service.project.prefix}-common" />
             <property name="swat.current.service.home"
                       location="${swat.dp.customer.home}/${service.project.prefix}-@{service}" />
+            <property name="swat.current.service" value="${service.project.prefix}-@{service}" />
             <echo message="Setting property swat.current.service.home = ${swat.current.service.home}" />
 
             <if>

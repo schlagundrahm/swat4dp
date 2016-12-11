@@ -31,6 +31,9 @@
 		<attribute name="encoded" />
 		<attribute name="type" />
 		<attribute name="tmp.dir" />
+		<attribute name="dry-run" />
+		<attribute name="overwrite.objects" />
+		<attribute name="overwrite.files" />
 		<sequential>
 			<local name="soma.content" />
 			<if>
@@ -57,6 +60,9 @@
 						<!-- Content -->
 						<filter token="soma.content" value="${soma.content}" />
 						<filter token="soma.content.type" value="@{type}" />
+						<filter token="soma.dry.run" value="@{dry-run}" />
+						<filter token="soma.overwrite.files" value="@{overwrite.files}" />
+						<filter token="soma.overwrite.objects" value="@{overwrite.objects}" />
 					</filterset>
 				</then>
 				<else>

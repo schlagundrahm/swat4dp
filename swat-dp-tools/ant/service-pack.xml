@@ -129,6 +129,9 @@
 			    <filter token="build.number" value="${buildNumber}" />
 			    <filter token="build.revision" value="${buildRevision}" />
 				<filter token="domain.name" value="${domain.name}"/>
+				<filter token="build.time" value="${FILESTAMP}"/>
+			    <filter token="artifactId" value="${project.artifactId}"/>
+			    <filter token="groupId" value="${project.groupId}"/>
 			</filterset>
 
 			<!-- Copy and filter the local files (common and env-specific) -->

@@ -33,6 +33,9 @@
 		<attribute name="content.file" default="none" />
 		<attribute name="content.encoded" default="false" />
 		<attribute name="content.type" default="ZIP" />
+		<attribute name="content.overwrite.objects" default="true" />
+		<attribute name="content.overwrite.files" default="true" />
+		<attribute name="content.dry-run" default="false" />
 		<attribute name="crypto.prefix" default="none" />
 		<attribute name="device" default="none" />
 		<attribute name="env" default="none" />
@@ -51,6 +54,9 @@
 			                                  file="@{content.file}"
 			                                  encoded="@{content.encoded}"
 			                                  type="@{content.type}"
+                overwrite.objects="@{content.overwrite.objects}"
+                overwrite.files="@{content.overwrite.files}"
+                dry-run="@{content.dry-run}"
 			                                  tmp.dir="@{tmp.dir}" />
 
 			<!-- Define the file-specific filter -->

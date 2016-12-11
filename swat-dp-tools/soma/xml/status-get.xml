@@ -2,7 +2,7 @@
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
     <soapenv:Body>
         <dp:request xmlns:dp="http://www.datapower.com/schemas/management" domain="@domain.name@">
-	        <dp:get-status class="CPUUsage" />
+            <dp:get-status class="@status.provider@" />
         </dp:request>
     </soapenv:Body>
 </soapenv:Envelope>
