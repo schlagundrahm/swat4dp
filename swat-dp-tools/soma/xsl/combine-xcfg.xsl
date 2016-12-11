@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0" xmlns:xalan="http://xml.apache.org/xslt" xmlns:dp="http://www.datapower.com/schemas/management" xmlns:str="http://exslt.org/strings" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="2.0" xmlns:xalan="http://xml.apache.org/xslt" xmlns:dp="http://www.datapower.com/schemas/management" xmlns:str="http://exslt.org/strings" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
     <xsl:output method="xml" encoding="UTF-8" indent="yes" xalan:indent-amount="4" omit-xml-declaration="yes" />
     <xsl:strip-space elements="*" />
     <xsl:param name="xcfgSelection" />
@@ -25,7 +25,11 @@
             </xsl:attribute>
             <xsl:text>&#xa;</xsl:text>
             <xsl:for-each select="collection(iri-to-uri($xcfgSelectionVar))">
+                <xsl:sort select="tokenize(document-uri(.), '/')[last()]" order="ascending" data-type="text" />
                 <xsl:variable name="curFile" select="document-uri(.)" />
+                <xsl:message>
+                    <xsl:value-of select="concat('merging ', $curFile, '...')" />
+                </xsl:message>
                 <xsl:variable select="document($curFile)" name="contents" />
                 <xsl:copy-of select="$contents/datapower-configuration/configuration/*" />
                 <xsl:text>&#xa;</xsl:text>
