@@ -59,5 +59,10 @@
             <outputDirectory>/</outputDirectory>
             <filtered>true</filtered>
         </file>
+        <file>
+         <source>pom.xml</source>
+         <outputDirectory>/</outputDirectory>
+         <filtered>false</filtered>
+      </file>
     </files>
 </assembly>
