@@ -10,67 +10,69 @@
 <!-- ====================================================================== -->
 <project name="swat-dp-tools.taskdefs" default="info" basedir=".">
 
-	<!-- The build.properties file defines the path to local jar files -->
-	<property file="build.properties" />
+    <!-- The build.properties file defines the path to local jar files -->
+    <property file="build.properties" />
 
-	<dirname file="${ant.file.swat-dp-tools.taskdefs}" property="ant_taskdefs.dir" />
+    <dirname file="${ant.file.swat-dp-tools.taskdefs}" property="ant_taskdefs.dir" />
 
-	<!-- ================================= 
+    <!-- ================================= 
           target: info              
          ================================= -->
-	<target name="info" depends="declare" description="show taskdefs classpath">
-		<echo message="ant_taskdefs.dir = ${ant_taskdefs.dir}" />
-		<echoproperties prefix="swat" />
-		<!-- Format path -->
-		<echo message="swat.dp.tools.classpath :" />
-		<pathconvert pathsep="${line.separator}"
-		             property="echo.tools.classpath"
-		             refid="swat.dp.tools.classpath" />
-		<echo message="${echo.tools.classpath}" />
-	</target>
+    <target name="info" depends="declare" description="show taskdefs classpath">
+        <echo message="ant_taskdefs.dir = ${ant_taskdefs.dir}" />
+        <echoproperties prefix="swat" />
+        <!-- Format path -->
+        <echo message="swat.dp.tools.classpath :" />
+        <pathconvert pathsep="${line.separator}" property="echo.tools.classpath" refid="swat.dp.tools.classpath" />
+        <echo message="${echo.tools.classpath}" />
+    </target>
 
-	<!-- - - - - - - - - - - - - - - - - - 
+    <!-- - - - - - - - - - - - - - - - - - 
           target: declare                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="declare">
+    <target name="declare">
 
-		<echo message="declare swat.dp.tools.classpath and load additional task definitions" />
+        <echo message="declare swat.dp.tools.classpath and load additional task definitions" />
 
-		<!-- Create the time stamp -->
-		<tstamp>
-			<format property="FILESTAMP" pattern="yyyyMMdd_HHmmss" />
-		</tstamp>
+        <!-- Create the time stamp -->
+        <tstamp>
+            <format property="FILESTAMP" pattern="yyyyMMdd_HHmmss" />
+        </tstamp>
 
-		<!-- define the classpath for the additional tasks -->
-		<path id="swat.dp.tools.classpath">
-			<fileset dir="${ant_taskdefs.dir}/../lib">
-				<include name="**/*.jar" />
-			</fileset>
-		</path>
+        <!-- define the classpath for the additional tasks -->
+        <path id="swat.dp.tools.classpath">
+            <fileset dir="${ant_taskdefs.dir}/../lib">
+                <include name="**/*.jar" />
+            </fileset>
+            <fileset dir="${ant_taskdefs.dir}/../target/ant-libs">
+                <include name="**/*.jar" />
+            </fileset>
+        </path>
 
-		<!-- Task Definitions -->
-		<!-- additional antelope tasks --> 
-		<taskdef name="stringutil" 
-		         classname="ise.antelope.tasks.StringUtilTask" 
-		         classpathref="swat.dp.tools.classpath"  /> 
-		
-		<!-- Flaka Expression Language tasks --> 
-		<!-- uri has to match the uri of the dp namespace prefix --> 
-		<!-- taskdef uri="antlib:it.haefelinger.flaka" 
+        <!-- Task Definitions -->
+        <!-- additional antelope tasks -->
+        <taskdef name="stringutil"
+                 classname="ise.antelope.tasks.StringUtilTask"
+                 classpathref="swat.dp.tools.classpath" />
+
+        <!-- Flaka Expression Language tasks -->
+        <!-- uri has to match the uri of the dp namespace prefix -->
+        <!-- taskdef uri="antlib:it.haefelinger.flaka" 
 		         resource="it/haefelinger/flaka/antlib.xml" 
-		         classpathref="swat.dp.tools.classpath" / --> 
+		         classpathref="swat.dp.tools.classpath" / -->
 
-		<!-- declare antcontrib tasks -->
-		<taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="swat.dp.tools.classpath" />
-		<taskdef resource="com/sardak/antform/taskdefs.properties" classpathref="swat.dp.tools.classpath" />
-		<taskdef resource="ch/schlagundrahm/swat/datapower/tools/ant/antlib.xml" classpathref="swat.dp.tools.classpath" />
-		<taskdef resource="ch/schlagundrahm/tools/ant/antlib.xml" classpathref="swat.dp.tools.classpath" />
-		<taskdef name="xmltask"
-		         classname="com.oopsconsultancy.xmltask.ant.XmlTask"
-		         classpathref="swat.dp.tools.classpath" />
-		<taskdef name="http"
-		         classname="org.missinglink.ant.task.http.HttpClientTask"
-		         classpathref="swat.dp.tools.classpath" />
+        <!-- declare antcontrib tasks -->
+        <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="swat.dp.tools.classpath" />
+        <taskdef resource="com/sardak/antform/taskdefs.properties" classpathref="swat.dp.tools.classpath" />
+        <taskdef resource="ch/schlagundrahm/swat/datapower/tools/ant/antlib.xml"
+                 classpathref="swat.dp.tools.classpath" />
+        <taskdef resource="ch/schlagundrahm/tools/ant/antlib.xml" classpathref="swat.dp.tools.classpath" />
+        <taskdef name="xmltask"
+                 classname="com.oopsconsultancy.xmltask.ant.XmlTask"
+                 classpathref="swat.dp.tools.classpath" />
+        <taskdef name="http"
+                 classname="org.missinglink.ant.task.http.HttpClientTask"
+                 classpathref="swat.dp.tools.classpath" />
 
-	</target>
+    </target>
 </project>
