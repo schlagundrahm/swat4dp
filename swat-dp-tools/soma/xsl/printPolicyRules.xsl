@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- -->
+<!-- Licensed Materials - Property of IBM -->
+<!-- IBM WebSphere DataPower Appliances -->
+<!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
+<!-- US Government Users Restricted Rights - Use, duplication or disclosure -->
+<!-- restricted by GSA ADP Schedule Contract with IBM Corp. -->
+<!--  -->
 <!-- Rasmussj@us.ibm.com -->
 <!-- Run this against an export.xml to produce a report of policies within -->
 <!-- -->
