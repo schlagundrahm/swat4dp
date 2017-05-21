@@ -10,7 +10,7 @@
         <version>1.0.4-SNAPSHOT</version>
     </parent>
 
-    <groupId>ch.schalgundrahm.swat.datapower</groupId>
+    <groupId>ch.schlagundrahm.swat.datapower</groupId>
     <artifactId>swat-dp-tools</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
