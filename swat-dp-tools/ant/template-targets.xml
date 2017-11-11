@@ -15,247 +15,270 @@
 <!-- ====================================================================== -->
 <project name="swat-dp-tools.template-targets" default="info" basedir=".">
 
-	<dirname file="${ant.file.swat-dp-tools.template-targets}" property="ant_templatetargets.dir" />
-	<import file="${ant_templatetargets.dir}/taskdefs.xml" />
-	<import file="${ant_templatetargets.dir}/chooser.xml" />
+    <dirname file="${ant.file.swat-dp-tools.template-targets}" property="ant_templatetargets.dir" />
+    <import file="${ant_templatetargets.dir}/taskdefs.xml" />
+    <import file="${ant_templatetargets.dir}/chooser.xml" />
 
-	<!-- - - - - - - - - - - - - - - - - - 
+    <!-- - - - - - - - - - - - - - - - - - 
 		  target: info 
 		 - - - - - - - - - - - - - - - - - -->
-	<target name="info">
-		<echo message="Common template targets for swat-dp-tools" />
-		<echoproperties prefix="swat" />
-	</target>
+    <target name="info">
+        <echo message="Common template targets for swat-dp-tools" />
+        <echoproperties prefix="swat" />
+    </target>
 
-	<!-- - - - - - - - - - - - - - - - - - 
+    <!-- - - - - - - - - - - - - - - - - - 
 		  target: init 
 		 - - - - - - - - - - - - - - - - - -->
-	<target name="init">
-		<!-- Create a time stamp -->
-		<tstamp>
-			<format property="FILESTAMP" pattern="yyyyMMdd_HHmmss" />
-		</tstamp>
-		<echo message="***** template-targets initialized at ${FILESTAMP} *****" />
-		<echo message="current basedir = ${basedir}" />
-		<echo message="current project = ${ant.project.name}" />
-		<echo message="---------- predefined properties ----------" />
-		<!-- echoproperties regex="(mgr\.|confirm|overwrite)" / -->
-		<echoproperties regex="^mgr\.[a-z1-9]*\.(?!password|pwd|passwd)" />
-		<echo message="---------- swat switches ----------" />
-		<echoproperties regex="^swat\.[a-z1-9]*\.(?!password|pwd|passwd)" />
-	</target>
+    <target name="init">
+        <!-- Create a time stamp -->
+        <tstamp>
+            <format property="FILESTAMP" pattern="yyyyMMdd_HHmmss" />
+        </tstamp>
+        <echo message="***** template-targets initialized at ${FILESTAMP} *****" />
+        <echo message="current basedir = ${basedir}" />
+        <echo message="current project = ${ant.project.name}" />
+        <echo message="---------- predefined properties ----------" />
+        <!-- echoproperties regex="(mgr\.|confirm|overwrite)" / -->
+        <echoproperties regex="^mgr\.[a-z1-9]*\.(?!password|pwd|passwd)" />
+        <echo message="---------- swat switches ----------" />
+        <echoproperties regex="^swat\.[a-z1-9]*\.(?!password|pwd|passwd)" />
+    </target>
 
-	<!-- ================================= 
+    <!-- ================================= 
           target: seed-service              
          ================================= -->
-	<target name="seed-service" depends="init,choose-domain" description="Seed a new service from the template">
-		<loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/${mgr.target.zone.name}.properties" />
-		<loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/envs/${mgr.target.env.name}/${mgr.target.env.name}.properties" />
-		<loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/envs/${mgr.target.env.name}/domains/${mgr.target.domain.alias}.properties" />
+    <target name="seed-service" depends="init,choose-domain" description="Seed a new service from the template">
+        <loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/${mgr.target.zone.name}.properties" />
+        <loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/envs/${mgr.target.env.name}/${mgr.target.env.name}.properties" />
+        <loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/envs/${mgr.target.env.name}/domains/${mgr.target.domain.alias}.properties" />
 
-		<service-create-project-prefix-macro zone="${swat.zone.short}" domain="${swat.domain.short}" />
+        <service-create-project-prefix-macro zone="${swat.zone.short}" domain="${swat.domain.short}" />
 
-		<antform title="Swat4DP Seed Service Project Generator ">
-			<label>Provide project information for the new service.</label>
-			<textProperty label="Service Name: "
-			              property="suffix"
-			              tooltip="Suffix of the name of the new service project. (Prefix: ${service.project.prefix})." />
-			<textProperty label="Service Object Name: "
-			              property="name"
-			              tooltip="Name of the new DataPower service object." />
-			<selectionproperty label="Service Object Class: "
-			                   property="class"
-			                   values="MultiProtocolGateway,WSGateway,XMLFirewallService,WebAppFW,HTTPService,WebTokenService,SSLProxyService,TCPProxyService"
-			                   tooltip="DataPower specific service class." />
-			<textProperty label="Service Summary: " property="summary" tooltip="Short description of the service." />
-			<controlbar>
-				<button label="Cancel" type="cancel" target="cancel" />
-				<button label="Ok" type="ok" />
-			</controlbar>
-		</antform>
+        <antform title="Swat4DP Seed Service Project Generator ">
+            <label>Provide project information for the new service.</label>
+            <textProperty label="Service Name: "
+                          property="suffix"
+                          tooltip="Suffix of the name of the new service project. (Prefix: ${service.project.prefix})." />
+            <textProperty label="Service Object Name: "
+                          property="name"
+                          tooltip="Name of the new DataPower service object." />
+            <selectionproperty label="Service Object Class: "
+                               property="class"
+                               values="MultiProtocolGateway,WSGateway,XMLFirewallService,WebAppFW,HTTPService,WebTokenService,SSLProxyService,TCPProxyService"
+                               tooltip="DataPower specific service class." />
+            <textProperty label="Service Summary: " property="summary" tooltip="Short description of the service." />
+            <controlbar>
+                <button label="Cancel" type="cancel" target="cancel" />
+                <button label="Ok" type="ok" />
+            </controlbar>
+        </antform>
 
-		<fail unless="suffix" message="suffix property not set" />
-		<fail unless="name" message="service name property not set" />
-		<fail unless="summary" message="service summary property not set" />
-		<fail unless="service.project.prefix" message="Project name prefix has not been generated!" />
+        <fail unless="suffix" message="suffix property not set" />
+        <fail unless="name" message="service name property not set" />
+        <fail unless="summary" message="service summary property not set" />
+        <fail unless="service.project.prefix" message="Project name prefix has not been generated!" />
 
-		<propertyfile file="service.properties.tmp"
-		              comment="Temporary filter properties for the service project generator.">
-			<entry key="service.project.name" value="${service.project.prefix}-${suffix}" />
-			<entry key="service.name" value="${suffix}" />
-			<entry key="service.object.name" value="${name}" />
-			<entry key="service.summary" value="${summary}" />
-			<entry key="service.object.class" value="${class}" />
+        <propertyfile file="service.properties.tmp"
+                      comment="Temporary filter properties for the service project generator.">
+            <entry key="service.project.name" value="${service.project.prefix}-${suffix}" />
+            <entry key="service.name" value="${suffix}" />
+            <entry key="service.object.name" value="${name}" />
+            <entry key="service.summary" value="${summary}" />
+            <entry key="service.object.class" value="${class}" />
 
-			<entry key="zone.name" value="${swat.zone.name}" />
-			<entry key="env.name" value="${swat.env.name}" />
-			<entry key="domain.name" value="${swat.domain.name}" />
-		</propertyfile>
+            <entry key="zone.name" value="${swat.zone.name}" />
+            <entry key="env.name" value="${swat.env.name}" />
+            <entry key="domain.name" value="${swat.domain.name}" />
+        </propertyfile>
 
-		<seed-svc-template-macro filterfile="service.properties.tmp" />
+        <seed-svc-template-macro filterfile="service.properties.tmp" />
 
-		<delete>
-			<fileset dir="${basedir}">
-				<include name="service.properties.tmp" />
-			</fileset>
-		</delete>
+        <delete>
+            <fileset dir="${basedir}">
+                <include name="service.properties.tmp" />
+            </fileset>
+        </delete>
 
-	</target>
+    </target>
 
-	<!-- ================================= 
+    <!-- ================================= 
           target: clone-project              
          ================================= -->
-	<target name="clone-project"
-	        depends="init,choose-domain"
-	        description="Clone an existing project and do some pattern replacement">
+    <target name="clone-project"
+            depends="init,choose-domain"
+            description="Clone an existing project and do some pattern replacement">
 
-		<property name="clone.source.dir" value="${basedir}/.." />
-		<property name="clone.target.base.dir" value="${swat.dp.customer.home}" />
-		<loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/${mgr.target.zone.name}.properties" />
-		<loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/envs/${mgr.target.env.name}/${mgr.target.env.name}.properties" />
-		<loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/envs/${mgr.target.env.name}/domains/${mgr.target.domain.alias}.properties" />
+        <property name="clone.source.dir" value="${basedir}/.." />
+        <property name="clone.target.base.dir" value="${swat.dp.customer.home}" />
+        <loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/${mgr.target.zone.name}.properties" />
+        <loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/envs/${mgr.target.env.name}/${mgr.target.env.name}.properties" />
+        <loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/envs/${mgr.target.env.name}/domains/${mgr.target.domain.alias}.properties" />
 
-		<service-create-project-prefix-macro zone="${swat.zone.short}" domain="${swat.domain.short}" />
+        <service-create-project-prefix-macro zone="${swat.zone.short}" domain="${swat.domain.short}" />
 
-		<antform title="DataPower Service Project Cloner ">
-			<label>Provide project information .</label>
-			<fileSelectionProperty label="Select source project directory : "
-			                       property="clone.source.dir"
-			                       directoryChooser="true"
-			                       tooltip="Location of the project that should be cloned." />
-			<textProperty label="Target project name prefix : "
-			              property="service.project.prefix"
-			              tooltip="New project name prefix. The below service name will be added." />
-			<textProperty label="New service name : "
-			              property="clone.target.service.name"
-			              tooltip="This is the name according to the service.name property." />
-			<fileSelectionProperty label="Select base project directory : "
-			                       property="clone.target.base.dir"
-			                       directoryChooser="true"
-			                       tooltip="Base directory of the new project." />
-			<controlbar>
-				<button label="Cancel" type="cancel" target="cancel" />
-				<button label="Ok" type="ok" />
-			</controlbar>
-		</antform>
+        <antform title="DataPower Service Project Cloner ">
+            <label>Provide project information .</label>
+            <fileSelectionProperty label="Select source project directory : "
+                                   property="clone.source.dir"
+                                   directoryChooser="true"
+                                   tooltip="Location of the project that should be cloned." />
+            <textProperty label="Target project name prefix : "
+                          property="service.project.prefix"
+                          tooltip="New project name prefix. The below service name will be added." />
+            <textProperty label="New service name : "
+                          property="clone.target.service.name"
+                          tooltip="This is the name according to the service.name property." />
+            <fileSelectionProperty label="Select base project directory : "
+                                   property="clone.target.base.dir"
+                                   directoryChooser="true"
+                                   tooltip="Base directory of the new project." />
+            <controlbar>
+                <button label="Cancel" type="cancel" target="cancel" />
+                <button label="Ok" type="ok" />
+            </controlbar>
+        </antform>
 
-		<fail unless="service.project.prefix" message="new project prefix property not set" />
-		<fail unless="clone.target.service.name" message="new service name property not set" />
+        <fail unless="service.project.prefix" message="new project prefix property not set" />
+        <fail unless="clone.target.service.name" message="new service name property not set" />
 
-		<property name="clone.target.project.name" value="${service.project.prefix}-${clone.target.service.name}" />
-		<property name="clone.target.dir" value="${clone.target.base.dir}/${clone.target.project.name}" />
-		<basename file="${clone.source.dir}" property="clone.source.project.name" />
+        <property name="clone.target.project.name" value="${service.project.prefix}-${clone.target.service.name}" />
+        <property name="clone.target.dir" value="${clone.target.base.dir}/${clone.target.project.name}" />
+        <basename file="${clone.source.dir}" property="clone.source.project.name" />
 
-		<property file="${clone.source.dir}/build.properties" />
-		<fail unless="service.name"
-		      message="Could not read service.name property from ${clone.source.dir}/build.properties" />
+        <property file="${clone.source.dir}/build.properties" />
+        <fail unless="service.name"
+              message="Could not read service.name property from ${clone.source.dir}/build.properties" />
 
-		<echo message="Copying source content..." />
-		<copy todir="${clone.target.dir}" filtering="true" verbose="true" overwrite="false">
-			<fileset dir="${clone.source.dir}" defaultexcludes="false">
-				<include name="**/*.*" />
-				<include name="**/.cvsignore" />
-				<exclude name="**/CVS" />
-				<exclude name="**/CVS/**" />
-				<exclude name="**/.svn" />
-				<exclude name="**/.svn/**" />
-				<exclude name="**/target/**" />
-				<exclude name="**/dist/**" />
-				<exclude name="**/in-work/**/*" />
-				<exclude name="**/tmp/**/*" />
-				<exclude name="**/*.tmp" />
-				<exclude name="**/*.bak" />
-				<exclude name="**/master/**/*.*" />
-				<exclude name="**/xcfg/**/*.*" />
-			</fileset>
-			<filterchain>
-				<tokenfilter>
-					<replaceregex pattern="^zone.name=.*$" replace="zone.name=${swat.zone.short}" />
-					<replaceregex pattern="^service.summary=(.*)$" replace="service.summary=Clone of \1" />
-				</tokenfilter>
-			</filterchain>
-		</copy>
+        <echo message="Copying source content..." />
+        <copy todir="${clone.target.dir}" filtering="true" verbose="true" overwrite="false">
+            <fileset dir="${clone.source.dir}" defaultexcludes="false">
+                <include name="**/*.*" />
+                <include name="**/.cvsignore" />
+                <exclude name="**/CVS" />
+                <exclude name="**/CVS/**" />
+                <exclude name="**/.svn" />
+                <exclude name="**/.svn/**" />
+                <exclude name="**/target/**" />
+                <exclude name="**/dist" />
+                <exclude name="**/dist/**/*" />
+                <exclude name="**/in-work/**/*" />
+                <exclude name="**/tmp/**/*" />
+                <exclude name="**/*.tmp" />
+                <exclude name="**/*.bak" />
+                <exclude name="**/master/**/*.*" />
+                <exclude name="**/xcfg/**/*.*" />
+            </fileset>
+            <filterchain>
+                <tokenfilter>
+                    <replaceregex pattern="^zone.name=.*$" replace="zone.name=${swat.zone.short}" />
+                    <replaceregex pattern="^service.summary=(.*)$" replace="service.summary=Clone of \1" />
+                </tokenfilter>
+            </filterchain>
+        </copy>
 
-		<echo message="Renaming master/xcfg files by replacing pattern '${service.name}' with '${clone.target.service.name}' ..." />
-		<copy todir="${clone.target.dir}" filtering="false" verbose="true" overwrite="false">
-			<fileset dir="${clone.source.dir}">
-				<include name="**/master/**/${service.name}/**" />
-				<include name="**/xcfg/**" />
-				<exclude name="**/dist/**" />
-			</fileset>
-			<regexpmapper from="(.*)${service.name}(.*)" to="\1${clone.target.service.name}\2" />
-		</copy>
+        <echo message="Renaming master/xcfg files by replacing pattern '${service.name}' with '${clone.target.service.name}' ..." />
+        <copy todir="${clone.target.dir}" filtering="false" verbose="true" overwrite="false">
+            <fileset dir="${clone.source.dir}">
+                <include name="**/master/**/${service.name}/**" />
+                <include name="**/xcfg/**" />
+                <exclude name="**/dist/**" />
+            </fileset>
+            <regexpmapper from="(.*)${service.name}(.*)" to="\1${clone.target.service.name}\2" />
+        </copy>
 
-		<echo message="Copy remaining master files ..." />
-		<copy todir="${clone.target.dir}" filtering="false" verbose="true" overwrite="false">
-			<fileset dir="${clone.source.dir}">
-				<include name="**/master/**" />
-				<exclude name="**/dist/**" />
-			</fileset>
-		</copy>
+        <echo message="Copy remaining master files ..." />
+        <copy todir="${clone.target.dir}" filtering="false" verbose="true" overwrite="false">
+            <fileset dir="${clone.source.dir}">
+                <include name="**/master/**" />
+                <exclude name="**/dist/**" />
+            </fileset>
+        </copy>
 
-		<echo message="Replacing service.name in build.properties ..." />
-		<replaceregexp byline="true">
-			<regexp pattern="(.*)${service.name}(.*)" />
-			<substitution expression="\1${clone.target.service.name}\2" />
-			<fileset dir="${clone.target.dir}">
-				<include name="build.properties" />
-			</fileset>
-		</replaceregexp>
+        <echo message="Replacing service.name in build.properties ..." />
+        <replaceregexp byline="true">
+            <regexp pattern="(.*)${service.name}(.*)" />
+            <substitution expression="\1${clone.target.service.name}\2" />
+            <fileset dir="${clone.target.dir}">
+                <include name="build.properties" />
+            </fileset>
+        </replaceregexp>
 
-		<echo message="Replacing project name in .project and build.xml ..." />
-		<replaceregexp byline="true">
-			<regexp pattern="${clone.source.project.name}" />
-			<substitution expression="${clone.target.project.name}" />
-			<fileset dir="${clone.target.dir}">
-				<include name=".project" />
-				<include name="build.xml" />
-			</fileset>
-		</replaceregexp>
+        <echo message="Replacing project name in .project, build.xml and pom.xml ..." />
+        <replaceregexp byline="true">
+            <regexp pattern="${clone.source.project.name}" />
+            <substitution expression="${clone.target.project.name}" />
+            <fileset dir="${clone.target.dir}">
+                <include name=".project" />
+                <include name="build.xml" />
+                <include name="pom.xml" />
+            </fileset>
+        </replaceregexp>
 
-		<propertyfile file="${clone.target.dir}/build.properties"
-		              comment="TODO: change service object name and summary!">
-			<entry key="service.name" value="${clone.target.service.name}" />
-		</propertyfile>
-	</target>
+        <propertyfile file="${clone.target.dir}/build.properties"
+                      comment="TODO: change service object name and summary!">
+            <entry key="service.name" value="${clone.target.service.name}" />
+        </propertyfile>
+    </target>
 
 
-	<!-- Common targets for all services use -->
-	<macrodef name="seed-svc-template-macro">
-		<attribute name="filterfile" default="${basedir}/service.properties" />
-		<sequential>
+    <!-- Common targets for all services use -->
+    <macrodef name="seed-svc-template-macro">
+        <attribute name="filterfile" default="${basedir}/service.properties" />
+        <sequential>
 
-			<property file="@{filterfile}" />
+            <property file="@{filterfile}" />
 
-			<!-- Copy and filter the template content into the target project (local workspace) -->
-			<filterset id="content.filter" onmissingfiltersfile="ignore">
-				<filter token="swat.customer" value="${swat.customer}" />
-				<filtersfile file="@{filterfile}" />
-			</filterset>
+            <!-- Copy and filter the template content into the target project (local workspace) -->
+            <filterset id="content.filter" onmissingfiltersfile="ignore">
+                <filter token="swat.customer" value="${swat.customer}" />
+                <filtersfile file="@{filterfile}" />
+            </filterset>
 
-			<echo message="Copying filtered content..." />
-			<copy todir="${swat.dp.customer.home}/${service.project.name}" filtering="true" verbose="true" overwrite="true">
-				<fileset dir="content">
-					<exclude name="config/export/service-export-object-list.xml"/>
-				</fileset>
-				<filterset refid="content.filter" />
-			</copy>
-			<echo message="Copying unfiltered content..." />
-			<copy todir="${swat.dp.customer.home}/${service.project.name}" filtering="false" verbose="true" overwrite="true">
-				<fileset dir="content">
-					<include name="config/export/service-export-object-list.xml"/>
-				</fileset>
-			</copy>
+            <if>
+                <isset property="swat.domain.mvn.aggregator" />
+                <then>
+                    <echo message="Maven multi-module setup has been configured: ${swat.domain.mvn.aggregator}" />
+                    <property name="service.target.dir"
+                              value="${swat.dp.customer.home}/${swat.domain.mvn.aggregator}/${service.project.name}" />
+                </then>
+                <else>
+                    <property name="service.target.dir" value="${swat.dp.customer.home}/${service.project.name}" />
+                </else>
+            </if>
 
-			<copy todir="${swat.dp.customer.home}/${service.project.name}/" file="content/.cvsignore" verbose="true" overwrite="true" />
+            <echo message="Copying filtered content..." />
+            <copy todir="${service.target.dir}"
+                  filtering="true"
+                  verbose="true"
+                  overwrite="true">
+                <fileset dir="content">
+                    <exclude name="config/export/service-export-object-list.xml" />
+                </fileset>
+                <filterset refid="content.filter" />
+            </copy>
+            <echo message="Copying unfiltered content..." />
+            <copy todir="${service.target.dir}"
+                  filtering="false"
+                  verbose="true"
+                  overwrite="true">
+                <fileset dir="content">
+                    <include name="config/export/service-export-object-list.xml" />
+                </fileset>
+            </copy>
 
-			<!-- Correct the environment properties file by name -->
-			<echo message="Renaming resources..." />
-			<move file="${swat.dp.customer.home}/${service.project.name}/config/env.properties"
-			      tofile="${swat.dp.customer.home}/${service.project.name}/config/${swat.env.short}.properties" />
-			<move file="${swat.dp.customer.home}/${service.project.name}/master/common/local/service"
-			      tofile="${swat.dp.customer.home}/${service.project.name}/master/common/local/${service.name}" />
-		</sequential>
-	</macrodef>
+            <copy todir="${service.target.dir}/"
+                  file="content/.cvsignore"
+                  verbose="true"
+                  overwrite="true" />
+
+            <!-- Correct the environment properties file by name -->
+            <echo message="Renaming resources..." />
+            <move file="${service.target.dir}/config/env.properties"
+                  tofile="${service.target.dir}/config/${swat.env.short}.properties" />
+            <move file="${service.target.dir}/master/common/local/service"
+                  tofile="${service.target.dir}/master/common/local/${service.name}" />
+        </sequential>
+    </macrodef>
 
 </project>
