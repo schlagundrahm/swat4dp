@@ -465,7 +465,7 @@
                                                 domain="${local.domain}"
                                                 content.exists="false"
                                                 custom.filter="verify.filter.id" />
-                    
+
                     <var name="verify.req.list" value="status-get" />
                 </then>
                 <else>
@@ -583,7 +583,7 @@
             <xmlproperty file="${local.dir}/@{artifact}-@{version}.pom" keepRoot="false" />
             <property name="service.object.name" value="${properties.swat.service.object.name}" />
             <property name="service.object.class" value="${properties.swat.service.object.class}" />
-            <fail message="The property serivce.object.name is not defined! Check the @{artifact} POM.">
+            <fail message="The property service.object.name is not defined! Check the @{artifact} POM.">
                 <condition>
                     <contains string="${service.object.name}" substring="{" />
                 </condition>
@@ -837,6 +837,25 @@
                     <property name="service.project.prefix"
                               value="${swat.settings.project.services.prefix}-@{zone}-@{domain}" />
                 </else>
+            </if>
+            <if>
+                <isset property="swat.domain.mvn.aggregator" />
+                <then>
+                    <echo message="Maven multi-module setup has been configured: ${swat.domain.mvn.aggregator}" />
+                    <propertyregex property="service.mvn.aggregator"
+                                   input="${swat.domain.mvn.aggregator}"
+                                   regexp="(.*)@zone@(.*)"
+                                   replace="\1@{zone}\2"
+                                   casesensitive="false"
+                                   defaultvalue="${swat.domain.mvn.aggregator}" />
+                    <propertyregex property="service.mvn.aggregator"
+                                   input="${service.mvn.aggregator}"
+                                   regexp="(.*)@domain@(.*)"
+                                   replace="\1@{domain}\2"
+                                   casesensitive="false"
+                                   override="true"
+                                   defaultvalue="${service.mvn.aggregator}" />
+                </then>
             </if>
         </sequential>
     </macrodef>
