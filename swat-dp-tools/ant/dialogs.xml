@@ -270,6 +270,12 @@
             </antform>
             <fail unless="password.alias.name" message="Object Name is a mandatory field - Upload aborted." />
             <fail unless="password.alias.secret" message="Password is a mandatory field - Upload aborted." />
+            <!-- Use XML character entity references to escape. &lt; &gt; &quot; &amp; &apos; -->
+            <propertyregex property="password.alias.secret" input="${password.alias.secret}" regexp="&amp;" replace="&amp;amp;" override="true" global="true" />
+            <propertyregex property="password.alias.secret" input="${password.alias.secret}" regexp="&lt;" replace="&amp;lt;" override="true" global="true" />
+            <propertyregex property="password.alias.secret" input="${password.alias.secret}" regexp="&gt;" replace="&amp;gt;" override="true" global="true" />
+            <propertyregex property="password.alias.secret" input="${password.alias.secret}" regexp="&apos;" replace="&amp;apos;" override="true" global="true" />
+            <propertyregex property="password.alias.secret" input="${password.alias.secret}" regexp="&quot;" replace="&amp;quot;" override="true" global="true" />
         </sequential>
     </macrodef>
 </project>
