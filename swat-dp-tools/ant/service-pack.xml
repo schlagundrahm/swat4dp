@@ -135,6 +135,7 @@
 			    <filter token="build.revision" value="${buildRevision}" />
 				<filter token="domain.name" value="${domain.name}"/>
 				<filter token="build.time" value="${FILESTAMP}"/>
+				<filter token="build.user" value="${env.USERNAME}"/>
 			    <filter token="artifactId" value="${project.artifactId}"/>
 			    <filter token="groupId" value="${project.groupId}"/>
 			</filterset>
