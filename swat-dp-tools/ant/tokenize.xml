@@ -97,13 +97,14 @@
 				        replace="@crypto.cn@" />
 
 				<!-- service settings -->
-				<regexp path="//configuration//text()"
+			    <regexp path="//configuration//text()" pattern="${service.object.class}(.*)" replace="@service.object.class@$1" />
+			    <regexp path="//configuration//text()" pattern="${service.dir}(.*)" replace="@service.dir@$1" />
+			    <regexp path="//configuration//text()"
 				        pattern="${service.object.name}(.*)"
 				        replace="@service.object.name@$1" />
 				<regexp path="//configuration//@name"
 				        pattern="${service.object.name}(.*)"
 				        replace="@service.object.name@$1" />
-				<regexp path="//configuration//text()" pattern="${service.dir}(.*)" replace="@service.dir@$1" />
 				
 				<replace path="//configuration/${service.object.class}/DebugMode/text()" withText="@debug.mode@" />
 				<replace path="//configuration/${service.object.class}/DebugHistory/text()"
@@ -128,9 +129,12 @@
 				<replace path="//configuration/AAAPolicy/Authenticate/AULTPAKeyFilePassword[text()!='']/text()"
 				         withText="@ltpa.was7.keys.pw@" />
 				<replace path="//configuration/AAAPolicy/Authenticate/AUCacheAllow/text()"
-				         withText="@auth.cache.allow@" />
-				<replace path="//configuration/AAAPolicy/Authenticate/AUCacheTTL/text()" withText="@auth.cache.ttl@" />
-
+				         withText="@aaa.au.cache.allow@" />
+				<replace path="//configuration/AAAPolicy/Authenticate/AUCacheTTL/text()" withText="@aaa.au.cache.ttl@" />
+			    
+			    <replace path="//configuration/AAAPolicy/Authorize/AZCacheAllow/text()"
+				         withText="@aaa.az.cache.allow@" />
+				<replace path="//configuration/AAAPolicy/Authorize/AZCacheTTL/text()" withText="@aaa.az.cache.ttl@" />
 				<replace path="//configuration/AAAPolicy/Authorize/AZLDAPBindPassword/text()"
 				         if="ldap.dmz.bind.pw.lbl"
 				         withText="@ldap.dmz.bind.pw@" />
