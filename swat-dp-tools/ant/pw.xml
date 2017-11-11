@@ -98,21 +98,33 @@
 					      message="@{pw-item}=${local-pw-value}${line.separator}" />
 				</then>
 				<else>
-					<dialog-password-macro title="Password Prompt [@{pw-lbl}]" 
-						label="@{pw-lbl}: " 
-						property="pw-value" 
-						tooltip="Set the password for the User @{pw-lbl} and specifier @{pw-specifier}."
-						fail-message="Password has to be set, abort." />
 					<if>
-						<isset property="pw-value" />
+						<isset property="env.@{pw-item}.@{pw-specifier}" />
 						<then>
-							<echo message="Property @{pw-item} set for specifier @{pw-specifier} with ${pw-value}" />
-							<echo file="${pws.filter.file}"
-							      append="true"
-							      message="@{pw-item}=${pw-value}${line.separator}" />
+							<echo message="Password for @{pw-item} already set for specifier @{pw-specifier} (under env.), no prompt needed." />
+							<propertycopy name="local-pw-value" from="env.@{pw-item}.@{pw-specifier}" />
+							<if>
+								<matches pattern="^\{aes\}.+" string="${local-pw-value}" />
+								<then>
+									<decrypt-password-macro password.text="${local-pw-value}" password.property="local-pw-value" />
+								</then>
+							</if>
+							<echo file="${pws.filter.file}" append="true" message="@{pw-item}=${local-pw-value}${line.separator}" />
+
 						</then>
 						<else>
-							<fail message="No password given, abort build." unless="pw-value" />
+							<echo message="Password for @{pw-item} is not set for specifier @{pw-specifier}, prompt needed." />
+							<dialog-password-macro title="Password Prompt [@{pw-lbl}]" label="@{pw-lbl}: " property="pw-value" tooltip="Set the password for the User @{pw-lbl} and specifier @{pw-specifier}." fail-message="Password has to be set, abort." />
+							<if>
+								<isset property="pw-value" />
+								<then>
+									<echo message="Property @{pw-item} set for specifier @{pw-specifier} with ${pw-value}" />
+									<echo file="${pws.filter.file}" append="true" message="@{pw-item}=${pw-value}${line.separator}" />
+								</then>
+								<else>
+									<fail message="No password given, abort build." unless="pw-value" />
+								</else>
+							</if>
 						</else>
 					</if>
 				</else>
@@ -168,5 +180,5 @@
 				</propertyfile>
 			</then>
 		</if>
-	</target>	
+	</target>
 </project>
