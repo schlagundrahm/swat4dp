@@ -251,48 +251,83 @@
         <attribute name="domain" />
         <attribute name="service" />
         <sequential>
-            <propertyregex property="running.from.service.dir"
+            <propertyregex property="swat.running.from.service.dir"
                            input="${basedir}"
                            regexp="^.*[/|\\][\w-]*@{service}$"
                            select="true"
                            casesensitive="false" />
-            <service-create-project-prefix-macro zone="@{zone}" domain="@{domain}" />
-            <property name="swat.current.service.common.home"
-                      location="${swat.dp.customer.home}/${service.project.prefix}-common" />
-            <property name="swat.current.service.home"
-                      location="${swat.dp.customer.home}/${service.project.prefix}-@{service}" />
-            <property name="swat.current.service" value="${service.project.prefix}-@{service}" />
-            <echo message="Setting property swat.current.service.home = ${swat.current.service.home}" />
 
+            <service-create-project-prefix-macro zone="@{zone}" domain="@{domain}" />
+
+            <property name="swat.current.service" value="${service.project.prefix}-@{service}" />
+            <echo message="Current service: ${swat.current.service}" />
+
+            <!-- determine parent dir of the current service -->
             <if>
-                <istrue value="${running.from.service.dir}" />
+                <istrue value="${swat.running.from.service.dir}" />
                 <then>
-                    <echo message="Loading properties ${basedir}/build.properties" />
-                    <loadproperties srcfile="${basedir}/build.properties">
-                        <filterchain>
-                            <replacetokens>
-                                <token key="version" value="${project.version}" />
-                                <token key="build.number" value="${buildNumber}" />
-                            </replacetokens>
-                        </filterchain>
-                    </loadproperties>
-                    <echo message="Loading properties ${basedir}/config/@{env}.properties" />
-                    <loadproperties srcfile="${basedir}/config/@{env}.properties" />
+                    <property name="swat.current.service.parent" location="${basedir}/.." />
                 </then>
+                <elseif>
+                    <isset property="service.mvn.aggregator" />
+                    <then>
+                        <property name="swat.current.service.parent"
+                                  location="${swat.dp.customer.home}/${service.mvn.aggregator}" />
+                    </then>
+                </elseif>
                 <else>
-                    <echo message="Loading properties ${swat.current.service.home}/build.properties" />
-                    <loadproperties srcfile="${swat.current.service.home}/build.properties">
-                        <filterchain>
-                            <replacetokens>
-                                <token key="version" value="${project.version}" />
-                                <token key="build.number" value="${buildNumber}" />
-                            </replacetokens>
-                        </filterchain>
-                    </loadproperties>
-                    <echo message="Loading properties ${swat.current.service.home}/config/@{env}.properties" />
-                    <loadproperties srcfile="${swat.current.service.home}/config/@{env}.properties" />
+                    <property name="swat.current.service.parent" location="${swat.dp.customer.home}" />
                 </else>
             </if>
+
+            <fail message="Could not determine the parent directory for service @{service}!">
+                <condition>
+                    <not>
+                        <available file="${swat.current.service.parent}" type="dir" />
+                    </not>
+                </condition>
+            </fail>
+
+            <!-- set current service properties -->
+            <property name="swat.current.service.common.home"
+                      location="${swat.current.service.parent}/${service.project.prefix}-common" />
+            <property name="swat.current.service.home"
+                      location="${swat.current.service.parent}/${service.project.prefix}-@{service}" />
+            <echo message="Setting property swat.current.service.home = ${swat.current.service.home}" />
+
+
+            <if>
+                <isset property="project.version" />
+                <then>
+                    <echo message="project.version = ${project.version}" />
+                </then>
+                <else>
+                    <property name="project.version" value="${env.USERNAME}" />
+                </else>
+            </if>
+            <if>
+                <isset property="buildNumber" />
+                <then>
+                    <echo message="buildNumber = ${buildNumber}" />
+                </then>
+                <else>
+                    <property name="buildNumber" value="${FILESTAMP}" />
+                </else>
+            </if>
+            
+            <echo message="Loading properties ${swat.current.service.home}/build.properties" />
+            <loadproperties srcfile="${swat.current.service.home}/build.properties">
+                <filterchain>
+                    <replacetokens>
+                        <token key="version" value="${project.version}" />
+                        <token key="build.number" value="${buildNumber}" />
+                    </replacetokens>
+                </filterchain>
+            </loadproperties>
+            
+            <echo message="Loading properties ${swat.current.service.home}/config/@{env}.properties" />
+            <loadproperties srcfile="${swat.current.service.home}/config/@{env}.properties" />
+
         </sequential>
     </macrodef>
 
