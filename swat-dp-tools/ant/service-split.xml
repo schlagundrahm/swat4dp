@@ -113,7 +113,7 @@
                     <echo message="Step 2: Filter the export with the content of the common project" />
                     <filter-with-object-list-macro input="${export-file}"
                                                    output="${export-filtered-file}"
-                                                   object-list="../../../${ant.project.name}/dist/object-list/common-import-object-list.xml" />
+                                                   object-list="${swat.current.service.home}/dist/object-list/common-import-object-list.xml" />
                 </then>
                 <else>
                     <copy tofile="${export-filtered-file}" overwrite="true" verbose="true">
