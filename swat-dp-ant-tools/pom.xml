@@ -8,6 +8,7 @@
         <groupId>ch.schlagundrahm.swat.datapower</groupId>
         <artifactId>swat-dp-pom</artifactId>
         <version>1.0.4-SNAPSHOT</version>
+        <relativePath>./swat-dp-pom</relativePath>
     </parent>
 
     <groupId>ch.schlagundrahm.swat.datapower.tools.ant</groupId>
