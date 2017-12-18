@@ -11,7 +11,7 @@
 
     <groupId>ch.schlagundrahm.swat.datapower.tools.ant</groupId>
     <artifactId>swat-dp-ant-tools</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
 
     <name>ANT tools for the Swat4DP module</name>
     <description>DataPower specific ANT tasks for the schlag&amp;rahm WebSphere Administration Toolkit for DataPower (Swat4DP)</description>
