@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
-<!-- Copyright © 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Copyright (c) 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
 <!-- Licensed Materials - Property of IBM -->
 <!-- IBM WebSphere DataPower Appliances -->
 <!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
@@ -31,7 +31,7 @@
     <property file="${swat.dp.infra}/settings/${user.name}.properties" />
 
     <!-- Import the common tasks to all dp-administration -->
-    <import file="${basedir}/../swat-dp-tools/macros.xml" />
+    <import file="${swat.dp.tools}/macros.xml" />
 
     <!-- ================================= 
           target: 10-device-deploy 
