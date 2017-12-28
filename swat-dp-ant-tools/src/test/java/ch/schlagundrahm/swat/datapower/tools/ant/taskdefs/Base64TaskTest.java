@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.apache.tools.ant.Project;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -35,7 +34,7 @@ class Base64TaskTest {
     static final String B64_TEXT = "SSBsaWtlIEFwYWNoZSBBTlQgOi0p";
     static final String TEST_PROPERTY = "testProperty";
     static final String TEMP_FOLDER = "target" + File.separator + "test-tmp" + File.separator;
-    
+
     @BeforeAll
     static void createTempDirectory() {
         try {
@@ -138,7 +137,7 @@ class Base64TaskTest {
 
         // fail("Not yet implemented");
     }
-    
+
     @Test
     @DisplayName("read encoded zip file and write decoded string to file (zip)")
     void testDecodeZipFileToFile(TestInfo info) {
@@ -152,7 +151,6 @@ class Base64TaskTest {
         task.setInfile(infile);
         task.setOutfile(outfile);
         task.setOverride(true);
-        task.setBinary(true);
         task.execute();
         System.out.println("writing result to file : " + outfile);
         byte[] content = null;
@@ -179,21 +177,20 @@ class Base64TaskTest {
         task.setProperty(TEST_PROPERTY);
         task.setBinary(true);
         task.execute();
-        
+
         String result = task.getProject().getProperty(TEST_PROPERTY);
         System.out.println("result: " + result);
-        assertEquals("UEsDBAoAAAAAAGiMlUshDNRMFQAAABUAAAANAAAAcGxhaW50ZXh0LnR4dEkgbGlrZSBBcGFjaGUg\r\n" + 
-                "QU5UIDotKVBLAQI/AAoAAAAAAGiMlUshDNRMFQAAABUAAAANACQAAAAAAAAAIAAAAAAAAABwbGFp\r\n" + 
-                "bnRleHQudHh0CgAgAAAAAAABABgAgiJorXl60wG+7sqfeXrTAb7uyp95etMBUEsFBgAAAAABAAEA\r\n" + 
-                "XwAAAEAAAAAAAA==", result, "menno!");
+        assertEquals("UEsDBAoAAAAAAGiMlUshDNRMFQAAABUAAAANAAAAcGxhaW50ZXh0LnR4dEkgbGlrZSBBcGFjaGUg\r\n"
+                + "QU5UIDotKVBLAQI/AAoAAAAAAGiMlUshDNRMFQAAABUAAAANACQAAAAAAAAAIAAAAAAAAABwbGFp\r\n"
+                + "bnRleHQudHh0CgAgAAAAAAABABgAgiJorXl60wG+7sqfeXrTAb7uyp95etMBUEsFBgAAAAABAAEA\r\n"
+                + "XwAAAEAAAAAAAA==", result, "menno!");
 
     }
 
     @Test
     @DisplayName("read zip file and write encoded string to file")
-    @Disabled
     void testEncodeZipFileToFile(TestInfo info) {
-        System.out.println("TEST [" + info.getDisplayName() + "]: input=zip file; output=file;");
+        System.out.println("TEST [" + info.getDisplayName() + "]: input=zip file; output= b64 file;");
         File infile = new File("src/test/resources/plaintext.zip");
         File outfile = new File(TEMP_FOLDER + "encodedZIP.b64");
 
@@ -202,7 +199,8 @@ class Base64TaskTest {
         task.setDecode(false);
         task.setInfile(infile);
         task.setOutfile(outfile);
-        //task.setBinary(true);
+        task.setOverride(true);
+        // task.setBinary(true);
         task.execute();
         System.out.println("writing result to file : " + outfile);
         List<String> content = null;
@@ -212,8 +210,10 @@ class Base64TaskTest {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        System.out.println(content);
-        assertEquals(B64_TEXT, content.get(0), "menno!");
+        System.out.println("result: " + content);
+        assertEquals("UEsDBAoAAAAAAGiMlUshDNRMFQAAABUAAAANAAAAcGxhaW50ZXh0LnR4dEkgbGlrZSBBcGFjaGUg", content.get(0),
+                "menno!");
+        assertEquals("XwAAAEAAAAAAAA==", content.get(3), "menno!");
     }
 
 }
