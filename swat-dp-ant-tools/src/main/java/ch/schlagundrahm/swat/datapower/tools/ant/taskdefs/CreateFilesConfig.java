@@ -13,9 +13,9 @@ package ch.schlagundrahm.swat.datapower.tools.ant.taskdefs;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Vector;
@@ -246,11 +246,11 @@ public class CreateFilesConfig extends Task {
             Transformer serializer = TransformerFactory.newInstance().newTransformer();
             serializer.setOutputProperty(OutputKeys.INDENT, "yes");
             serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+            serializer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             File f = new File(targetdir + systemFileSeparator + targetfile);
-            log("file: " + f);
-            URI uri = f.toURI();
-            log("URI: " + uri);
-            StreamResult sr = new StreamResult(new File(uri));
+            log("write DataPower files config to: " + f);
+
+            StreamResult sr = new StreamResult(new FileOutputStream(f));
             serializer.transform(new DOMSource(doc), sr);
         } catch (TransformerConfigurationException e) {
             // TODO Auto-generated catch block
@@ -261,10 +261,13 @@ public class CreateFilesConfig extends Task {
         } catch (TransformerFactoryConfigurationError e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 
-    private String calculateFileHash(File file) throws IOException {
+    public String calculateFileHash(File file) throws IOException {
 
         InputStream is = new FileInputStream(file);
 
