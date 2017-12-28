@@ -12,17 +12,10 @@
 package ch.schlagundrahm.swat.datapower.tools.ant.taskdefs;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Base64;
-import java.util.Objects;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
@@ -43,7 +36,7 @@ public class Base64Task extends Task {
     private String property;
     private boolean override;
     private boolean decode;
-    private boolean binary;
+    private Boolean binary;
 
     public void setBinary(boolean binary) {
         this.binary = binary;
@@ -79,8 +72,6 @@ public class Base64Task extends Task {
     public Base64Task() {
         this.decode = false;
         this.override = false;
-        this.binary = false;
-
     }
 
     @SuppressWarnings("unused")
@@ -95,8 +86,8 @@ public class Base64Task extends Task {
             throw new BuildException("Either 'outfile' or 'property' has to be provided!", getLocation());
         }
 
-        if (in != null && property != null) {
-            log("The binary flag does not apply to strings (properties)!", Project.MSG_WARN);
+        if (in != null && binary != null && binary == true) {
+            log("The binary flag does not apply to string input (properties)!", Project.MSG_WARN);
             binary = false;
         }
 
@@ -109,13 +100,15 @@ public class Base64Task extends Task {
 
         if ((infile != null) && infile.exists()) {
             log((decode ? "decoding" : "encoding") + " file '" + infile + "' ...");
-
-            if (binary || isBinaryInputFile()) {
+            if ((binary != null && binary == true)) {
+                binaryInput = readBinary(infile);
+            } else if (binary != null && binary == false) {
+                textInput = readText(infile);
+            } else if (isBinaryInputFile()) {
                 binaryInput = readBinary(infile);
             } else {
                 textInput = readText(infile);
             }
-
         } else if (infile != null) {
             throw new BuildException("The infile does not exist: '" + infile.getAbsolutePath() + "'!", getLocation());
         }
@@ -136,12 +129,14 @@ public class Base64Task extends Task {
                     writeFile(encode(textInput).getBytes(StandardCharsets.UTF_8), outfile);
                 }
 
-            } else {
+            } else if (binaryInput != null) {
                 if (decode) {
                     writeFile(decode(binaryInput), outfile);
                 } else {
-                    writeFile(decode(binaryInput), outfile);
+                    writeFile(encode(binaryInput), outfile);
                 }
+            } else {
+                throw new BuildException("Internal error! The computed input ('textInput' and 'binaryInput') is NULL!");
             }
 
         } else if (property != null && property.length() > 0) {
@@ -154,13 +149,13 @@ public class Base64Task extends Task {
                     textOutput = new String(encode(binaryInput), StandardCharsets.UTF_8);
                 }
             } else if (textInput != null) {
-
                 if (decode) {
                     textOutput = decode(textInput);
                 } else {
                     textOutput = encode(textInput);
                 }
-
+            } else {
+                throw new BuildException("Internal error! The computed input ('textInput' and 'binaryInput') is NULL!");
             }
 
             if (this.override) {
@@ -187,7 +182,7 @@ public class Base64Task extends Task {
     }
 
     private String decode(String value) {
-        byte[] decodedValue = Base64.getMimeDecoder().decode(value); // Basic Base64 decoding
+        byte[] decodedValue = Base64.getMimeDecoder().decode(value);
         return new String(decodedValue, StandardCharsets.UTF_8);
     }
 
@@ -226,6 +221,7 @@ public class Base64Task extends Task {
             throw new BuildException("The 'outfile' already exists! Delete it or set 'override' to true.",
                     getLocation());
         }
+
         try {
             Files.write(file.toPath(), data);
         } catch (IOException e) {
@@ -239,61 +235,20 @@ public class Base64Task extends Task {
         try {
             fileType = Files.probeContentType(file.toPath());
         } catch (IOException ioException) {
-            System.out.println("ERROR: Unable to determine file type for '" + file.getAbsolutePath()
-                    + "' due to exception " + ioException);
+            log("Unable to determine file type for '" + file.getAbsolutePath() + "' due to exception " + ioException,
+                    Project.MSG_WARN);
         }
         return fileType;
     }
 
     private boolean isBinaryInputFile() {
         String fileType = identifyFileTypeUsingFilesProbeContentType(infile);
-        if (fileType.startsWith("text")) {
+        if (fileType != null && fileType.startsWith("text")) {
+            log("Identified file input as text.", Project.MSG_INFO);
             return false;
         } else {
+            log("Identified file input as binary.", Project.MSG_INFO);
             return true;
-        }
-    }
-
-    private void writeViaFileOutuputStream(byte[] data, File file) throws IOException {
-        final ByteBuffer buffer = ByteBuffer.wrap(data);
-        final FileOutputStream fos = new FileOutputStream(file);
-        int bytes = 0;
-        try (FileChannel channel = fos.getChannel()) {
-            bytes = writeToChannel(channel, buffer);
-        } finally {
-            if (!Objects.isNull(fos)) {
-                fos.close();
-            }
-        }
-    }
-
-    private int writeToChannel(final FileChannel channel, final ByteBuffer buffer) throws IOException {
-        int bytes = 0;
-        while (buffer.hasRemaining()) {
-            bytes += channel.write(buffer);
-        }
-        return bytes;
-    }
-
-    private void wrapping() throws IOException {
-
-        String src = "This is the content of any resource read from somewhere"
-                + " into a stream. This can be text, image, video or any other stream.";
-
-        // An encoder wraps an OutputStream. The content of /tmp/buff-base64.txt will be the
-        // Base64 encoded form of src.
-        try (OutputStream os = Base64.getEncoder().wrap(new FileOutputStream("/tmp/buff-base64.txt"))) {
-            os.write(src.getBytes("utf-8"));
-        }
-
-        // The section bellow illustrates a wrapping of an InputStream and decoding it as the stream
-        // is being consumed. There is no need to buffer the content of the file just for decoding it.
-        try (InputStream is = Base64.getDecoder().wrap(new FileInputStream("/tmp/buff-base64.txt"))) {
-            int len;
-            byte[] bytes = new byte[100];
-            while ((len = is.read(bytes)) != -1) {
-                System.out.print(new String(bytes, 0, len, "utf-8"));
-            }
         }
     }
 
