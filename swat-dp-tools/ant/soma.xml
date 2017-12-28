@@ -290,6 +290,7 @@
                             </if>
                         </then>
                         <else>
+                            <echo message="SOMA request: @{soma.request}" />
                             <echo message="Running curl with user ${mgr.target.user.name} and pw ********* against ${mgmt.prot}://${mgmt.host}:${mgmt.port}" />
                             <echo message="  ** ${curl.exec} --data-binary @${input-file} ${mgmt.prot}://${mgmt.host}:${mgmt.port}/service/mgmt/current -k -u ${mgr.target.user.name}:******* -o${output-file}" />
                             <exec executable="${curl.exec}">
