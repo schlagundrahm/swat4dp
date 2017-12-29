@@ -173,10 +173,33 @@
                  inheritrefs="true" />
     </target>
 
+    
     <!-- ================================= 
-        target: 25-domain-documentation 
+          target: 25-domain-checkpoints 
+         ================================= -->
+    <target name="25-domain-checkpoints" depends="declare,load-domain-props" description="get domain checkpoints">
+        <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
+             target="25-domain-checkpoints"
+             inheritrefs="true"
+             useNativeBasedir="false" />
+    </target>
+
+    <!-- ================================= 
+          target: 26-domain-password-alias 
+         ================================= -->
+    <target name="26-domain-password-alias"
+            depends="declare,load-domain-props"
+            description="add or overwrite a PasswordAlias">
+        <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
+             target="26-domain-password-alias-deploy"
+             inheritrefs="true"
+             useNativeBasedir="false" />
+    </target>
+
+    <!-- ================================= 
+        target: 29-domain-documentation 
        ================================= -->
-    <target name="25-domain-documentation"
+    <target name="29-domain-documentation"
             depends="declare,load-domain-props"
             description="running domain-documentation">
 
@@ -218,28 +241,6 @@
                 <include name="**/*.jpg" />
             </fileset>
         </copy>
-    </target>
-    
-    <!-- ================================= 
-          target: 26-domain-checkpoints 
-         ================================= -->
-    <target name="26-domain-checkpoints" depends="declare,load-domain-props" description="get domain checkpoints">
-        <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
-             target="26-domain-checkpoints"
-             inheritrefs="true"
-             useNativeBasedir="false" />
-    </target>
-
-    <!-- ================================= 
-          target: 27-domain-password-alias 
-         ================================= -->
-    <target name="27-domain-password-alias"
-            depends="declare,load-domain-props"
-            description="add or overwrite a PasswordAlias">
-        <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
-             target="26-domain-password-alias-deploy"
-             inheritrefs="true"
-             useNativeBasedir="false" />
     </target>
 
     <!-- ================================= 
@@ -481,7 +482,7 @@
         <showfile byline="true">
             <regexp pattern="^[^#]*(device.name).*=" />
             <fileset dir="${swat.dp.devices}">
-                <include name="config/dp-*.properties" />
+                <include name="config/*.properties" />
             </fileset>
         </showfile>
     </target>
@@ -697,7 +698,7 @@
         <echoproperties prefix="swat" />
 
         <property name="nexus.search.url"
-                  value="http://nexus.intra.stzh.ch/nexus/service/local/data_index?q=${swat.current.service}" />
+                  value="${swat.nexus.search.url}${swat.current.service}" />
         <property name="nexus.tmp.dir" value="${basedir}/nexus" />
         <delete dir="${nexus.tmp.dir}" />
         <mkdir dir="${nexus.tmp.dir}" />
