@@ -60,7 +60,9 @@
                     </if>
                 </then>
                 <else>
+                    <echo message="! ! ! ! !" />
                     <echo message="ATTENTION: swat.skip.export is enabled - check build.properties and comment (unset) the property." />
+                    <echo message="! ! ! ! !" />
                 </else>
             </if>
             <!-- Split the export file -->
