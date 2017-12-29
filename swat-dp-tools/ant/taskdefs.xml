@@ -66,7 +66,6 @@
         <taskdef resource="com/sardak/antform/taskdefs.properties" classpathref="swat.dp.tools.classpath" />
         <taskdef resource="ch/schlagundrahm/swat/datapower/tools/ant/antlib.xml"
                  classpathref="swat.dp.tools.classpath" />
-        <taskdef resource="ch/schlagundrahm/tools/ant/antlib.xml" classpathref="swat.dp.tools.classpath" />
         <taskdef name="xmltask"
                  classname="com.oopsconsultancy.xmltask.ant.XmlTask"
                  classpathref="swat.dp.tools.classpath" />
