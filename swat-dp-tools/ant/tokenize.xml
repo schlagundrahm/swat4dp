@@ -132,10 +132,10 @@
 				<replace path="//configuration/AAAPolicy/Authenticate/AUCacheAllow/text()"
 				         withText="@aaa.au.cache.allow@" />
 				<replace path="//configuration/AAAPolicy/Authenticate/AUCacheTTL/text()" withText="@aaa.au.cache.ttl@" />
+			    
 				<replace path="//configuration/AAAPolicy/Authorize/AZCacheAllow/text()"
 				         withText="@aaa.az.cache.allow@" />
 				<replace path="//configuration/AAAPolicy/Authorize/AZCacheTTL/text()" withText="@aaa.az.cache.ttl@" />
-
 				<replace path="//configuration/AAAPolicy/Authorize/AZLDAPBindPassword/text()"
 				         if="ldap.dmz.bind.pw.lbl"
 				         withText="@ldap.dmz.bind.pw@" />
