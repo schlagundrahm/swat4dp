@@ -171,8 +171,8 @@
     </target>
 
     <!-- - - - - - - - - - - - - - - - - - 
-	      target: load-domain-props
-	      - - - - - - - - - - - - - - - - - -->
+          target: load-domain-props
+          - - - - - - - - - - - - - - - - - -->
     <target name="load-domain-props" depends="choose-domain" if="mgr.target.domain.alias">
         <load-domain-props-macro zone="${mgr.target.zone.name}"
                                  env="${mgr.target.env.name}"
@@ -221,8 +221,8 @@
     </target>
 
     <!-- - - - - - - - - - - - - - - - - - 
-	      target: load-service-props
-	      - - - - - - - - - - - - - - - - - -->
+          target: load-service-props
+          - - - - - - - - - - - - - - - - - -->
     <target name="load-service-props" depends="choose-service" if="mgr.target.service.name">
         <load-service-props-macro zone="${mgr.target.zone.name}"
                                   env="${mgr.target.env.name}"

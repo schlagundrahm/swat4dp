@@ -330,14 +330,14 @@
 			</xslt>
 
 			<!-- Base64 Decode the extracted file -->
-			<base64-decode-macro infile="dist/@{tmp.dir}/@{soma.request}.b64"
-			                     outfile="dist/@{tmp.dir}/@{soma.request}.zip" />
+			<base64-decode-macro infile="${swat.current.service.home}/dist/@{tmp.dir}/@{soma.request}.b64"
+			                     outfile="${swat.current.service.home}/dist/@{tmp.dir}/@{soma.request}.zip" />
 			
 			<!-- clean unpack directory -->
-			<delete dir="dist/@{tmp.dir}/@{soma.request}" />
+			<delete dir="${swat.current.service.home}/dist/@{tmp.dir}/@{soma.request}" />
 
 			<!-- Unpack the backup zip file -->
-			<unzip src="dist/@{tmp.dir}/@{soma.request}.zip" dest="dist/@{tmp.dir}/@{soma.request}" />
+			<unzip src="${swat.current.service.home}/dist/@{tmp.dir}/@{soma.request}.zip" dest="dist/@{tmp.dir}/@{soma.request}" />
 		</sequential>
 	</macrodef>
 
