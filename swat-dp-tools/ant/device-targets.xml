@@ -70,7 +70,15 @@
           target: device-build 
          ================================= -->
     <target name="device-build" depends="declare,init" description="Pack the default domain of the given device.">
+        <!-- Step 1: Pack device-build -->
+        <echo message="Step 1: Pack device-build" />
         <device-pack-macro device="${mgr.target.device.name}" />
+        
+        <stringutil string="Built ${mgr.target.device.name} - ${FILESTAMP}${line.separator}Domain: ${domain.name}"
+                    property="msgbox">
+            <messagebox title="${ant.project.name}" />
+        </stringutil>
+        <echo>${msgbox}</echo>
     </target>
 
     <!-- ================================= 

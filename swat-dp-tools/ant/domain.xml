@@ -2,7 +2,12 @@
 
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
-<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Licensed Materials - Property of schlag&rahm -->
+<!-- Copyright © 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Licensed Materials - Property of IBM -->
+<!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
+<!-- US Government Users Restricted Rights - Use, duplication or disclosure -->
+<!-- restricted by GSA ADP Schedule Contract with IBM Corp. -->
 <!-- ================================================================================================= -->
 
 <!-- ====================================================================== -->
@@ -92,6 +97,10 @@
     <macrodef name="add-password-alias-macro">
         <attribute name="env" />
         <attribute name="domain" />
+        <attribute name="alias" />
+        <attribute name="comment" />
+        <attribute name="password" />
+        <attribute name="overwrite" default="false" />
 
         <sequential>
 
@@ -105,9 +114,9 @@
             <property name="local.domain" value="@{domain}" />
 
             <filterset id="password-alias.filter.id">
-                <filter token="password.alias.name" value="${password.alias.name}" />
-                <filter token="password.alias.comment" value="${password.alias.comment}" />
-                <filter token="password.alias.secret" value="${password.alias.secret}" />
+                <filter token="password.alias.name" value="@{alias}" />
+                <filter token="password.alias.comment" value="@{comment}" />
+                <filter token="password.alias.secret" value="@{password}" />
             </filterset>
 
             <!-- Prepare the soma-request service-export -->
@@ -122,7 +131,7 @@
                                         content.dir="dist/upload"
                                         content.type="XML"
                                         content.file="password-alias-config-template.xml"
-                                        content.overwrite.objects="${password.alias.overwrite}" />
+                                        content.overwrite.objects="@{overwrite}" />
 
             <soma-prepare-request-macro soma.request="config-save"
                                         domain="${local.domain}"
@@ -132,7 +141,8 @@
             <!-- Run the soma-request service-export -->
             <soma-run-multi-requests-on-multi-devices-macro device.set="${local.device.set}"
                                                             soma.requests="do-import,config-save"
-                                                            check.response="true" />
+                                                            check.response="true"
+                                                            check.response.pattern="skipped" />
 
             <!-- clean up the upload directory as files contain the password in clear text -->
             <delete>

@@ -143,7 +143,12 @@
              ================================= -->
     <target name="26-domain-password-alias-deploy" depends="declare,load-domain-props">
         <dialog-password-alias-macro title="Deploy Password Map Alias on domain ${swat.domain.name}" />
-        <add-password-alias-macro env="${mgr.target.env.name}" domain="${swat.domain.name}" />
+        <add-password-alias-macro env="${mgr.target.env.name}"
+                                  domain="${swat.domain.name}"
+                                  alias="${password.alias.name}"
+                                  comment="${password.alias.comment}"
+                                  password="${password.alias.secret}"
+                                  overwrite="${password.alias.overwrite}" />
     </target>
 
 </project>
