@@ -111,5 +111,13 @@
     <target name="51-ops-get-cpu-usage" depends="declare,init,choose-device" description="Get CPUUsage from a device.">
         <get-status-macro device="${mgr.target.device.name}" status="CPUUsage" />
     </target>
+	
+	<!-- ================================= 
+	      target: 52-ops-secure-backup 
+	     ================================= -->
+	    <target name="52-ops-secure-backup" depends="declare,init,choose-device" description="Create a secure backup.">
+	        <dialog-secure-backup-macro title="Secure Backup - ${mgr.target.device.name}" />
+	        <secure-backup-macro device="${mgr.target.device.name}" cert="${backup.cert}" destination="${backup.destination}" include-iscsi="off" include-raid="off" />
+	    </target>
 
 </project>

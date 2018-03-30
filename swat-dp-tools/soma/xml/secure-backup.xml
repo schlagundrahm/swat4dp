@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+    <env:Body>
+        <dp:request xmlns:dp="http://www.datapower.com/schemas/management" domain="default">
+            <dp:do-action>
+                <SecureBackup>
+                    <cert>@secure.backup.cert@</cert>
+                    <destination>@secure.backup.destination@</destination>
+                    <include-iscsi>@secure.backup.include.iscsi@</include-iscsi>
+                    <include-raid>@secure.backup.include.raid@</include-raid>
+                </SecureBackup>
+            </dp:do-action>
+        </dp:request>
+    </env:Body>
+</env:Envelope>

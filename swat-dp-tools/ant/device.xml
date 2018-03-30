@@ -107,4 +107,35 @@
 
 		</sequential>
 	</macrodef>
+
+	<!-- = = = = = = = = = = = = = = = = =
+	      macrodef: secure-backup-macro          
+	     = = = = = = = = = = = = = = = = = -->
+	<macrodef name="secure-backup-macro">
+		<attribute name="device" />
+		<attribute name="destination" />
+		<attribute name="cert" />
+		<attribute name="include-iscsi" />
+		<attribute name="include-raid" />
+		<sequential>
+			
+			<!-- Define content filterset -->
+                    <filterset id="secure.backup.filter" onmissingfiltersfile="ignore">
+                        <filter token="secure.backup.cert" value="@{cert}" />
+                    	<filter token="secure.backup.destination" value="@{destination}/${FILESTAMP}" />
+                        	<filter token="secure.backup.include.iscsi" value="@{include-iscsi}" />
+                    	<filter token="secure.backup.include.raid" value="@{include-raid}" />
+                    </filterset>
+			
+			<!-- Prepare the soma-request device-export -->
+			<soma-prepare-request-macro soma.request="secure-backup" content.exists="false" tmp.dir="ops" custom.filter="secure.backup.filter" />
+
+			<!-- Run the soma-request device-export -->
+			<soma-run-single-request-on-single-device-macro device="@{device}"
+			                                                soma.request="secure-backup"
+			                                                tmp.dir="download"
+			                                                check.response="true" />
+
+		</sequential>
+	</macrodef>
 </project>

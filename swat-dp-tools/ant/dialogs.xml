@@ -267,4 +267,41 @@
             <fail unless="password.alias.secret" message="Password is a mandatory field - Upload aborted." />
         </sequential>
     </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: dialog-secure-backup-macro          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="dialog-secure-backup-macro">
+        <attribute name="title" />
+        <sequential>
+            <property name="backup.cert" value="DataPowerSecureBackup" />
+            <property name="backup.destination" value="local:///ondisk/securebackup/foo" />
+            <property name="backup.include.iscsi" value="off" />
+            <property name="backup.include.raid" value="off" />
+
+            <antform title="Swat4DP - @{title}"
+                     stylesheet="${swat.styles.dir}/style.properties"
+                     icon="${swat.styles.dir}/favicon.png">
+                <label>Select Secure Backup options.</label>
+                <textproperty label="Secure Backup Certificate : "
+                              property="backup.cert"
+                              tooltip="The certificate to be used for the secure backup." />
+                <textproperty label="Destination : "
+                              property="backup.destination"
+                              tooltip="Where to store the secure backup files." />
+                <separator />
+                <booleanProperty label="Include iSCIS? "
+                                 property="backup.include.iscsi"
+                                 tooltip="Whether to include the iSCSI content in the secure backup." />
+                <booleanProperty label="Include RAID?"
+                                 property="backup.include.raid"
+                                 tooltip="Whether to include the RAID content in the secure backup." />
+                <separator />
+                <controlbar>
+                    <button label="Ok" type="ok" />
+                    <button label="Cancel" type="cancel" target="cancel" />
+                </controlbar>
+            </antform>
+        </sequential>
+    </macrodef>
 </project>
