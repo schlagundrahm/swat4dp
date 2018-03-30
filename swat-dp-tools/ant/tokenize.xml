@@ -97,9 +97,9 @@
 				        replace="@crypto.cn@" />
 
 				<!-- service settings -->
-			    <regexp path="//configuration//text()" pattern="${service.object.class}(.*)" replace="@service.object.class@$1" />
-			    <regexp path="//configuration//text()" pattern="${service.dir}(.*)" replace="@service.dir@$1" />
-			    <regexp path="//configuration//text()"
+				<regexp path="//configuration//text()" pattern="${service.object.class}(.*)" replace="@service.object.class@$1" />
+				<regexp path="//configuration//text()" pattern="${service.dir}(.*)" replace="@service.dir@$1" />
+				<regexp path="//configuration//text()"
 				        pattern="${service.object.name}(.*)"
 				        replace="@service.object.name@$1" />
 				<regexp path="//configuration//@name"
@@ -109,6 +109,7 @@
 				<replace path="//configuration/${service.object.class}/DebugMode/text()" withText="@debug.mode@" />
 				<replace path="//configuration/${service.object.class}/DebugHistory/text()"
 				         withText="@debug.history@" />
+				<replace path="//configuration/${service.object.class}/GeneratedPolicies/text()" withText="" />
 
 				<!-- WAF objects -->
 				<replace path="//configuration/WebAppFW/FrontSide/LocalAddress/text()"
@@ -132,7 +133,7 @@
 				         withText="@aaa.au.cache.allow@" />
 				<replace path="//configuration/AAAPolicy/Authenticate/AUCacheTTL/text()" withText="@aaa.au.cache.ttl@" />
 			    
-			    <replace path="//configuration/AAAPolicy/Authorize/AZCacheAllow/text()"
+				<replace path="//configuration/AAAPolicy/Authorize/AZCacheAllow/text()"
 				         withText="@aaa.az.cache.allow@" />
 				<replace path="//configuration/AAAPolicy/Authorize/AZCacheTTL/text()" withText="@aaa.az.cache.ttl@" />
 				<replace path="//configuration/AAAPolicy/Authorize/AZLDAPBindPassword/text()"
