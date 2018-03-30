@@ -2,7 +2,12 @@
 
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
-<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Licensed Materials - Property of schlag&rahm -->
+<!-- Copyright © 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Licensed Materials - Property of IBM -->
+<!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
+<!-- US Government Users Restricted Rights - Use, duplication or disclosure -->
+<!-- restricted by GSA ADP Schedule Contract with IBM Corp. -->
 <!-- ================================================================================================= -->
 
 <!-- ====================================================================== -->
@@ -265,6 +270,12 @@
             </antform>
             <fail unless="password.alias.name" message="Object Name is a mandatory field - Upload aborted." />
             <fail unless="password.alias.secret" message="Password is a mandatory field - Upload aborted." />
+            <!-- Use XML character entity references to escape. &lt; &gt; &quot; &amp; &apos; -->
+            <propertyregex property="password.alias.secret" input="${password.alias.secret}" regexp="&amp;" replace="&amp;amp;" override="true" global="true" />
+            <propertyregex property="password.alias.secret" input="${password.alias.secret}" regexp="&lt;" replace="&amp;lt;" override="true" global="true" />
+            <propertyregex property="password.alias.secret" input="${password.alias.secret}" regexp="&gt;" replace="&amp;gt;" override="true" global="true" />
+            <propertyregex property="password.alias.secret" input="${password.alias.secret}" regexp="&apos;" replace="&amp;apos;" override="true" global="true" />
+            <propertyregex property="password.alias.secret" input="${password.alias.secret}" regexp="&quot;" replace="&amp;quot;" override="true" global="true" />
         </sequential>
     </macrodef>
 

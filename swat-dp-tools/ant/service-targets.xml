@@ -2,7 +2,12 @@
 
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
-<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Licensed Materials - Property of schlag&rahm -->
+<!-- Copyright © 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Licensed Materials - Property of IBM -->
+<!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
+<!-- US Government Users Restricted Rights - Use, duplication or disclosure -->
+<!-- restricted by GSA ADP Schedule Contract with IBM Corp. -->
 <!-- ================================================================================================= -->
 
 <!-- ====================================================================== -->
@@ -219,11 +224,11 @@
         <service-pack2compare-macro env="${mgr.target.env.name}" />
 
         <!-- Step 2: Combine the additional .xcfg files into one export file -->
-        <pathconvert targetos="unix" property="common-xfg-path">
+        <pathconvert targetos="unix" property="common-xcfg-path">
             <path location="${swat.dp.customer.home}/${ant.project.name}/dist/import/${mgr.target.env.name}/xcfg/common/" />
         </pathconvert>
 
-        <property name="xcfg-selection-expr" value="file:///${common-xfg-path}/?select=*.xcfg" />
+        <property name="xcfg-selection-expr" value="file:///${common-xcfg-path}/?select=*.xcfg" />
         <echo message="Step 2: Combining the files for expression ${xcfg-selection-expr} into import.xml..." />
         <combine-xcfg-files-macro input="${swat.dp.tools}/soma/xml/empty-config.xml"
                                   output="dist/object-list/${mgr.target.env.name}/import.xml"

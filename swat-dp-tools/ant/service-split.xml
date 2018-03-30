@@ -2,7 +2,12 @@
 
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
-<!-- Copyright (c) 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Licensed Materials - Property of schlag&rahm -->
+<!-- Copyright (c) 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Licensed Materials - Property of IBM -->
+<!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
+<!-- US Government Users Restricted Rights - Use, duplication or disclosure -->
+<!-- restricted by GSA ADP Schedule Contract with IBM Corp. -->
 <!-- ================================================================================================= -->
 
 <!-- ====================================================================== -->
@@ -108,7 +113,7 @@
                     <echo message="Step 2: Filter the export with the content of the common project" />
                     <filter-with-object-list-macro input="${export-file}"
                                                    output="${export-filtered-file}"
-                                                   object-list="../../../${ant.project.name}/dist/object-list/common-import-object-list.xml" />
+                                                   object-list="${swat.current.service.home}/dist/object-list/common-import-object-list.xml" />
                 </then>
                 <else>
                     <copy tofile="${export-filtered-file}" overwrite="true" verbose="true">

@@ -2,7 +2,12 @@
 
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
-<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Licensed Materials - Property of schlag&rahm -->
+<!-- Copyright © 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Licensed Materials - Property of IBM -->
+<!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
+<!-- US Government Users Restricted Rights - Use, duplication or disclosure -->
+<!-- restricted by GSA ADP Schedule Contract with IBM Corp. -->
 <!-- ================================================================================================= -->
 
 <!-- ====================================================================== -->
@@ -130,6 +135,7 @@
 			    <filter token="build.revision" value="${buildRevision}" />
 				<filter token="domain.name" value="${domain.name}"/>
 				<filter token="build.time" value="${FILESTAMP}"/>
+				<filter token="build.user" value="${env.USERNAME}"/>
 			    <filter token="artifactId" value="${project.artifactId}"/>
 			    <filter token="groupId" value="${project.groupId}"/>
 			</filterset>
