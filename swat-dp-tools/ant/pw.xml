@@ -93,7 +93,7 @@
 							                        password.property="local-pw-value" />
 						</then>
 					</if>
-					<echo file="${pws.filter.file}"
+					<echo file="${swat.pws.filter.file}"
 					      append="true"
 					      message="@{pw-item}=${local-pw-value}${line.separator}" />
 				</then>
@@ -109,7 +109,7 @@
 									<decrypt-password-macro password.text="${local-pw-value}" password.property="local-pw-value" />
 								</then>
 							</if>
-							<echo file="${pws.filter.file}" append="true" message="@{pw-item}=${local-pw-value}${line.separator}" />
+							<echo file="${swat.pws.filter.file}" append="true" message="@{pw-item}=${local-pw-value}${line.separator}" />
 
 						</then>
 						<else>
@@ -119,7 +119,7 @@
 								<isset property="pw-value" />
 								<then>
 									<echo message="Property @{pw-item} set for specifier @{pw-specifier} with ${pw-value}" />
-									<echo file="${pws.filter.file}" append="true" message="@{pw-item}=${pw-value}${line.separator}" />
+									<echo file="${swat.pws.filter.file}" append="true" message="@{pw-item}=${pw-value}${line.separator}" />
 								</then>
 								<else>
 									<fail message="No password given, abort build." unless="pw-value" />

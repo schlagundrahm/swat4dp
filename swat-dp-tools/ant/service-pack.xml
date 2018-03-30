@@ -121,7 +121,7 @@
 			<!-- Load the service environment specific properties -->
 			<property file="config/@{env}.properties" />
 
-			<!-- Initialize passwords needed -> results in pws.filter.file -->
+			<!-- Initialize passwords needed -> results in swat.pws.filter.file -->
 			<init-env-passwords-macro env="@{env}" />
 
 			<!-- Define content filterset -->
@@ -129,7 +129,7 @@
 				<filtersfile file="build.properties" />
 				<filtersfile file="config/@{env}.properties" />
 				<filtersfile file="${swat.dp.infra}/build.properties" />
-				<filtersfile file="${pws.filter.file}" />
+				<filtersfile file="${swat.pws.filter.file}" />
 			    <filter token="version" value="${project.version}" />
 			    <filter token="build.number" value="${buildNumber}" />
 			    <filter token="build.revision" value="${buildRevision}" />
@@ -178,8 +178,8 @@
 			<combine-prefix-xcfg-files-macro prefix="${service.name}-90-logtargets" />
 			<combine-prefix-xcfg-files-macro prefix="${service.name}-95-deployment-policies" />
 
-			<!-- Remove temporarily needed pws.filter.file -->
-			<delete file="${pws.filter.file}" />
+			<!-- Remove temporarily needed swat.pws.filter.file -->
+			<delete file="${swat.pws.filter.file}" />
 			
 			<!-- Remove empty elements -->
 			<remove-empty-elements-macro src-dir="${xcfg-dir}" />

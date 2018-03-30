@@ -113,14 +113,14 @@
             <!-- Load the device specific properties -->
             <property file="config/@{device}.properties" />
 
-            <!-- Initialize passwords needed -> results in pws.filter.file -->
+            <!-- Initialize passwords needed -> results in swat.pws.filter.file -->
             <init-device-passwords-macro device="@{device}" />
 
             <!-- Define content filterset -->
             <filterset id="content.filter" onmissingfiltersfile="ignore">
                 <filtersfile file="build.properties" />
                 <filtersfile file="config/@{device}.properties" />
-                <filtersfile file="${pws.filter.file}" />
+                <filtersfile file="${swat.pws.filter.file}" />
             </filterset>
 
             <!-- Copy and filter the local files (common and device-specific) -->
@@ -162,8 +162,8 @@
             <combine-prefix-xcfg-files-macro prefix="default-70-misc" />
             <combine-prefix-xcfg-files-macro prefix="default-80-domain" />
 
-            <!-- Remove temporarily needed pws.filter.file -->
-            <delete file="${pws.filter.file}" />
+            <!-- Remove temporarily needed swat.pws.filter.file -->
+            <delete file="${swat.pws.filter.file}" />
 
             <!-- Remove empty elements -->
             <remove-empty-elements-macro src-dir="${xcfg-dir}" />
