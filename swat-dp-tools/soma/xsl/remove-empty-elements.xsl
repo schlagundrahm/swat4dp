@@ -17,14 +17,14 @@
          </xsl:message>
     </xsl:template>
     
-    <xsl:template match="/datapower-configuration/configuration/descendant::*[text()='@TO_BE_REMOVED@']">
+    <xsl:template match="/datapower-configuration/configuration//*[text()='@TO_BE_REMOVED@']">
         <!-- do nothing i.e. remove element-->
         <xsl:message>
             <xsl:value-of select="concat('found element with @TO_BE_REMOVED@ token ', ./name())" />
         </xsl:message>
     </xsl:template>
     
-    <xsl:template match="/datapower-configuration/configuration/descendant::*[child::node()/text()='@PARENT_TO_BE_REMOVED@']">
+    <xsl:template match="/datapower-configuration/configuration//*[child::node()/text()='@PARENT_TO_BE_REMOVED@']">
         <!-- do nothing i.e. remove element-->
         <xsl:message>
             <xsl:value-of select="concat('found element with @PARENT_TO_BE_REMOVED@ token ', ./name())" />
