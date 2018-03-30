@@ -276,7 +276,6 @@
             <propertyregex property="password.alias.secret" input="${password.alias.secret}" regexp="&gt;" replace="&amp;gt;" override="true" global="true" />
             <propertyregex property="password.alias.secret" input="${password.alias.secret}" regexp="&apos;" replace="&amp;apos;" override="true" global="true" />
             <propertyregex property="password.alias.secret" input="${password.alias.secret}" regexp="&quot;" replace="&amp;quot;" override="true" global="true" />
-<<<<<<< HEAD
         </sequential>
     </macrodef>
 
@@ -314,8 +313,6 @@
                     <button label="Cancel" type="cancel" target="cancel" />
                 </controlbar>
             </antform>
-=======
->>>>>>> branch 'master' of https://github.com/schlagundrahm/swat4dp.git
         </sequential>
     </macrodef>
 </project>
