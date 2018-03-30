@@ -1,8 +1,13 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
-<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Copyright (c) 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Licensed Materials - Property of IBM -->
+<!-- IBM WebSphere DataPower Appliances -->
+<!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
+<!-- US Government Users Restricted Rights - Use, duplication or disclosure -->
+<!-- restricted by GSA ADP Schedule Contract with IBM Corp. -->
 <!-- ================================================================================================= -->
 
 <!-- ====================================================================== -->
@@ -10,20 +15,22 @@
 <!-- ====================================================================== -->
 <project name="Swat4DP" default="info" basedir=".">
 
-    <!-- Copyright (c) 2013 schlag&rahm AG, Switzerland. All rights reserved -->
+    <!-- Copyright (c) 2010, 2013 schlag&rahm AG, Switzerland. All Rights Reserved -->
+    <!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
     <!-- The schlag&rahm WebSphere Administration Toolkit for DataPower - Swat4DP -->
 
     <description>The schlag&amp;rahm WebSphere Administration Toolkit for DataPower - Swat4DP</description>
+    
+    <eclipse.convertPath resourcePath="${swat.customer}-swat-dp-infra" property="swat.dp.infra"/>
 
     <!-- The build.properties file defines the path to local jar files -->
     <property file="build.properties" />
-    <property file="${swat.dp.tools}/build.properties" />
 
     <property file="${swat.dp.infra}/build.properties" />
     <property file="${swat.dp.infra}/settings/${user.name}.properties" />
 
     <!-- Import the common tasks to all dp-administration -->
-    <import file="${basedir}/../swat-dp-tools/macros.xml" />
+    <import file="${swat.dp.tools}/macros.xml" />
 
     <!-- ================================= 
           target: 10-device-deploy 
@@ -166,10 +173,33 @@
                  inheritrefs="true" />
     </target>
 
+    
     <!-- ================================= 
-        target: 25-domain-documentation 
+          target: 25-domain-checkpoints 
+         ================================= -->
+    <target name="25-domain-checkpoints" depends="declare,load-domain-props" description="get domain checkpoints">
+        <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
+             target="25-domain-checkpoints"
+             inheritrefs="true"
+             useNativeBasedir="false" />
+    </target>
+
+    <!-- ================================= 
+          target: 26-domain-password-alias 
+         ================================= -->
+    <target name="26-domain-password-alias"
+            depends="declare,load-domain-props"
+            description="add or overwrite a PasswordAlias">
+        <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
+             target="26-domain-password-alias-deploy"
+             inheritrefs="true"
+             useNativeBasedir="false" />
+    </target>
+
+    <!-- ================================= 
+        target: 29-domain-documentation 
        ================================= -->
-    <target name="25-domain-documentation"
+    <target name="29-domain-documentation"
             depends="declare,load-domain-props"
             description="running domain-documentation">
 
@@ -211,28 +241,6 @@
                 <include name="**/*.jpg" />
             </fileset>
         </copy>
-    </target>
-    
-    <!-- ================================= 
-          target: 26-domain-checkpoints 
-         ================================= -->
-    <target name="26-domain-checkpoints" depends="declare,load-domain-props" description="get domain checkpoints">
-        <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
-             target="26-domain-checkpoints"
-             inheritrefs="true"
-             useNativeBasedir="false" />
-    </target>
-
-    <!-- ================================= 
-          target: 27-domain-password-alias 
-         ================================= -->
-    <target name="27-domain-password-alias"
-            depends="declare,load-domain-props"
-            description="add or overwrite a PasswordAlias">
-        <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
-             target="26-domain-password-alias-deploy"
-             inheritrefs="true"
-             useNativeBasedir="false" />
     </target>
 
     <!-- ================================= 
@@ -485,7 +493,7 @@
         <showfile byline="true">
             <regexp pattern="^[^#]*(device.name).*=" />
             <fileset dir="${swat.dp.devices}">
-                <include name="config/dp-*.properties" />
+                <include name="config/*.properties" />
             </fileset>
         </showfile>
     </target>
@@ -701,7 +709,7 @@
         <echoproperties prefix="swat" />
 
         <property name="nexus.search.url"
-                  value="http://nexus.intra.stzh.ch/nexus/service/local/data_index?q=${swat.current.service}" />
+                  value="${swat.nexus.search.url}${swat.current.service}" />
         <property name="nexus.tmp.dir" value="${basedir}/nexus" />
         <delete dir="${nexus.tmp.dir}" />
         <mkdir dir="${nexus.tmp.dir}" />
