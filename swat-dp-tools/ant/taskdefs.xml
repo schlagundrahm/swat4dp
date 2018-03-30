@@ -23,9 +23,7 @@
 		<echoproperties prefix="swat" />
 		<!-- Format path -->
 		<echo message="swat.dp.tools.classpath :" />
-		<pathconvert pathsep="${line.separator}"
-		             property="echo.tools.classpath"
-		             refid="swat.dp.tools.classpath" />
+		<pathconvert pathsep="${line.separator}" property="echo.tools.classpath" refid="swat.dp.tools.classpath" />
 		<echo message="${echo.tools.classpath}" />
 	</target>
 
@@ -46,31 +44,27 @@
 			<fileset dir="${ant_taskdefs.dir}/../lib">
 				<include name="**/*.jar" />
 			</fileset>
+			<fileset dir="${ant_taskdefs.dir}/../target/ant-libs">
+				<include name="**/*.jar" />
+			</fileset>
 		</path>
 
 		<!-- Task Definitions -->
-		<!-- additional antelope tasks --> 
-		<taskdef name="stringutil" 
-		         classname="ise.antelope.tasks.StringUtilTask" 
-		         classpathref="swat.dp.tools.classpath"  /> 
-		
-		<!-- Flaka Expression Language tasks --> 
-		<!-- uri has to match the uri of the dp namespace prefix --> 
+		<!-- additional antelope tasks -->
+		<taskdef name="stringutil" classname="ise.antelope.tasks.StringUtilTask" classpathref="swat.dp.tools.classpath" />
+
+		<!-- Flaka Expression Language tasks -->
+		<!-- uri has to match the uri of the dp namespace prefix -->
 		<!-- taskdef uri="antlib:it.haefelinger.flaka" 
 		         resource="it/haefelinger/flaka/antlib.xml" 
-		         classpathref="swat.dp.tools.classpath" / --> 
+		         classpathref="swat.dp.tools.classpath" / -->
 
 		<!-- declare antcontrib tasks -->
 		<taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="swat.dp.tools.classpath" />
 		<taskdef resource="com/sardak/antform/taskdefs.properties" classpathref="swat.dp.tools.classpath" />
 		<taskdef resource="ch/schlagundrahm/swat/datapower/tools/ant/antlib.xml" classpathref="swat.dp.tools.classpath" />
-		<taskdef resource="ch/schlagundrahm/tools/ant/antlib.xml" classpathref="swat.dp.tools.classpath" />
-		<taskdef name="xmltask"
-		         classname="com.oopsconsultancy.xmltask.ant.XmlTask"
-		         classpathref="swat.dp.tools.classpath" />
-		<taskdef name="http"
-		         classname="org.missinglink.ant.task.http.HttpClientTask"
-		         classpathref="swat.dp.tools.classpath" />
+		<taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask" classpathref="swat.dp.tools.classpath" />
+		<taskdef name="http" classname="org.missinglink.ant.task.http.HttpClientTask" classpathref="swat.dp.tools.classpath" />
 
 	</target>
 </project>
