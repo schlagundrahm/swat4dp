@@ -279,7 +279,7 @@
                 </else>
             </if>
 
-            <fail message="Could not determine the parent directory for service @{service}!">
+            <fail message="Parent directory ${swat.current.service.parent} for service @{service} does not exist!">
                 <condition>
                     <not>
                         <available file="${swat.current.service.parent}" type="dir" />
