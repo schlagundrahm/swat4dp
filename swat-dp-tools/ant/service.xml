@@ -354,7 +354,7 @@
                                                 env="${local.env}"
                                                 domain="${local.domain}"
                                                 content.exists="true"
-                                                content.dir="dist"
+                                                content.dir="${zip-dir}"
                                                 content.file="${local.service}-${local.env}.zip"
                                                 deployment.policy="@{deployment.policy}" />
                     <var name="import.req.list" value="service-import" />
