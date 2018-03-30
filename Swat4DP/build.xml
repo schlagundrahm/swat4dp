@@ -420,6 +420,17 @@
              inheritrefs="true"
              useNativeBasedir="true" />
     </target>
+	
+    <!-- ================================= 
+           target: 52-ops-secure-backup 
+          ================================= -->
+    <target name="52-ops-secure-backup" depends="declare,choose-device" description="create Secure Backup on device">
+        <property name="mgr.target.domain.name" value="default" />
+        <ant antfile="${swat.dp.devices}/build.xml"
+             target="52-ops-secure-backup"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
 
     <!-- ================================= 
           target: 90-swat-clean-all-projects 
