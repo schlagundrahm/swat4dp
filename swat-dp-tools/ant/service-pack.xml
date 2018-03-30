@@ -59,6 +59,9 @@
 
 			<!-- Pack all files into the structure needed for deplyoment -->
 			<service-pack2compare-macro env="@{env}" />
+			    
+			<!-- verify that all tokens within the files have been replaced -->
+			<verify-token-replacement-macro src-dir="${files-dir}" />
 
 			<!-- create files.xml -->
 			<createfilesconfig env="@{env}"
@@ -135,7 +138,7 @@
 			    <filter token="build.revision" value="${buildRevision}" />
 				<filter token="domain.name" value="${domain.name}"/>
 				<filter token="build.time" value="${FILESTAMP}"/>
-				<filter token="build.user" value="${env.USERNAME}"/>
+			    <filter token="build.user" value="${env.USERNAME}"/>
 			    <filter token="artifactId" value="${project.artifactId}"/>
 			    <filter token="groupId" value="${project.groupId}"/>
 			</filterset>
