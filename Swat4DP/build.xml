@@ -21,6 +21,10 @@
 
     <description>The schlag&amp;rahm WebSphere Administration Toolkit for DataPower - Swat4DP</description>
     
+	<!-- ATTENTION
+	     works only when exceuted from within eclipse 
+	     and only if the runtime JRE is set to "Run int the same JRE as the workspace"
+	-->
     <eclipse.convertPath resourcePath="${swat.customer}-swat-dp-infra" property="swat.dp.infra"/>
 
     <!-- The build.properties file defines the path to local jar files -->
