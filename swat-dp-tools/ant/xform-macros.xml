@@ -273,7 +273,7 @@
 			<local name="all-config-properties" />
 			<loadfile property="all-config-properties" srcFile="@{src-file}" />
 			<condition property="missing-properties">
-				<matches pattern="@[0-9a-zA-Z.-]*@" string="${all-config-properties}" />
+				<matches pattern="@[0-9a-zA-Z.-_]*@" string="${all-config-properties}" />
 			</condition>
 			<fail message="Some tokens have not been replaced in @{src-file}!" if="missing-properties" />
 		</sequential>
@@ -288,7 +288,7 @@
             <echo message="verifing token replacement in @{src-dir} ..." />
             <!-- look for files containing the standard replacement tokens -->
             <fileset id="tokens-in-file" dir="@{src-dir}" excludesfile="${binary.excludes}" excludes="**/readme.txt" >
-                <containsregexp expression="@[0-9a-zA-Z.-]*@"/>
+                <containsregexp expression="@[0-9a-zA-Z.-_]*@"/>
             </fileset>
             <echo message="tokens-in-file: ${toString:tokens-in-file}" />
             <fail message="Found tokens that have not been replaced in one or more files: ${toString:tokens-in-file}'">
