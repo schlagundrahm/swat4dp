@@ -139,10 +139,37 @@
     </target>
 
     <!-- ================================= 
-              target: 26-domain-password-alias 
+              target: 26-domain-password-alias-deploy 
              ================================= -->
     <target name="26-domain-password-alias-deploy" depends="declare,load-domain-props">
-        <dialog-password-alias-macro title="Deploy Password Map Alias on domain ${swat.domain.name}" />
+
+        <!-- Present Password Alias dialog if one of the mandatory fields is not set -->
+        <if>
+            <or>
+                <not>
+                    <isset property="password.alias.name" />
+                </not>
+                <not>
+                    <isset property="password.alias.comment" />
+                </not>
+                <not>
+                    <isset property="password.alias.secret" />
+                </not>
+            </or>
+            <then>
+                <dialog-password-alias-macro title="Deploy Password Map Alias on domain ${swat.domain.name}" />
+            </then>
+        </if>
+        <if>
+            <not>
+                <isset property="password.alias.overwrite" />
+            </not>
+            <then>
+                <property name="password.alias.overwrite" value="false" />
+
+            </then>
+        </if>
+
         <add-password-alias-macro env="${mgr.target.env.name}"
                                   domain="${swat.domain.name}"
                                   alias="${password.alias.name}"
