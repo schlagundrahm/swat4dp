@@ -225,7 +225,7 @@
 
         <!-- Step 2: Combine the additional .xcfg files into one export file -->
         <pathconvert targetos="unix" property="common-xcfg-path">
-            <path location="${swat.dp.customer.home}/${ant.project.name}/dist/import/${mgr.target.env.name}/xcfg/common/" />
+            <path location="${swat.current.service.home}/dist/import/${mgr.target.env.name}/xcfg/common/" />
         </pathconvert>
 
         <property name="xcfg-selection-expr" value="file:///${common-xcfg-path}/?select=*.xcfg" />
