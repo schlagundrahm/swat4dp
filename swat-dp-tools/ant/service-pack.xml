@@ -127,6 +127,9 @@
 			<!-- Initialize passwords needed -> results in swat.pws.filter.file -->
 			<init-env-passwords-macro env="@{env}" />
 
+		    <!-- Load Maven POM properties -->
+		    <xmlproperty file="pom.xml" keepRoot="false" prefix="pom" />
+
 			<!-- Define content filterset -->
 			<filterset id="content.filter" onmissingfiltersfile="ignore">
 				<filtersfile file="build.properties" />
@@ -139,8 +142,9 @@
 				<filter token="domain.name" value="${domain.name}"/>
 				<filter token="build.time" value="${FILESTAMP}"/>
 			    <filter token="build.user" value="${env.USERNAME}"/>
-			    <filter token="artifactId" value="${project.artifactId}"/>
-			    <filter token="groupId" value="${project.groupId}"/>
+			    <filter token="artifactId" value="${pom.artifactId}"/>
+			    <filter token="groupId" value="${pom.groupId}"/>
+			    <filter token="description" value="${pom.description}"/>
 			</filterset>
 
 			<!-- Copy and filter the local files (common and env-specific) -->
