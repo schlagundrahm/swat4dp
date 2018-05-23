@@ -266,20 +266,25 @@
                 <istrue value="${swat.running.from.service.dir}" />
                 <then>
                     <property name="swat.current.service.parent" location="${basedir}/.." />
+                    <property name="swat.current.service.home" location="${basedir}" />
                 </then>
                 <elseif>
                     <isset property="service.mvn.aggregator" />
                     <then>
                         <property name="swat.current.service.parent"
                                   location="${swat.dp.customer.home}/${service.mvn.aggregator}" />
+                        <property name="swat.current.service.home"
+                                  location="${swat.current.service.parent}/${service.project.prefix}-@{service}" />
                     </then>
                 </elseif>
                 <else>
                     <property name="swat.current.service.parent" location="${swat.dp.customer.home}" />
+                    <property name="swat.current.service.home"
+                              location="${swat.dp.customer.home}/${service.project.prefix}-@{service}" />
                 </else>
             </if>
 
-            <fail message="Parent directory ${swat.current.service.parent} for service @{service} does not exist!">
+            <fail message="Could not determine the parent directory for service @{service}!">
                 <condition>
                     <not>
                         <available file="${swat.current.service.parent}" type="dir" />
@@ -290,8 +295,7 @@
             <!-- set current service properties -->
             <property name="swat.current.service.common.home"
                       location="${swat.current.service.parent}/${service.project.prefix}-common" />
-            <property name="swat.current.service.home"
-                      location="${swat.current.service.parent}/${service.project.prefix}-@{service}" />
+            
             <echo message="Setting property swat.current.service.home = ${swat.current.service.home}" />
 
 
