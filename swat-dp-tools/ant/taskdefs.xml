@@ -44,7 +44,7 @@
             <fileset dir="${ant_taskdefs.dir}/../lib">
                 <include name="**/*.jar" />
             </fileset>
-            <fileset dir="${ant_taskdefs.dir}/../target/ant-libs">
+            <fileset dir="${ant_taskdefs.dir}/../target/ant-libs" erroronmissingdir="false">
                 <include name="**/*.jar" />
             </fileset>
         </path>
