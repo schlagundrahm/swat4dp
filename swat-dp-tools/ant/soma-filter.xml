@@ -53,9 +53,9 @@
 						<isfalse value="@{encoded}" />
 						<then>
 							<!-- Encode the file -->
-							<base64-encode-macro infile="@{dir}/@{file}" outfile="@{dir}/@{tmp.dir}/@{file}.b64" />
+							<base64-encode-macro infile="@{dir}/@{file}" outfile="dist/@{tmp.dir}/@{file}.b64" />
 							<!-- LoadFile for the b64 encoded file -->
-							<loadfile property="soma.content" srcfile="@{dir}/@{tmp.dir}/@{file}.b64" />
+							<loadfile property="soma.content" srcfile="dist/@{tmp.dir}/@{file}.b64" />
 						</then>
 						<else>
 							<loadfile property="soma.content" srcfile="@{dir}/@{file}" />
