@@ -314,4 +314,44 @@
                                    service="${service.name}"
                                    class="${service.object.class}" />
     </target>
+    
+    <!-- ================================= 
+          target: 39-service-quiesce              
+         ================================= -->
+    <target name="39-service-quiesce"
+            depends="declare,init,load-service-props"
+            description="--> quiesce a service on the given device-set associated with the selected environment.">
+
+        <!-- Confirm if productive environment -->
+        <dialog-confirm-productive-macro function="Service-Quiesce" lbl-spec="Environment: ${mgr.target.env.name}" />
+
+        <!-- Deploy the service on the device-set associated with this environment -->
+        <service-quiesce-macro env="${mgr.target.env.name}" />
+
+        <stringutil string="${service.name} - ${FILESTAMP}${line.separator}${mgr.target.env.name} - ${domain.name}"
+                    property="msgbox">
+            <messagebox title="${ant.project.name}" />
+        </stringutil>
+        <echo>${msgbox}</echo>
+    </target>
+    
+    <!-- ================================= 
+          target: 39-service-unquiesce              
+         ================================= -->
+    <target name="39-service-unquiesce"
+            depends="declare,init,load-service-props"
+            description="--> unquiesce a service on the given device-set associated with the selected environment.">
+
+        <!-- Confirm if productive environment -->
+        <dialog-confirm-productive-macro function="Service-Unquiesce" lbl-spec="Environment: ${mgr.target.env.name}" />
+
+        <!-- Deploy the service on the device-set associated with this environment -->
+        <service-quiesce-macro env="${mgr.target.env.name}" do-quiesce="false" />
+
+        <stringutil string="${service.name} - ${FILESTAMP}${line.separator}${mgr.target.env.name} - ${domain.name}"
+                    property="msgbox">
+            <messagebox title="${ant.project.name}" />
+        </stringutil>
+        <echo>${msgbox}</echo>
+    </target>
 </project>

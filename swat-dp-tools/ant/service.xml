@@ -921,4 +921,96 @@
             </if>
         </sequential>
     </macrodef>
+    
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: service-quiesce-macro          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="service-quiesce-macro">
+        <attribute name="env" />
+        <attribute name="do-quiesce" default="true" />
+        <attribute name="all-devices" default="true" />
+        <attribute name="primary" default="true" />
+        <sequential>
+            <!-- Prepare local variables -->
+            <property name="local.env" value="@{env}" />
+            <property name="local.device.set" value="${swat.device-set.name}" />
+            <property name="local.domain" value="${domain.name}" />
+            <property name="local.service" value="${service.name}" />
+
+            <!-- Clear the upload directories -->
+            <delete dir="dist/upload" />
+            <mkdir dir="dist/upload" />
+
+            <!-- prepare soma-request service-quiesce/unquiesce -->
+            <if>
+                <equals arg1="${service.object.name}" arg2="n/a" />
+                <then>
+                    <var name="soma.request.list" value="" />
+                </then>
+                <elseif>
+                    <equals arg1="@{do-quiesce}" arg2="true" />
+                    <then>
+                        <soma-prepare-request-macro soma.request="service-quiesce"
+                                                    env="${local.env}"
+                                                    domain="${local.domain}"
+                                                    content.exists="false" />
+                        <var name="soma.request.list" value="service-quiesce" />
+                    </then>
+                </elseif>
+                <else>
+                    <soma-prepare-request-macro soma.request="service-unquiesce"
+                                                env="${local.env}"
+                                                domain="${local.domain}"
+                                                content.exists="false" />
+                    <var name="soma.request.list" value="service-unquiesce" />
+                </else>
+            </if>
+
+            <fail message="No requests in the list to be run, stop process.">
+                <condition>
+                    <or>
+                        <equals arg1="${soma.request.list}" arg2="" />
+                        <not>
+                            <isset property="soma.request.list" />
+                        </not>
+                    </or>
+                </condition>
+            </fail>
+
+            <!-- run soma-request list on both devices (default) or on primary or on secondaries -->
+            <if>
+                <equals arg1="@{all-devices}" arg2="true" />
+                <then>
+                    <soma-run-multi-requests-on-multi-devices-macro device.set="${local.device.set}"
+                                                                    soma.requests="${soma.request.list}"
+                                                                    check.response="true" />
+                </then>
+                <else>
+                    <!-- Load the device-set properties to determine the devices -->
+                    <load-device-set-props-macro device-set="${local.device.set}" />
+                    <if>
+                        <equals arg1="@{primary}" arg2="true" />
+                        <then>
+                            <soma-run-multi-requests-on-single-device-macro device="${swat.device.master}"
+                                                                            soma.requests="${soma.request.list}"
+                                                                            check.response="true"
+                                                                            tmp.dir="upload" />
+                        </then>
+                        <else>
+                            <!-- Run multi-requests on all secondary devices -->
+                            <property name="current.soma.request.list" value="${soma.request.list}" />
+                            <property name="current.check.response" value="true" />
+                            <property name="current.tmp.dir" value="upload" />
+                            <foreach target="service-deploy-on-secondary-devices"
+                                     list="${swat.device.list}"
+                                     delimiter=","
+                                     param="current.device"
+                                     inheritall="true"
+                                     inheritrefs="true" />
+                        </else>
+                    </if>
+                </else>
+            </if>
+        </sequential>
+    </macrodef>
 </project>
