@@ -852,6 +852,13 @@
                                  </xsl:with-param>
                               </xsl:call-template>
                            </xsl:when>
+                           <xsl:when test="local-name(.)='UserSummary'">
+                              <xsl:call-template name="set-token">
+                                 <xsl:with-param name="key">
+                                    <xsl:value-of select="concat('dns.static.host.',count(../preceding-sibling::StaticHosts)+1,'.summary')" />
+                                 </xsl:with-param>
+                              </xsl:call-template>
+                           </xsl:when>
                            <xsl:otherwise>
                               <xsl:copy-of select="." />
                            </xsl:otherwise>
