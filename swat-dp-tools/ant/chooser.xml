@@ -254,12 +254,14 @@
                            input="${basedir}"
                            regexp="^.*[/|\\][\w-]*@{service}$"
                            select="true"
-                           casesensitive="false" />
+                           casesensitive="false"
+                           defaultvalue="false" />
 
             <service-create-project-prefix-macro zone="@{zone}" domain="@{domain}" />
 
             <property name="swat.current.service" value="${service.project.prefix}-@{service}" />
             <echo message="Current service: ${swat.current.service}" />
+            <echo message="Running from service directory: ${swat.running.from.service.dir}" />
 
             <!-- determine parent dir of the current service -->
             <if>
@@ -288,6 +290,14 @@
                 <condition>
                     <not>
                         <available file="${swat.current.service.parent}" type="dir" />
+                    </not>
+                </condition>
+            </fail>
+            
+            <fail message="Could not determine the home directory for service @{service}!">
+                <condition>
+                    <not>
+                        <available file="${swat.current.service.home}" type="dir" />
                     </not>
                 </condition>
             </fail>
@@ -465,6 +475,10 @@
         <sequential>
             <echo message="Loading ${swat.dp.devices}/config/@{device}.properties" />
             <loadproperties srcfile="${swat.dp.devices}/config/@{device}.properties" />
+            
+            <!-- NOTE: eventhough the devices project is not a service this property has to be set -->
+            <property name="swat.current.service.home" location="${swat.dp.devices}" />
+            
         </sequential>
     </macrodef>
 
