@@ -459,7 +459,6 @@
 
             <!-- prepare soma-request status-get -->
             <filterset id="verify.filter.id">
-                <filter token="service.name" value="${service.name}" />
                 <filter token="status.provider" value="ObjectStatus" />
             </filterset>
             <if>
@@ -570,15 +569,15 @@
             <property name="local.file" value="@{artifact}-@{version}-${local.env}.zip" />
             <propertyregex property="local.zone"
                            input="@{artifact}"
-                           regexp="[^\s\\/]-swat-dp-services-([a-z]+)-([a-z]+)-([a-z]+)"
+                           regexp="[^\s\\/]-swat-dp-services-([a-z]+)-([a-z]+)-([a-z-]+)"
                            select="\1" />
             <propertyregex property="local.domain.short"
                            input="@{artifact}"
-                           regexp="[^\s\\/]-swat-dp-services-([a-z]+)-([a-z]+)-([a-z]+)"
+                           regexp="[^\s\\/]-swat-dp-services-([a-z]+)-([a-z]+)-([a-z-]+)"
                            select="\2" />
             <propertyregex property="local.service"
                            input="@{artifact}"
-                           regexp="[^\s\\/]-swat-dp-services-([a-z]+)-([a-z]+)-([a-z]+)"
+                           regexp="[^\s\\/]-swat-dp-services-([a-z]+)-([a-z]+)-([a-z-]+)"
                            select="\3" />
             <propertyregex property="artifact.env"
                            input="@{artifact}"
@@ -612,7 +611,7 @@
 
             <!-- prepare soma-request checkpoint-save -->
             <filterset id="checkpoint.filter.id">
-                <filter token="checkpoint.name" value="${service.name}" />
+                <filter token="checkpoint.name" value="${local.service}" />
             </filterset>
             <if>
                 <or>
@@ -727,7 +726,6 @@
 
             <!-- prepare soma-request status-get -->
             <filterset id="verify.filter.id">
-                <filter token="service.name" value="${service.name}" />
                 <filter token="status.provider" value="ObjectStatus" />
             </filterset>
             <if>
