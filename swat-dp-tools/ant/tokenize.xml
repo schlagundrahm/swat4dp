@@ -155,6 +155,8 @@
 				         withText="LogTarget for the @service.object.name@ @service.object.class@" />
 				<replace path="//configuration/LogTarget/LogEvents[Class='all']/Priority/text()"
 				         withText="@log.level.general@" />
+			    <replace path="//configuration/LogTarget/LogEvents[Class='ws-proxy' or Class='mpgw']/Priority/text()"
+			             withText="@log.level.service@" />
 				<replace path="//configuration/LogTarget/Size/text()" withText="@log.file.size@" />
 				<replace path="//configuration/LogTarget/Rotate/text()" withText="@log.file.rotations@" />
 				<replace path="//configuration/LogTarget/LogObjects[Class='${service.object.class}']/FollowReferences/text()"
