@@ -164,11 +164,24 @@
             <echo message="Running requests @{soma.requests} on device @{device}." />
             <for list="@{soma.requests}" delimiter="," param="foreach.soma.request">
                 <sequential>
-                    <soma-run-single-request-on-single-device-macro soma.request="@{foreach.soma.request}"
-                                                                    device="${local.device}"
-                                                                    tmp.dir="${local.tmp.dir}"
-                                                                    check.response="${local.check.response}"
-                                                                    check.response.pattern="${local.check.response.pattern}" />
+                    <if>
+                        <matches pattern="^sleep[0-9]{1,3}$" string="@{foreach.soma.request}" />
+                        <then>
+                            <propertyregex property="timer"
+                                           input="@{foreach.soma.request}"
+                                           regexp="^sleep([0-9]{1,3})$"
+                                           select="\1"
+                                           casesensitive="false" />
+                            <sleep seconds="${timer}" />
+                        </then>
+                        <else>
+                            <soma-run-single-request-on-single-device-macro soma.request="@{foreach.soma.request}"
+                                                                            device="${local.device}"
+                                                                            tmp.dir="${local.tmp.dir}"
+                                                                            check.response="${local.check.response}"
+                                                                            check.response.pattern="${local.check.response.pattern}" />
+                        </else>
+                    </if>
                 </sequential>
             </for>
         </sequential>
@@ -410,7 +423,7 @@
 
                     <!-- fail in a productive environment if Object Status contains potential issues -->
                     <if>
-                        <equals arg1="${swat.env.type}" arg2="productive" />
+                        <istrue value="${swat.settings.verify.objectstatus}" />
                         <then>
                             <fail message="The Object Status shows potential issues! See console output for more information."
                                   if="objects-to-be-verified" />

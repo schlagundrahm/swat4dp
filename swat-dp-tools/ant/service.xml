@@ -497,8 +497,9 @@
             <join-vars-macro result="inter2" arg1="${inter1}" arg2="${import.req.list}" />
             <join-vars-macro result="inter3" arg1="${inter2}" arg2="${flush.req.list}" />
             <join-vars-macro result="inter4" arg1="${inter3}" arg2="${unquiesce.req.list}" />
-            <join-vars-macro result="inter5" arg1="${inter4}" arg2="${verify.req.list}" />
-            <join-vars-macro result="soma.request.list" arg1="${inter5}" arg2="${save.req.list}" />
+            <join-vars-macro result="inter5" arg1="${inter4}" arg2="sleep15" />
+            <join-vars-macro result="inter6" arg1="${inter5}" arg2="${verify.req.list}" />
+            <join-vars-macro result="soma.request.list" arg1="${inter6}" arg2="${save.req.list}" />
             <echo message="Joined the list of requests to be [${soma.request.list}]." />
             <fail message="No requests in the list to be run, stop process.">
                 <condition>
@@ -763,8 +764,9 @@
             <join-vars-macro result="inter2" arg1="${inter1}" arg2="${import.req.list}" />
             <join-vars-macro result="inter3" arg1="${inter2}" arg2="${flush.req.list}" />
             <join-vars-macro result="inter4" arg1="${inter3}" arg2="${unquiesce.req.list}" />
-            <join-vars-macro result="inter5" arg1="${inter4}" arg2="${verify.req.list}" />
-            <join-vars-macro result="soma.request.list" arg1="${inter5}" arg2="${save.req.list}" />
+            <join-vars-macro result="inter5" arg1="${inter4}" arg2="sleep15" />
+            <join-vars-macro result="inter6" arg1="${inter5}" arg2="${verify.req.list}" />
+            <join-vars-macro result="soma.request.list" arg1="${inter6}" arg2="${save.req.list}" />
             <echo message="Joined the list of requests to be [${soma.request.list}]." />
             <fail message="No requests in the list to be run, stop process.">
                 <condition>
