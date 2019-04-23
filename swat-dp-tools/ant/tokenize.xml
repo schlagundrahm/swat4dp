@@ -10,180 +10,182 @@
 <!-- ====================================================================== -->
 <project name="swat-dp-tools.tokenize" default="info" basedir=".">
 
-	<dirname file="${ant.file.swat-dp-tools.tokenize}" property="ant_tokenize.dir" />
-	<import file="${ant_tokenize.dir}/taskdefs.xml" />
+    <dirname file="${ant.file.swat-dp-tools.tokenize}" property="ant_tokenize.dir" />
+    <import file="${ant_tokenize.dir}/taskdefs.xml" />
 
-	<target name="info">
-		<echo message="Macros for config tokenization for swat-dp-tools" />
-	</target>
+    <target name="info">
+        <echo message="Macros for config tokenization for swat-dp-tools" />
+    </target>
 
-	<!-- = = = = = = = = = = = = = = = = =
+    <!-- = = = = = = = = = = = = = = = = =
           macrodef: tokenize-configuration-macro          
          = = = = = = = = = = = = = = = = = -->
-	<macrodef name="tokenize-configuration-macro">
-		<attribute name="env" />
-		<attribute name="device" />
-		<attribute name="domain" />
-		<attribute name="service" />
-		<attribute name="object" />
-		<attribute name="class" />
+    <macrodef name="tokenize-configuration-macro">
+        <attribute name="env" />
+        <attribute name="device" />
+        <attribute name="domain" />
+        <attribute name="service" />
+        <attribute name="object" />
+        <attribute name="class" />
 
-		<sequential>
+        <sequential>
 
-			<property name="src-dir" value="dist/export/@{device}-@{domain}/xcfg/common" />
+            <property name="src-dir" value="dist/export/@{device}-@{domain}/xcfg/common" />
 
-			<fail message="Source directory dist/export/@{device}-@{domain}/xcfg/common does not exist!">
-				<condition>
-					<not>
-						<available file="${src-dir}" type="dir" />
-					</not>
-				</condition>
-			</fail>
+            <fail message="Source directory dist/export/@{device}-@{domain}/xcfg/common does not exist!">
+                <condition>
+                    <not>
+                        <available file="${src-dir}" type="dir" />
+                    </not>
+                </condition>
+            </fail>
 
-			<echo message="populate xcfg files with tokens ..." />
+            <echo message="populate xcfg files with tokens ..." />
 
-			<property name="tokenizer-tmp-dir" value="dist/tokenizer-tmp" />
-			<property name="tokenized-dir" value="dist/tokenized/@{device}-@{domain}" />
+            <property name="tokenizer-tmp-dir" value="dist/tokenizer-tmp" />
+            <property name="tokenized-dir" value="dist/tokenized/@{device}-@{domain}" />
 
-			<mkdir dir="${tokenizer-tmp-dir}" />
+            <mkdir dir="${tokenizer-tmp-dir}" />
 
-			<xmltask todir="${tokenizer-tmp-dir}"
-			         outputter="simple:3"
-			         preservetype="true"
-			         omitheader="true"
-			         encoding="UTF-8">
-				<fileset dir="${src-dir}" id="xcfg">
-					<include name="*.xcfg" />
-					<exclude name="temp-*.xcfg" />
-					<exclude name="*-intrinsic.xcfg" />
-				</fileset>
+            <xmltask todir="${tokenizer-tmp-dir}"
+                     outputter="simple:3"
+                     preservetype="true"
+                     omitheader="true"
+                     encoding="UTF-8">
+                <fileset dir="${src-dir}" id="xcfg">
+                    <include name="*.xcfg" />
+                    <exclude name="temp-*.xcfg" />
+                    <exclude name="*-intrinsic.xcfg" />
+                </fileset>
 
-				<replace path="//export-details/user/text()" withText="@env.user@" />
-				<replace path="//export-details/current-date/text()" withText="@current.date@" />
-				<replace path="//export-details/current-time/text()" withText="@current.time@" />
-				<replace path="//export-details/domain/text()" withText="@domain.name@" />
+                <replace path="//export-details/user/text()" withText="@env.user@" />
+                <replace path="//export-details/current-date/text()" withText="@current.date@" />
+                <replace path="//export-details/current-time/text()" withText="@current.time@" />
+                <replace path="//export-details/domain/text()" withText="@domain.name@" />
 
-				<!-- general settings -->
-				<replace path="//configuration/@domain" withText="@domain.name@" />
+                <!-- general settings -->
+                <replace path="//configuration/@domain" withText="@domain.name@" />
 
-				<!-- crypto objects -->
-				<regexp path="//configuration/CryptoKey//@name"
-				        if="crypto.cn"
-				        pattern="${crypto.cn}"
-				        replace="@crypto.cn@" />
-				<regexp path="//configuration/CryptoKey/Filename/text()"
-				        if="crypto.cn"
-				        pattern="(.*)${crypto.cn}(.*)"
-				        replace="$1@crypto.cn@$2" />
-				<regexp path="//configuration/CryptoCertificate//@name"
-				        if="crypto.cn"
-				        pattern="${crypto.cn}"
-				        replace="@crypto.cn@" />
-				<regexp path="//configuration/CryptoCertificate/Filename/text()"
-				        if="crypto.cn"
-				        pattern="(.*)${crypto.cn}(.*)"
-				        replace="$1@crypto.cn@$2" />
-				<regexp path="//configuration/CryptoIdentCred//@name"
-				        if="crypto.cn"
-				        pattern="${crypto.cn}"
-				        replace="@crypto.cn@" />
-				<regexp path="//configuration/CryptoIdentCred//text()"
-				        if="crypto.cn"
-				        pattern="${crypto.cn}"
-				        replace="@crypto.cn@" />
-				<regexp path="//configuration/CryptoProfile/IdentCredential/text()"
-				        if="crypto.cn"
-				        pattern="${crypto.cn}"
-				        replace="@crypto.cn@" />
+                <!-- crypto objects -->
+                <regexp path="//configuration/CryptoKey//@name"
+                        if="crypto.cn"
+                        pattern="${crypto.cn}"
+                        replace="@crypto.cn@" />
+                <regexp path="//configuration/CryptoKey/Filename/text()"
+                        if="crypto.cn"
+                        pattern="(.*)${crypto.cn}(.*)"
+                        replace="$1@crypto.cn@$2" />
+                <regexp path="//configuration/CryptoCertificate//@name"
+                        if="crypto.cn"
+                        pattern="${crypto.cn}"
+                        replace="@crypto.cn@" />
+                <regexp path="//configuration/CryptoCertificate/Filename/text()"
+                        if="crypto.cn"
+                        pattern="(.*)${crypto.cn}(.*)"
+                        replace="$1@crypto.cn@$2" />
+                <regexp path="//configuration/CryptoIdentCred//@name"
+                        if="crypto.cn"
+                        pattern="${crypto.cn}"
+                        replace="@crypto.cn@" />
+                <regexp path="//configuration/CryptoIdentCred//text()"
+                        if="crypto.cn"
+                        pattern="${crypto.cn}"
+                        replace="@crypto.cn@" />
+                <regexp path="//configuration/CryptoProfile/IdentCredential/text()"
+                        if="crypto.cn"
+                        pattern="${crypto.cn}"
+                        replace="@crypto.cn@" />
 
-				<!-- service settings -->
-				<regexp path="//configuration//text()" pattern="${service.object.class}(.*)" replace="@service.object.class@$1" />
-				<regexp path="//configuration//text()" pattern="${service.dir}(.*)" replace="@service.dir@$1" />
-				<regexp path="//configuration//text()"
-				        pattern="${service.object.name}(.*)"
-				        replace="@service.object.name@$1" />
-				<regexp path="//configuration//@name"
-				        pattern="${service.object.name}(.*)"
-				        replace="@service.object.name@$1" />
-				
-				<replace path="//configuration/${service.object.class}/DebugMode/text()" withText="@debug.mode@" />
-				<replace path="//configuration/${service.object.class}/DebugHistory/text()"
-				         withText="@debug.history@" />
-				<replace path="//configuration/${service.object.class}/GeneratedPolicies/text()" withText="" />
+                <!-- service settings -->
+                <regexp path="//configuration//text()"
+                        pattern="${service.object.class}(.*)"
+                        replace="@service.object.class@$1" />
+                <regexp path="//configuration//text()" pattern="${service.dir}(.*)" replace="@service.dir@$1" />
+                <regexp path="//configuration//text()"
+                        pattern="${service.object.name}(.*)"
+                        replace="@service.object.name@$1" />
+                <regexp path="//configuration//@name"
+                        pattern="${service.object.name}(.*)"
+                        replace="@service.object.name@$1" />
 
-				<!-- WAF objects -->
-				<replace path="//configuration/WebAppFW/FrontSide/LocalAddress/text()"
-				         withText="@frontend.server.host@" />
-				<replace path="//configuration/WebAppFW/FrontSide/LocalPort/text()" withText="@frontend.server.port@" />
-				<replace path="//configuration/WebAppFW/RemoteAddress/text()" withText="@backend.server.host@" />
-				<replace path="//configuration/WebAppFW/RemotePort/text()" withText="@backend.server.port@" />
-				<replace path="//configuration/WebAppFW/FrontTimeout/text()" withText="@frontend.timeout@" />
-				<replace path="//configuration/WebAppFW/BackTimeout/text()" withText="@backend.timeout@" />
-				<replace path="//configuration/WebAppFW/FrontPersistentTimeout/text()"
-				         withText="@frontend.timeout.persistent@" />
-				<replace path="//configuration/WebAppFW/BackPersistentTimeout/text()"
-				         withText="@backend.timeout.persistent@" />
+                <replace path="//configuration/${service.object.class}/DebugMode/text()" withText="@debug.mode@" />
+                <replace path="//configuration/${service.object.class}/DebugHistory/text()"
+                         withText="@debug.history@" />
+                <replace path="//configuration/${service.object.class}/GeneratedPolicies/text()" withText="" />
 
-				<!-- AAA -->
-				<replace path="//configuration/AAAPolicy/Authenticate/AULTPAKeyFile[text()!='']/text()"
-				         withText="@ltpa.keys.file@" />
-				<replace path="//configuration/AAAPolicy/Authenticate/AULTPAKeyFilePassword[text()!='']/text()"
-				         withText="@ltpa.was7.keys.pw@" />
-				<replace path="//configuration/AAAPolicy/Authenticate/AUCacheAllow/text()"
-				         withText="@aaa.au.cache.allow@" />
-				<replace path="//configuration/AAAPolicy/Authenticate/AUCacheTTL/text()" withText="@aaa.au.cache.ttl@" />
-			    
-				<replace path="//configuration/AAAPolicy/Authorize/AZCacheAllow/text()"
-				         withText="@aaa.az.cache.allow@" />
-				<replace path="//configuration/AAAPolicy/Authorize/AZCacheTTL/text()" withText="@aaa.az.cache.ttl@" />
-				<replace path="//configuration/AAAPolicy/Authorize/AZLDAPBindPassword/text()"
-				         if="ldap.dmz.bind.pw.lbl"
-				         withText="@ldap.dmz.bind.pw@" />
+                <!-- WAF objects -->
+                <replace path="//configuration/WebAppFW/FrontSide/LocalAddress/text()"
+                         withText="@frontend.server.host@" />
+                <replace path="//configuration/WebAppFW/FrontSide/LocalPort/text()" withText="@frontend.server.port@" />
+                <replace path="//configuration/WebAppFW/RemoteAddress/text()" withText="@backend.server.host@" />
+                <replace path="//configuration/WebAppFW/RemotePort/text()" withText="@backend.server.port@" />
+                <replace path="//configuration/WebAppFW/FrontTimeout/text()" withText="@frontend.timeout@" />
+                <replace path="//configuration/WebAppFW/BackTimeout/text()" withText="@backend.timeout@" />
+                <replace path="//configuration/WebAppFW/FrontPersistentTimeout/text()"
+                         withText="@frontend.timeout.persistent@" />
+                <replace path="//configuration/WebAppFW/BackPersistentTimeout/text()"
+                         withText="@backend.timeout.persistent@" />
 
-				<replace path="//configuration/AAAPolicy/PostProcess/PPLTPAKeyFile[text()!='']/text()"
-				         withText="@ltpa.keys.file@" />
-				<replace path="//configuration/AAAPolicy/PostProcess/PPLTPAKeyFilePassword[text()!='']/text()"
-				         withText="@ltpa.was7.keys.pw@" />
-				<replace path="//configuration/AAAPolicy/PostProcess/PPLTPAExpiry/text()"
-				         if="ltpa.expiry"
-				         withText="@ltpa.expiry@" />
+                <!-- AAA -->
+                <replace path="//configuration/AAAPolicy/Authenticate/AULTPAKeyFile[text()!='']/text()"
+                         withText="@ltpa.key.file@" />
+                <replace path="//configuration/AAAPolicy/Authenticate/AULTPAKeyFilePassword[text()!='']/text()"
+                         withText="@ltpa.was7.key.pw@" />
+                <replace path="//configuration/AAAPolicy/Authenticate/AUCacheAllow/text()"
+                         withText="@aaa.au.cache.allow@" />
+                <replace path="//configuration/AAAPolicy/Authenticate/AUCacheTTL/text()"
+                         withText="@aaa.au.cache.ttl@" />
 
+                <replace path="//configuration/AAAPolicy/Authorize/AZCacheAllow/text()"
+                         withText="@aaa.az.cache.allow@" />
+                <replace path="//configuration/AAAPolicy/Authorize/AZCacheTTL/text()" withText="@aaa.az.cache.ttl@" />
+                <replace path="//configuration/AAAPolicy/Authorize/AZLDAPBindPassword/text()"
+                         if="ldap.dmz.bind.pw.lbl"
+                         withText="@ldap.dmz.bind.pw@" />
 
-				<!-- Log Targets -->
-				<replace path="//configuration/LogTarget[@name = '${service.object.name}']/@name" withText="@service.object.name@" />
-				<replace path="//configuration/LogTarget[@name = '${service.object.name}']/UserSummary/text()"
-				         withText="LogTarget for the @service.object.name@ @service.object.class@" />
-				<replace path="//configuration/LogTarget/LogEvents[Class='all']/Priority/text()"
-				         withText="@log.level.general@" />
-			    <replace path="//configuration/LogTarget/LogEvents[Class='ws-proxy' or Class='mpgw']/Priority/text()"
-			             withText="@log.level.service@" />
-				<replace path="//configuration/LogTarget/Size/text()" withText="@log.file.size@" />
-				<replace path="//configuration/LogTarget/Rotate/text()" withText="@log.file.rotations@" />
-				<replace path="//configuration/LogTarget/LogObjects[Class='${service.object.class}']/FollowReferences/text()"
-				         withText="@log.service.follow-refs@" />
-				<replace path="//configuration/LogTarget/LogObjects[Class='${service.object.class}']/Class/text()"
-				         withText="@service.object.class@" />
+                <replace path="//configuration/AAAPolicy/PostProcess/PPLTPAKeyFile[text()!='']/text()"
+                         withText="@ltpa.key.file@" />
+                <replace path="//configuration/AAAPolicy/PostProcess/PPLTPAKeyFilePassword[text()!='']/text()"
+                         withText="@ltpa.was7.key.pw@" />
+                <replace path="//configuration/AAAPolicy/PostProcess/PPLTPAExpiry/text()"
+                         if="ltpa.expiry"
+                         withText="@ltpa.expiry@" />
 
 
-				<!-- remove some export details -->
-				<remove path="//export-details/reset-date" />
-				<remove path="//export-details/reset-time" />
-				<remove path="//export-details/login-message" />
-				<remove path="//export-details/custom-ui-file" />
+                <!-- Log Targets -->
+                <replace path="//configuration/LogTarget[@name = '${service.object.name}']/@name"
+                         withText="@service.object.name@" />
+                <replace path="//configuration/LogTarget[@name = '${service.object.name}']/UserSummary/text()"
+                         withText="LogTarget for the @service.object.name@ @service.object.class@" />
+                <replace path="//configuration/LogTarget/LogEvents[Class='all']/Priority/text()"
+                         withText="@log.level.general@" />
+                <replace path="//configuration/LogTarget/LogEvents[Class='ws-proxy' or Class='mpgw']/Priority/text()"
+                         withText="@log.level.service@" />
+                <replace path="//configuration/LogTarget/Size/text()" withText="@log.file.size@" />
+                <replace path="//configuration/LogTarget/Rotate/text()" withText="@log.file.rotations@" />
+                <replace path="//configuration/LogTarget/LogObjects[Class='${service.object.class}']/Class/text()"
+                         withText="@service.object.class@" />
+                <replace path="//configuration/LogTarget/LogObjects[Class='@service.object.class@']/FollowReferences/text()"
+                         withText="@log.service.follow-refs@" />
 
-			</xmltask>
+                <!-- remove some export details -->
+                <remove path="//export-details/reset-date" />
+                <remove path="//export-details/reset-time" />
+                <remove path="//export-details/login-message" />
+                <remove path="//export-details/custom-ui-file" />
 
-			<!-- reorder attributes for manual comparison -->
-			<xcfg-reformat-macro src-dir="${tokenizer-tmp-dir}" dst-dir="${tokenized-dir}" conf-type="service" />
-			
-			<!-- fix end of line encoding for the current environment -->
-			<fixcrlf srcdir="${tokenized-dir}"
-			         includes="**/*.xcfg" />
+            </xmltask>
 
-				
-			<delete dir="${tokenizer-tmp-dir}" failonerror="true" />
-			<echo message="@{service} configuration for @{device}/@{domain} has been tokenized." />
+            <!-- reorder attributes for manual comparison -->
+            <xcfg-reformat-macro src-dir="${tokenizer-tmp-dir}" dst-dir="${tokenized-dir}" conf-type="service" />
 
-		</sequential>
-	</macrodef>
+            <!-- fix end of line encoding for the current environment -->
+            <fixcrlf srcdir="${tokenized-dir}" includes="**/*.xcfg" />
+
+
+            <delete dir="${tokenizer-tmp-dir}" failonerror="true" />
+            <echo message="@{service} configuration for @{device}/@{domain} has been tokenized." />
+
+        </sequential>
+    </macrodef>
 </project>
