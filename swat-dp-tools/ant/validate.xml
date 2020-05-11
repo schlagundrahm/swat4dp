@@ -55,9 +55,10 @@
 		<attribute name="failonerror" default="true" />
 		<attribute name="verbose" default="true" />
 		<attribute name="includes" default="**/*.pem,**/*.cer,**/*.crt" />
+	    <attribute name="excludes" default="**/*-privkey.pem" />
 		<sequential>
 			<validatecertificate failonerror="@{failonerror}" verbose="@{verbose}">
-				<fileset dir="@{source-dir}" includes="@{includes}" />
+				<fileset dir="@{source-dir}" includes="@{includes}" excludes="@{excludes}" />
 			</validatecertificate>
 		</sequential>
 	</macrodef>
