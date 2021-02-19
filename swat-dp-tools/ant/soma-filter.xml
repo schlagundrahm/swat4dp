@@ -198,12 +198,48 @@
 						</else>
 					</if>
 
+                    <if>
+                        <isset property="@{crypto.prefix}.object.key.file" />
+                        <then>
+                            <propertycopy name="local.crypto.object.key.file" from="@{crypto.prefix}.object.key.file" />
+                        </then>
+                        <else>
+                            <property name="local.crypto.object.key.file" value="${local.crypto.cn}" />
+                        </else>
+                    </if>
+
+                    <if>
+                        <isset property="@{crypto.prefix}.object.cert.file" />
+                        <then>
+                            <propertycopy name="local.crypto.object.cert.file"
+                                          from="@{crypto.prefix}.object.cert.file" />
+                        </then>
+                        <else>
+                            <property name="local.crypto.object.cert.file" value="${local.crypto.cn}" />
+                        </else>
+                    </if>
+                    
+                    <echo message="[TRACE] local.crypto.object.cert.file = ${local.crypto.object.cert.file}" />
+
+                    <if>
+                        <isset property="@{crypto.prefix}.object.pw.alias" />
+                        <then>
+                            <propertycopy name="local.crypto.object.pw.alias" from="@{crypto.prefix}.object.pw.alias" />
+                        </then>
+                        <else>
+                            <property name="local.crypto.object.pw.alias" value="${local.crypto.cn}" />
+                        </else>
+                    </if>
+
 					<!-- Define the Crypto Filter -->
 					<echo message="crypto filter = ${swat.dp.infra}/config/crypto.properties" />
 					<filterset id="@{filter}" onmissingfiltersfile="ignore">
 						<!-- Specific Crypto -->
 						<filter token="crypto.cn" value="${local.crypto.cn}" />
 						<filter token="crypto.object.name" value="${local.crypto.object.name}" />
+                        <filter token="crypto.object.key.file" value="${local.crypto.object.key.file}" />
+                        <filter token="crypto.object.cert.file" value="${local.crypto.object.cert.file}" />
+                        <filter token="crypto.object.pw.alias" value="${local.crypto.object.pw.alias}" />
 						<!-- Common Crypto -->
 						<filtersfile file="${swat.dp.infra}/config/crypto.properties" />
 					</filterset>
