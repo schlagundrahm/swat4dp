@@ -315,4 +315,57 @@
             </antform>
         </sequential>
     </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: dialog-upload-file-macro          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="dialog-upload-file-macro">
+        <attribute name="title" default="Upload File Dialog" />
+        <sequential>
+            <antform title="Swat4DP - @{title}"
+                     stylesheet="${swat.styles.dir}/style.properties"
+                     icon="${swat.styles.dir}/favicon.png">
+                <separator />
+                <fileSelectionProperty label="Select source file : "
+                                       property="uploadfile.source.file"
+                                       directoryChooser="false"
+                                       tooltip="Source file to be uploaded." />
+                <separator />
+                <textProperty label="Target directory : "
+                              property="uploadfile.target.dir"
+                              tooltip="DataPower target directory." />
+                <controlbar>
+                    <button label="Ok" type="ok" />
+                    <button label="Cancel" type="cancel" target="cancel" />
+                </controlbar>
+            </antform>
+
+            <fail unless="uploadfile.target.dir" message="Target directory has to be specified." />
+            <fail unless="uploadfile.source.file" message="Source file has not been selected." />
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: dialog-single-property-macro          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="dialog-single-property-macro">
+        <attribute name="title" default="Property Dialog" />
+        <attribute name="label" default="Property:" />
+        <attribute name="property" />
+        <attribute name="tooltip" default="Enter your value" />
+        <attribute name="fail-message" default="Property @{property} is a mandatory field." />
+        <sequential>
+            <antform title="Swat4DP - @{title}"
+                     stylesheet="${swat.styles.dir}/style.properties"
+                     icon="${swat.styles.dir}/favicon.png">
+                <textproperty label="@{label}" property="@{property}" tooltip="@{tooltip}" />
+                <separator />
+                <controlbar>
+                    <button label="Ok" type="ok" />
+                    <button label="Cancel" type="cancel" target="cancel" />
+                </controlbar>
+            </antform>
+            <fail unless="@{property}" message="@{fail-message}" />
+        </sequential>
+    </macrodef>
 </project>
