@@ -67,6 +67,54 @@
                 <replace path="//configuration/@domain" withText="@domain.name@" />
 
                 <!-- crypto objects -->
+                <regexp path="//configuration/CryptoKey/Filename/text()"
+                        if="crypto.object.key.file"
+                        pattern="${crypto.object.key.file}"
+                        replace="@crypto.object.key.file@" />
+                <regexp path="//configuration/CryptoKey/Alias/text()"
+                        if="crypto.object.pw.alias"
+                        pattern="${crypto.object.pw.alias}"
+                        replace="@crypto.object.pw.alias@" />
+
+                <regexp path="//configuration/CryptoCertificate/Filename/text()"
+                        if="crypto.object.cert.file"
+                        pattern="${crypto.object.cert.file}"
+                        replace="@crypto.object.cert.file@" />
+                <regexp path="//configuration/CryptoCertificate/Alias/text()"
+                        if="crypto.object.pw.alias"
+                        pattern="${crypto.object.pw.alias}"
+                        replace="@crypto.object.pw.alias@" />
+
+                <regexp path="//configuration/CryptoKey//@name"
+                        if="crypto.object.name"
+                        pattern="${crypto.object.name}"
+                        replace="@crypto.object.name@" />
+                <regexp path="//configuration/CryptoCertificate//@name"
+                        if="crypto.object.name"
+                        pattern="${crypto.object.name}"
+                        replace="@crypto.object.name@" />
+                <regexp path="//configuration/CryptoIdentCred//@name"
+                        if="crypto.object.name"
+                        pattern="${crypto.object.name}"
+                        replace="@crypto.object.name@" />
+                <regexp path="//configuration/CryptoIdentCred//text()"
+                        if="crypto.object.name"
+                        pattern="${crypto.object.name}"
+                        replace="@crypto.object.name@" />
+                <regexp path="//configuration/CryptoProfile/IdentCredential/text()"
+                        if="crypto.object.name"
+                        pattern="${crypto.object.name}"
+                        replace="@crypto.object.name@" />
+                <regexp path="//configuration/SSLServerProfile/@name"
+                        if="crypto.object.name"
+                        pattern="${crypto.object.name}"
+                        replace="@crypto.object.name@" />
+                <regexp path="//configuration/SSLServerProfile/Idcred/text()"
+                        if="crypto.object.name"
+                        pattern="${crypto.object.name}"
+                        replace="@crypto.object.name@" />
+
+                <!-- crypto objects: now try with crypto.cn only -->
                 <regexp path="//configuration/CryptoKey//@name"
                         if="crypto.cn"
                         pattern="${crypto.cn}"
