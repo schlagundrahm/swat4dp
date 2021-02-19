@@ -239,7 +239,7 @@
                     </filterset>
 
                     <!-- Copy and filter the object-list -->
-                    <echo message="Copying object-list filtered ..." />
+                    <echo message="Copying object-list filtered [@{object-list}] ..." />
                     <copy todir="dist/download" filtering="true" verbose="true" overwrite="true">
                         <fileset file="@{object-list}" />
                         <filterset refid="content.filter" />
