@@ -178,4 +178,72 @@
                                   overwrite="${password.alias.overwrite}" />
     </target>
 
+    <!-- ================================= 
+          target: 28-domain-upload-file 
+         ================================= -->
+    <target name="28-domain-upload-file" depends="declare,load-domain-props">
+
+        <!-- Present File Upload dialog if one of the mandatory fields is not set -->
+        <if>
+            <or>
+                <not>
+                    <isset property="uploadfile.source.file" />
+                </not>
+                <not>
+                    <isset property="uploadfile.target.dir" />
+                </not>
+            </or>
+            <then>
+                <dialog-upload-file-macro title="Upload file to domain ${swat.domain.name}" />
+            </then>
+        </if>
+
+        <upload-file-macro env="${mgr.target.env.name}"
+                           domain="${swat.domain.name}"
+                           source.file="${uploadfile.source.file}"
+                           target.dir="${uploadfile.target.dir}" />
+    </target>
+
+    <!-- ================================= 
+          target: 29-domain-delete-file 
+         ================================= -->
+    <target name="29-domain-delete-file" depends="declare,load-domain-props">
+
+        <!-- Present File Deletion dialog if one of the mandatory fields is not set -->
+        <if>
+            <or>
+                <not>
+                    <isset property="deletefile.path" />
+                </not>
+            </or>
+            <then>
+                <dialog-single-property-macro title="Delete file to domain ${swat.domain.name}"
+                                              property="deletefile.path"
+                                              label="DataPower File:" />
+            </then>
+        </if>
+
+        <delete-file-macro env="${mgr.target.env.name}" domain="${swat.domain.name}" path="${deletefile.path}" />
+    </target>
+    
+    <!-- ================================= 
+          target: 30-domain-service-quiesce              
+         ================================= -->
+    <target name="30-domain-service-quiesce"
+            depends="declare,init,load-domain-props"
+            description="--> quiesce a service on the given device-set associated with the selected environment.">
+
+        <!-- Confirm if productive environment -->
+        <dialog-confirm-productive-macro function="Service-Quiesce" lbl-spec="Environment: ${mgr.target.env.name}" />
+
+        <!-- Deploy the service on the device-set associated with this environment -->
+        <service-quiesce-macro env="${mgr.target.env.name}" />
+
+        <stringutil string="${service.name} - ${FILESTAMP}${line.separator}${mgr.target.env.name} - ${domain.name}"
+                    property="msgbox">
+            <messagebox title="${ant.project.name}" />
+        </stringutil>
+        <echo>${msgbox}</echo>
+    </target>
+
 </project>
