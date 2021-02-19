@@ -370,6 +370,13 @@
                             </xsl:with-param>
                         </xsl:call-template>
                     </xsl:when>
+                    <xsl:when test="local-name(.)='SSLClient'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="string('ssl.client.profile')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
                     <xsl:when test="local-name(.)='WSDLCachePolicy'">
                         <xsl:element name="{name()}">
                             <xsl:for-each select="*">
