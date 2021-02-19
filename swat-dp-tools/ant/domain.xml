@@ -155,4 +155,90 @@
         </sequential>
     </macrodef>
 
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: upload-file-macro     
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="upload-file-macro">
+        <attribute name="env" />
+        <attribute name="domain" />
+        <attribute name="source.file" />
+        <attribute name="target.dir" />
+        <sequential>
+
+            <!-- Prepare local variables -->
+            <property name="local.env" value="@{env}" />
+            <property name="local.device.set" value="${swat.device-set.name}" />
+            <property name="local.domain" value="@{domain}" />
+            <property name="local.content.dir" value="${basedir}/dist/uploadfile" />
+            <echo message="source.file = @{source.file}" />
+            <propertyregex property="local.content.file"
+                           input="@{source.file}"
+                           regexp="([^\\/]+)$"
+                           select="\1"
+                           casesensitive="false" />
+            <echo message="local.content.file = ${local.content.file}" />
+            <!-- Clear the upload directories -->
+            <delete dir="${local.content.dir}" />
+            <mkdir dir="${local.content.dir}" />
+
+            <copy file="@{source.file}" todir="${local.content.dir}" />
+
+            <!-- prepare soma-request setfile -->
+            <soma-prepare-request-macro soma.request="setfile"
+                                        domain="${local.domain}"
+                                        env="${swat.env.name}"
+                                        content.exists="true"
+                                        content.dir="${local.content.dir}"
+                                        content.file="${local.content.file}"
+                                        tmp.dir="uploadfile"
+                                        dp.file.name="@{target.dir}/${local.content.file}" />
+
+            <!-- Run the soma-request service-export -->
+            <soma-run-multi-requests-on-multi-devices-macro device.set="${local.device.set}"
+                                                            soma.requests="setfile"
+                                                            tmp.dir="uploadfile"
+                                                            check.response="true"
+                                                            check.response.pattern="skipped" />
+
+            <!-- clean up the upload directory as files contain the password in clear text -->
+            <delete>
+                <fileset dir="${local.content.dir}">
+                    <include name="*" />
+                </fileset>
+            </delete>
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: delete-file-macro     
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="delete-file-macro">
+        <attribute name="env" />
+        <attribute name="domain" />
+        <attribute name="path" />
+        
+        <sequential>
+
+            <!-- Prepare local variables -->
+            <property name="local.env" value="@{env}" />
+            <property name="local.device.set" value="${swat.device-set.name}" />
+            <property name="local.domain" value="@{domain}" />
+
+            <!-- prepare soma-request setfile -->
+            <soma-prepare-request-macro soma.request="deletefile"
+                                        domain="${local.domain}"
+                                        env="${swat.env.name}"
+                                        content.exists="false"
+                                        tmp.dir="deletefile"
+                                        dp.file.name="@{path}" />
+
+            <!-- Run the soma-request service-export -->
+            <soma-run-multi-requests-on-multi-devices-macro device.set="${local.device.set}"
+                                                            soma.requests="deletefile"
+                                                            tmp.dir="deletefile"
+                                                            check.response="true"
+                                                            check.response.pattern="skipped" />
+
+        </sequential>
+    </macrodef>
 </project>
