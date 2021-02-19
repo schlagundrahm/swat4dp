@@ -334,6 +334,7 @@
                     <replacetokens>
                         <token key="version" value="${project.version}" />
                         <token key="build.number" value="${buildNumber}" />
+                        <token key="build.time" value="${FILESTAMP}" />
                     </replacetokens>
                 </filterchain>
             </loadproperties>
