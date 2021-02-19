@@ -179,11 +179,14 @@
         <copy todir="${clone.target.dir}" filtering="true" verbose="true" overwrite="false">
             <fileset dir="${clone.source.dir}" defaultexcludes="false">
                 <include name="**/*.*" />
+                <include name="**/Jenkinsfile" />
                 <include name="**/.cvsignore" />
                 <exclude name="**/CVS" />
                 <exclude name="**/CVS/**" />
                 <exclude name="**/.svn" />
                 <exclude name="**/.svn/**" />
+                <exclude name="**/.git" />
+                <exclude name="**/.git/**" />
                 <exclude name="**/target/**" />
                 <exclude name="**/dist" />
                 <exclude name="**/dist/**/*" />
