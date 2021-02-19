@@ -141,10 +141,10 @@
             depends="declare,init">
 
         <!-- Deploy a service artifact on the device-set associated with this environment -->
-        <artifact-deploy-macro env="${env}"
-                               sourcedir="${basedir}/target/deploy"
-                               artifact="${artifact.id}"
-                               version="${SVCVERSION}"
+        <artifact-deploy-macro env="${deploy.environment}"
+                               sourcedir="${deploy.sourcedir}"
+                               artifact="${deploy.artifact.id}"
+                               version="${deploy.artifact.version}"
                                do-quiesce="true"
                                do-import="true"
                                flushCache="${deploy.flushcache}"
