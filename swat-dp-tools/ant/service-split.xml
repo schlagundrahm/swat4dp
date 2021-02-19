@@ -81,8 +81,8 @@
                     <available file="${swat.current.service.common.home}" type="dir" />
                 </and>
                 <then>
-                    <!-- Step 0: Remove the file object-list file first -->
-                    <echo message="Step 0: Remove the file object-list file first" />
+                    <!-- Step 0: Remove the common object list file -->
+                    <echo message="Step 0: Remove the dist/object-list/common-import-object-list.xml file" />
                     <delete file="dist/object-list/common-import-object-list.xml" />
                     <delete file="${export-filtered-file}" />
 
@@ -96,7 +96,10 @@
                             <ant antfile="${swat.current.service.common.home}/build.xml"
                                  target="34-service-object-list-create"
                                  inheritrefs="true"
-                                 useNativeBasedir="true" />
+                                 useNativeBasedir="true">
+                                <property name="service.name" value="common"/>
+                                <property name="swat.current.service.home" value="${swat.current.service.common.home}" />
+                            </ant>
                         </then>
                         <else>
                             <echo message="Step 1a: File is present, skipping" />
