@@ -234,7 +234,7 @@
                 <isset property="domain.name" />
             </not>
             <then>
-                <echo message="ATTENTION: using swat-dp-infra domain name as sevice specific domain name is not set!" />
+                <echo message="ATTENTION: using swat-dp-infra domain name as service specific domain name is not set!" />
                 <property name="domain.name" value="${swat.domain.name}" />
             </then>
         </if>
