@@ -16,12 +16,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
 import java.util.Vector;
-
-import javax.security.cert.CertificateException;
-import javax.security.cert.CertificateExpiredException;
-import javax.security.cert.CertificateNotYetValidException;
-import javax.security.cert.X509Certificate;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
@@ -129,7 +129,8 @@ public class ValidateCertificate extends Task {
         X509Certificate cert = null;
         try {
             inStream = new FileInputStream(file);
-            cert = X509Certificate.getInstance(inStream);
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            cert = (X509Certificate)cf.generateCertificate(inStream);
             if (verbose) {
                 log("validating certificate file '" + file.getName() + "' ...", Project.MSG_INFO);
             }
