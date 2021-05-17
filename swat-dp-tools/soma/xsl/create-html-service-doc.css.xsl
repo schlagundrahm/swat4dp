@@ -112,7 +112,7 @@
             <xsl:apply-templates select="//configuration/AppSecurityPolicy" />
             <xsl:apply-templates select="//configuration/WSEndpointRewritePolicy" />
             <hr />
-            <p></p>
+            <p align="center">Service Files</p>
             <xsl:apply-templates select="//files" />
          </body>
       </html>

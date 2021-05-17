@@ -372,6 +372,17 @@
                <xsl:with-param name="color" select="$colorBackend" />
             </xsl:apply-templates>
          </xsl:if>
+         
+         <xsl:if test="count(SSLClient[@class='SSLClientProfile']) > 0">
+            <xsl:variable name="clientprofile" select="SSLClient[@class='SSLClientProfile']/text()" />
+            <xsl:message>
+               <xsl:value-of select="concat('SSL Client Profile: ', $clientprofile)" />
+            </xsl:message>
+            <xsl:apply-templates select="$vMainDoc//SSLClientProfile[@name = $clientprofile]">
+               <xsl:with-param name="startposX" select="$conX" />
+               <xsl:with-param name="color" select="$colorBackend" />
+            </xsl:apply-templates>
+         </xsl:if>
 
          <xsl:variable name="shapeBY" select="$shapeSY + ($shapeSH - $shapeBH) div 2" />
          <rect x="{$shapeBX}" y="{$shapeBY}" width="{$shapeBW}" height="{$shapeBH}" rx="{$shapeR}" ry="{$shapeR}"
@@ -482,6 +493,17 @@
                <xsl:with-param name="color" select="$colorBackend" />
             </xsl:apply-templates>
          </xsl:if>
+         
+         <xsl:if test="count(SSLClient[@class='SSLClientProfile']) > 0">
+            <xsl:variable name="clientprofile" select="SSLClient[@class='SSLClientProfile']/text()" />
+            <xsl:message>
+               <xsl:value-of select="concat('SSL Client Profile: ', $clientprofile)" />
+            </xsl:message>
+            <xsl:apply-templates select="$vMainDoc//SSLClientProfile[@name = $clientprofile]">
+               <xsl:with-param name="startposX" select="$conX" />
+               <xsl:with-param name="color" select="$colorBackend" />
+            </xsl:apply-templates>
+         </xsl:if>
 
          <xsl:variable name="shapeBY" select="$shapeSY + ($shapeSH - $shapeBH) div 2" />
          <rect x="{$shapeBX}" y="{$shapeBY}" width="{$shapeBW}" height="{$shapeBH}" rx="{$shapeR}" ry="{$shapeR}"
@@ -537,7 +559,17 @@
             </div>
             <xsl:if test="$fshtype = 'HTTPSSourceProtocolHandler'">
                <div class="detail" xmlns="http://www.w3.org/1999/xhtml">
-                  <xsl:value-of select="concat('SSL: ', $fshnode/SSLProxy)" />
+                  <xsl:choose>
+                    <xsl:when test="count($fshnode/SSLProxy) > 0">
+                        <xsl:value-of select="concat('SSL: ', $fshnode/SSLProxy)" />
+                    </xsl:when>
+                    <xsl:when test="count($fshnode/SSLServer) > 0">
+                        <xsl:value-of select="concat('SSL: ', $fshnode/SSLServer)" />
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="concat('SSL: ', 'not found!')" />
+                    </xsl:otherwise>
+                  </xsl:choose>
                </div>
             </xsl:if>
          </foreignObject>
@@ -590,12 +622,21 @@
                <xsl:value-of select="concat(position(), '. FSH: ', text())" />
             </div>
             <div class="detail" xmlns="http://www.w3.org/1999/xhtml">
-               <xsl:value-of
-                  select="concat(substring-before(@class,'SourceProtocolHandler'), ' - ', $fshnode/LocalAddress, ':', $fshnode/LocalPort)" />
+               <xsl:value-of select="concat(substring-before(@class,'SourceProtocolHandler'), ' - ', $fshnode/LocalAddress, ':', $fshnode/LocalPort)" />
             </div>
             <xsl:if test="$fshtype = 'HTTPSSourceProtocolHandler'">
                <div class="detail" xmlns="http://www.w3.org/1999/xhtml">
-                  <xsl:value-of select="concat('SSL: ', $fshnode/SSLProxy)" />
+                  <xsl:choose>
+                    <xsl:when test="count($fshnode/SSLProxy) > 0">
+                        <xsl:value-of select="concat('SSL: ', $fshnode/SSLProxy)" />
+                    </xsl:when>
+                    <xsl:when test="count($fshnode/SSLServer) > 0">
+                        <xsl:value-of select="concat('SSL: ', $fshnode/SSLServer)" />
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="concat('SSL: ', 'not found!')" />
+                    </xsl:otherwise>
+                  </xsl:choose>
                </div>
             </xsl:if>
          </foreignObject>
@@ -606,6 +647,14 @@
 
       <xsl:if test="$fshtype = 'HTTPSSourceProtocolHandler'">
          <xsl:apply-templates select="$vMainDoc//SSLProxyProfile[@name = $fshnode/SSLProxy]">
+            <xsl:with-param name="startposX" select="$shapeFX" />
+            <xsl:with-param name="color" select="$colorFrontside" />
+         </xsl:apply-templates>
+         <xsl:apply-templates select="$vMainDoc//SSLServerProfile[@name = $fshnode/SSLServer]">
+            <xsl:with-param name="startposX" select="$shapeFX" />
+            <xsl:with-param name="color" select="$colorFrontside" />
+         </xsl:apply-templates>
+         <xsl:apply-templates select="$vMainDoc//SSLSNIServerProfile[@name = $fshnode/SSLServer]">
             <xsl:with-param name="startposX" select="$shapeFX" />
             <xsl:with-param name="color" select="$colorFrontside" />
          </xsl:apply-templates>
