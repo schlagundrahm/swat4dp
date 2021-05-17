@@ -25,8 +25,8 @@
    <xsl:template match="/datapower-configuration">
       <xsl:copy>
          <xsl:attribute name="version">
-				<xsl:value-of select="@version" />
-			</xsl:attribute>
+             <xsl:value-of select="@version" />
+         </xsl:attribute>
          <xsl:apply-templates />
       </xsl:copy>
    </xsl:template>
@@ -144,6 +144,13 @@
                      </xsl:with-param>
                   </xsl:call-template>
                </xsl:when>
+               <xsl:when test="local-name(.)='SSLSNIServer'">
+                  <xsl:call-template name="set-token">
+                     <xsl:with-param name="key">
+                        <xsl:value-of select="string('xml.mgmt.ssl.profile')" />
+                     </xsl:with-param>
+                  </xsl:call-template>
+               </xsl:when>
                <xsl:otherwise>
                   <xsl:copy-of select="." />
                </xsl:otherwise>
@@ -200,6 +207,13 @@
                   </xsl:call-template>
                </xsl:when>
                <xsl:when test="local-name(.)='SSLServer'">
+                  <xsl:call-template name="set-token">
+                     <xsl:with-param name="key">
+                        <xsl:value-of select="string('web.mgmt.ssl.profile')" />
+                     </xsl:with-param>
+                  </xsl:call-template>
+               </xsl:when>
+               <xsl:when test="local-name(.)='SSLSNIServer'">
                   <xsl:call-template name="set-token">
                      <xsl:with-param name="key">
                         <xsl:value-of select="string('web.mgmt.ssl.profile')" />
@@ -276,6 +290,13 @@
                   </xsl:call-template>
                </xsl:when>
                <xsl:when test="local-name(.)='SSLServer'">
+                  <xsl:call-template name="set-token">
+                     <xsl:with-param name="key">
+                        <xsl:value-of select="string('rest.mgmt.ssl.profile')" />
+                     </xsl:with-param>
+                  </xsl:call-template>
+               </xsl:when>
+               <xsl:when test="local-name(.)='SSLSNIServer'">
                   <xsl:call-template name="set-token">
                      <xsl:with-param name="key">
                         <xsl:value-of select="string('rest.mgmt.ssl.profile')" />
