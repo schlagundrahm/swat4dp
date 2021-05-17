@@ -179,11 +179,18 @@
                          withText="@ltpa.key.file@" />
                 <replace path="//configuration/AAAPolicy/Authenticate/AULTPAKeyFilePassword[text()!='']/text()"
                          withText="@ltpa.was7.key.pw@" />
+                <replace path="//configuration/AAAPolicy/Authenticate/AUMapURL[text()!='']/text()"
+                         withText="@aaa.au.file@" />
                 <replace path="//configuration/AAAPolicy/Authenticate/AUCacheAllow/text()"
                          withText="@aaa.au.cache.allow@" />
                 <replace path="//configuration/AAAPolicy/Authenticate/AUCacheTTL/text()"
                          withText="@aaa.au.cache.ttl@" />
 
+                <replace path="//configuration/AAAPolicy/MapResource/MRMapURL[text()!='']/text()"
+                         withText="@aaa.mr.file@" />
+
+                <replace path="//configuration/AAAPolicy/Authorize/AZMapURL[text()!='']/text()"
+                         withText="@aaa.az.file@" />
                 <replace path="//configuration/AAAPolicy/Authorize/AZCacheAllow/text()"
                          withText="@aaa.az.cache.allow@" />
                 <replace path="//configuration/AAAPolicy/Authorize/AZCacheTTL/text()" withText="@aaa.az.cache.ttl@" />
