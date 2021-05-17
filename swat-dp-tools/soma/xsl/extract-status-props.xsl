@@ -56,7 +56,7 @@
         </xsl:for-each>
     </xsl:template>
     
-        <xsl:template match="imported-objects">
+    <xsl:template match="imported-objects">
         <xsl:text># imported-objects&#xa;</xsl:text>
         <xsl:for-each select="object">
             <xsl:value-of select="concat('status.import.object.', position(), '.', @class, '=', @status,'&#xa;')" />

@@ -34,6 +34,7 @@
         <echo message="current basedir = ${basedir}" />
         <echo message="current project = ${ant.project.name}" />
         <echo message="---------- predefined properties ----------" />
+        <echoproperties prefix="swat" />
         <echoproperties regex="(mgr\.target\.device|mgr\.target\.user|confirm|overwrite)" />
     </target>
 
