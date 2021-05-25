@@ -144,6 +144,10 @@
                                    objects="'${svc.20.objects}'" />
             <extract-objects-macro input="${export-filtered-file}"
                                    style="${split-objects-style}"
+                                   output="${split-dir}/${xcfg-files-prefix}-22-oauth.xcfg"
+                                   objects="'${svc.22.objects}'" />
+            <extract-objects-macro input="${export-filtered-file}"
+                                   style="${split-objects-style}"
                                    output="${split-dir}/${xcfg-files-prefix}-25-style-helper.xcfg"
                                    objects="'${svc.25.objects}'" />
             <extract-objects-macro input="${export-filtered-file}"
