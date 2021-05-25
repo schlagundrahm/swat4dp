@@ -921,7 +921,7 @@
             </if>
         </sequential>
     </macrodef>
-    
+
     <!-- = = = = = = = = = = = = = = = = =
           macrodef: service-quiesce-macro          
          = = = = = = = = = = = = = = = = = -->
