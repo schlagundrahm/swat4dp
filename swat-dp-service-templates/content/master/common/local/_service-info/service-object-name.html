@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>@service.object.name@ | @service.object.class@</title>
+</head>
+<style>
+#service-info {
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+	text-align: left;
+	border-collapse: collapse;
+	margin: 20px;
+}
+
+#service-info table {
+	border: 2px solid #69c;
+	margin: 20px;
+	border-collapse: inherit;
+}
+
+#service-info th {
+	font-weight: normal;
+	font-size: 1.5em;
+	color: #039;
+	border-bottom: 1px dashed #69c;
+	padding: 12px 17px;
+	text-align: center;
+}
+
+#service-info td {
+	color: #669;
+	border: 1px solid #69c;
+	padding: 7px 17px;
+}
+
+#service-info tbody tr:hover td {
+	color: #339;
+	background: #d0dafd;
+}
+
+#service-info table tbody:nth-child(odd) {
+	background: #e8effc;
+}
+</style>
+<body id="service-info">
+	<table
+		summary="Service Information @service.object.class@: @service.object.name@">
+		<thead>
+			<tr>
+				<th colspan="2">
+					<div id="service.object.class" title="Service Object Class">@service.object.class@</div>
+					<div id="service.object.name" title="Service Object Name">@service.object.name@</div>
+				</th>
+			</tr>
+		</thead>
+		<tfoot>
+			<tr>
+				<td colspan="2"><em><a href="./">Services Overview</a> </em></td>
+			</tr>
+		</tfoot>
+		<tbody>
+			<tr>
+				<td>Service Summary</td>
+				<td>
+					<div id="service.summary" title="Service Summary">@service.summary@</div>
+				</td>
+			</tr>
+			<tr>
+				<td>Service Description</td>
+				<td>
+					<div id="service.description" title="Service Description">@description@</div>
+				</td>
+			</tr>
+		</tbody>
+
+		<tbody>
+			<tr>
+				<td>Maven Group ID</td>
+				<td>
+					<div id="groupId" title="Group ID">@groupId@</div>
+				</td>
+			</tr>
+			<tr>
+				<td>Maven Artifact ID</td>
+				<td>
+					<div id="artifactId" title="Artifact ID">@artifactId@</div>
+				</td>
+			</tr>
+			<tr>
+				<td>Maven Version</td>
+				<td>
+					<div id="version" title="Version">@version@</div>
+				</td>
+			</tr>
+		</tbody>
+
+		<tbody>
+			<tr>
+				<td>Build Time</td>
+				<td>
+					<div id="build.time" title="Build Time">@build.time@</div>
+				</td>
+			</tr>
+			<tr>
+				<td>Build User</td>
+				<td>
+					<div id="build.user" title="Build User">@build.user@</div>
+				</td>
+			</tr>
+		</tbody>
+
+		<tbody>
+			<tr>
+				<td>Swat4DP Zone</td>
+				<td>
+					<div id="zone.name" title="Zone">@zone.name@</div>
+				</td>
+			</tr>
+			<tr>
+				<td>Swat4DP Environment</td>
+				<td>
+					<div id="env.name" title="Environment">@env.name@</div>
+				</td>
+			</tr>
+			<tr>
+				<td>Swat4DP Application Domain</td>
+				<td>
+					<div id="domain.name" title="Domain">@domain.name@</div>
+				</td>
+			</tr>
+			<tr>
+				<td>Swat4DP Service Name</td>
+				<td>
+					<div id="service.name" title="Service Name">@service.name@</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>

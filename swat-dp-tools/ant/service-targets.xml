@@ -314,7 +314,7 @@
                                    service="${service.name}"
                                    class="${service.object.class}" />
     </target>
-    
+
     <!-- ================================= 
           target: 39-service-quiesce              
          ================================= -->
@@ -334,7 +334,7 @@
         </stringutil>
         <echo>${msgbox}</echo>
     </target>
-    
+
     <!-- ================================= 
           target: 39-service-unquiesce              
          ================================= -->

@@ -293,7 +293,7 @@
                     </not>
                 </condition>
             </fail>
-            
+
             <fail message="Could not determine the home directory for service @{service}!">
                 <condition>
                     <not>
@@ -305,7 +305,7 @@
             <!-- set current service properties -->
             <property name="swat.current.service.common.home"
                       location="${swat.current.service.parent}/${service.project.prefix}-common" />
-            
+
             <echo message="Setting property swat.current.service.home = ${swat.current.service.home}" />
 
 
@@ -327,7 +327,7 @@
                     <property name="buildNumber" value="${FILESTAMP}" />
                 </else>
             </if>
-            
+
             <echo message="Loading properties ${swat.current.service.home}/build.properties" />
             <loadproperties srcfile="${swat.current.service.home}/build.properties">
                 <filterchain>
@@ -338,7 +338,7 @@
                     </replacetokens>
                 </filterchain>
             </loadproperties>
-            
+
             <echo message="Loading properties ${swat.current.service.home}/config/@{env}.properties" />
             <loadproperties srcfile="${swat.current.service.home}/config/@{env}.properties" />
 
@@ -476,10 +476,10 @@
         <sequential>
             <echo message="Loading ${swat.dp.devices}/config/@{device}.properties" />
             <loadproperties srcfile="${swat.dp.devices}/config/@{device}.properties" />
-            
+
             <!-- NOTE: eventhough the devices project is not a service this property has to be set -->
             <property name="swat.current.service.home" location="${swat.dp.devices}" />
-            
+
         </sequential>
     </macrodef>
 

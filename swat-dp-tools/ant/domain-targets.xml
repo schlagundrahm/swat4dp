@@ -139,8 +139,8 @@
     </target>
 
     <!-- ================================= 
-              target: 26-domain-password-alias-deploy 
-             ================================= -->
+          target: 26-domain-password-alias-deploy 
+         ================================= -->
     <target name="26-domain-password-alias-deploy" depends="declare,load-domain-props">
 
         <!-- Present Password Alias dialog if one of the mandatory fields is not set -->

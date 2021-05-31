@@ -319,11 +319,11 @@
             <move file="${service.target.dir}/config/env.properties"
                   tofile="${service.target.dir}/config/${swat.env.short}.properties" />
             <move file="${service.target.dir}/master/common/local/service"
-                  tofile="${service.target.dir}/master/common/local/${service.name}" />
+                  tofile="${service.target.dir}/master/common/local/${service.name}" 
+                  failonerror="false" />
             <move file="${service.target.dir}/master/common/local/services/service"
-                  tofile="${service.target.dir}/master/common/local/services/${service.name}" />
-            <move file="${service.target.dir}/master/common/local/info/service-object-name.html"
-                  tofile="${service.target.dir}/master/common/local/info/${service.object.name}.html" />
+                  tofile="${service.target.dir}/master/common/local/services/${service.name}" 
+                  failonerror="false" />
         </sequential>
     </macrodef>
 
