@@ -165,14 +165,10 @@
             <for list="@{soma.requests}" delimiter="," param="foreach.soma.request">
                 <sequential>
                     <if>
-                        <matches pattern="^sleep[0-9]{1,3}$" string="@{foreach.soma.request}" />
+                        <matches pattern="^sleep$" string="@{foreach.soma.request}" />
                         <then>
-                            <propertyregex property="timer"
-                                           input="@{foreach.soma.request}"
-                                           regexp="^sleep([0-9]{1,3})$"
-                                           select="\1"
-                                           casesensitive="false" />
-                            <sleep seconds="${timer}" />
+                            <echo message="waiting ${swat.settings.timer.objectstaus.verify.delay}s ..." />
+                            <sleep seconds="${swat.settings.timer.objectstaus.verify.delay}" />
                         </then>
                         <else>
                             <soma-run-single-request-on-single-device-macro soma.request="@{foreach.soma.request}"
@@ -180,6 +176,56 @@
                                                                             tmp.dir="${local.tmp.dir}"
                                                                             check.response="${local.check.response}"
                                                                             check.response.pattern="${local.check.response.pattern}" />
+
+                            <if>
+                                <equals arg1="@{foreach.soma.request}" arg2="standby-status" />
+                                <then>
+                                    <xmltask source="dist/${local.tmp.dir}/@{foreach.soma.request}-response.xml">
+                                        <copy path="//*[local-name()='StandbyStatus2' and ./State/text()='active']/InterfaceType/text()"
+                                              property="interfaces.active.type"
+                                              append="true"
+                                              propertySeparator="," />
+                                        <copy path="//*[local-name()='StandbyStatus2' and ./State/text()='active']/Name/text()"
+                                              property="interfaces.active.name"
+                                              append="true"
+                                              propertySeparator="," />
+                                    </xmltask>
+                                    <echoproperties prefix="interfaces" />
+
+                                    <if>
+                                        <isset property="interfaces.active.name" />
+                                        <then>
+                                            <var name="index" value="1" />
+                                            <for list="${interfaces.active.name}" delimiter="," param="interface">
+                                                <sequential>
+                                                    <xmltask source="dist/${local.tmp.dir}/@{foreach.soma.request}-response.xml">
+                                                        <copy path="//*[local-name()='StandbyStatus2' and ./State/text()='active' and ./Name/text()='@{interface}']/InterfaceType/text()"
+                                                              property="interface.type" />
+                                                    </xmltask>
+
+                                                    <filterset id="yield-standby.filter.id">
+                                                        <filter token="interface.name" value="@{interface}" />
+                                                        <filter token="interface.type" value="${interface.type}" />
+                                                    </filterset>
+                                                    <soma-prepare-request-macro soma.request="yield-standby"
+                                                                                custom.filter="yield-standby.filter.id"
+                                                                                env="${local.env}"
+                                                                                domain="default"
+                                                                                content.exists="false" />
+                                                    <soma-run-single-request-on-single-device-macro soma.request="yield-standby"
+                                                                                                    device="${local.device}"
+                                                                                                    tmp.dir="${local.tmp.dir}"
+                                                                                                    check.response="${local.check.response}"
+                                                                                                    check.response.pattern="${local.check.response.pattern}" />
+                                                </sequential>
+                                            </for>
+                                        </then>
+                                    </if>
+                                    <echo message="waiting ${swat.settings.timer.yieldstandby.wait}s ..." />
+                                    <sleep seconds="${swat.settings.timer.yieldstandby.wait}" />
+                                </then>
+                            </if>
+
                         </else>
                     </if>
                 </sequential>

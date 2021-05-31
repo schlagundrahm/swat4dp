@@ -342,42 +342,45 @@
         <attribute name="primary" default="true" />
         <attribute name="do-save" default="false" />
         <attribute name="verify" default="true" />
+        <attribute name="do-standby" default="false" />
         <sequential>
             <!-- Prepare local variables -->
             <property name="local.env" value="@{env}" />
+            <property name="local.dir" value="${zip-dir}" />
             <property name="local.device.set" value="${swat.device-set.name}" />
             <property name="local.domain" value="${domain.name}" />
             <property name="local.service" value="${service.name}" />
+            <property name="local.file" value="${local.service}-${local.env}.zip" />
+            
+            <echoproperties prefix="local" />
 
             <!-- Clear the upload directories -->
             <delete dir="dist/upload" />
             <mkdir dir="dist/upload" />
 
-            <!-- prepare soma-request service-import -->
+            <!-- prepare soma-request status-get standby -->
             <if>
-                <equals arg1="@{do-import}" arg2="true" />
+                <or>
+                    <equals arg1="@{do-standby}" arg2="true" />
+                    <equals arg1="${swat.settings.deploy.do-standby}" arg2="true" />
+                </or>
                 <then>
-                    <soma-prepare-request-macro soma.request="service-import"
-                                                env="${local.env}"
-                                                domain="${local.domain}"
-                                                content.exists="true"
-                                                content.dir="${zip-dir}"
-                                                content.file="${local.service}-${local.env}.zip"
-                                                deployment.policy="@{deployment.policy}" />
-                    <var name="import.req.list" value="service-import" />
+                    <soma-prepare-request-macro soma.request="standby-status" env="${local.env}" domain="${local.domain}" content.exists="false" />
+                    <var name="standby.req.list" value="standby-status" />
                 </then>
                 <else>
-                    <var name="import.req.list" value="" />
+                    <var name="standby.req.list" value="" />
                 </else>
             </if>
 
             <!-- prepare soma-request checkpoint-save -->
             <filterset id="checkpoint.filter.id">
-                <filter token="checkpoint.name" value="${service.name}" />
+                <filter token="checkpoint.name" value="${local.service}" />
             </filterset>
             <if>
                 <or>
                     <equals arg1="@{do-checkpoint}" arg2="true" />
+                    <equals arg1="${swat.settings.deploy.do-checkpoint}" arg2="true" />
                     <equals arg1="${swat.env.type}" arg2="productive" />
                 </or>
                 <then>
@@ -395,6 +398,24 @@
                 </then>
                 <else>
                     <var name="checkpoint.req.list" value="" />
+                </else>
+            </if>
+
+            <!-- prepare soma-request service-import -->
+            <if>
+                <equals arg1="@{do-import}" arg2="true" />
+                <then>
+                    <soma-prepare-request-macro soma.request="service-import"
+                                                env="${local.env}"
+                                                domain="${local.domain}"
+                                                content.exists="true"
+                                                content.dir="${local.dir}"
+                                                content.file="${local.file}"
+                                                deployment.policy="@{deployment.policy}" />
+                    <var name="import.req.list" value="service-import" />
+                </then>
+                <else>
+                    <var name="import.req.list" value="" />
                 </else>
             </if>
 
@@ -422,7 +443,12 @@
 
             <!-- prepare soma-request service-quiesce/unquiesce -->
             <if>
-                <equals arg1="${service.object.name}" arg2="n/a" />
+                <or>
+                    <equals arg1="${service.object.name}" arg2="n/a" />
+                    <equals arg1="${service.object.name}" arg2="" />
+                    <equals arg1="${service.object.class}" arg2="n/a" />
+                    <equals arg1="${service.object.class}" arg2="" />
+                </or>
                 <then>
                     <var name="quiesce.req.list" value="" />
                     <var name="unquiesce.req.list" value="" />
@@ -484,8 +510,7 @@
                     <soma-prepare-request-macro soma.request="config-save"
                                                 env="${local.env}"
                                                 domain="${local.domain}"
-                                                content.exists="false"
-                                                content.dir="dist" />
+                                                content.exists="false" />
                     <var name="save.req.list" value="config-save" />
                 </then>
                 <else>
@@ -493,11 +518,12 @@
                 </else>
             </if>
             <!-- prepare soma-request list -->
-            <join-vars-macro result="inter1" arg1="${checkpoint.req.list}" arg2="${quiesce.req.list}" />
+            <join-vars-macro result="inter0" arg1="${standby.req.list}" arg2="${checkpoint.req.list}" />
+            <join-vars-macro result="inter1" arg1="${inter0}" arg2="${quiesce.req.list}" />
             <join-vars-macro result="inter2" arg1="${inter1}" arg2="${import.req.list}" />
             <join-vars-macro result="inter3" arg1="${inter2}" arg2="${flush.req.list}" />
             <join-vars-macro result="inter4" arg1="${inter3}" arg2="${unquiesce.req.list}" />
-            <join-vars-macro result="inter5" arg1="${inter4}" arg2="sleep15" />
+            <join-vars-macro result="inter5" arg1="${inter4}" arg2="sleep" />
             <join-vars-macro result="inter6" arg1="${inter5}" arg2="${verify.req.list}" />
             <join-vars-macro result="soma.request.list" arg1="${inter6}" arg2="${save.req.list}" />
             <echo message="Joined the list of requests to be [${soma.request.list}]." />
@@ -764,7 +790,7 @@
             <join-vars-macro result="inter2" arg1="${inter1}" arg2="${import.req.list}" />
             <join-vars-macro result="inter3" arg1="${inter2}" arg2="${flush.req.list}" />
             <join-vars-macro result="inter4" arg1="${inter3}" arg2="${unquiesce.req.list}" />
-            <join-vars-macro result="inter5" arg1="${inter4}" arg2="sleep15" />
+            <join-vars-macro result="inter5" arg1="${inter4}" arg2="sleep" />
             <join-vars-macro result="inter6" arg1="${inter5}" arg2="${verify.req.list}" />
             <join-vars-macro result="soma.request.list" arg1="${inter6}" arg2="${save.req.list}" />
             <echo message="Joined the list of requests to be [${soma.request.list}]." />

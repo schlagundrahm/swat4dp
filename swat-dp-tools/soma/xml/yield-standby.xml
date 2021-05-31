@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dp="http://www.datapower.com/schemas/management">
+    <soapenv:Body>
+        <dp:request xmlns:dp="http://www.datapower.com/schemas/management">
+            <dp:do-action>
+                <Yield@interface.type@Standby>
+                    <Interface>@interface.name@</Interface>
+                </Yield@interface.type@Standby>
+            </dp:do-action>
+        </dp:request>
+    </soapenv:Body>
+</soapenv:Envelope>
