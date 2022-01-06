@@ -169,6 +169,7 @@
         <sequential>
             <property name="export.service.object.name" value="${service.object.name}" />
             <property name="export.device.name" value="${swat.device.master}" />
+            <property name="export.tokenize.config" value="true" />
 
             <antform title="Swat4DP - @{title}"
                      stylesheet="${swat.styles.dir}/style.properties"
