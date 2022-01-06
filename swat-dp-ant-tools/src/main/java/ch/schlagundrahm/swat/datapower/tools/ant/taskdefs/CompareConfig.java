@@ -32,8 +32,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
@@ -269,7 +269,6 @@ public class CompareConfig extends Task {
         log(OUTPUT_SEPARATOR_3, 1);
 
         // check for identical files
-        @SuppressWarnings("unchecked")
         Collection<Entry<String, String>> same = CollectionUtils.intersection(c1.entrySet(), c2.entrySet());
 
         if (same != null && !same.isEmpty()) {
@@ -280,7 +279,6 @@ public class CompareConfig extends Task {
         }
 
         // check for files that exist in one archive only (exclusive)
-        @SuppressWarnings("unchecked")
         final Collection<String> only1 = CollectionUtils.subtract(c1.keySet(), c2.keySet());
 
         if (!only1.isEmpty()) {
@@ -290,7 +288,6 @@ public class CompareConfig extends Task {
             }
         }
 
-        @SuppressWarnings("unchecked")
         Collection<String> only2 = CollectionUtils.subtract(c2.keySet(), c1.keySet());
 
         if (!only2.isEmpty()) {
@@ -302,11 +299,10 @@ public class CompareConfig extends Task {
 
         // check for files that exist in both archives but are different
         // content-wise
-        @SuppressWarnings("unchecked")
         Collection<Entry<String, String>> difference1 = CollectionUtils.subtract(c1.entrySet(), c2.entrySet());
 
         @SuppressWarnings("unchecked")
-        Collection<Entry<String, String>> difference = CollectionUtils.select(difference1, new Predicate() {
+        Collection<Entry<String, String>> difference = CollectionUtils.select(difference1, new Predicate<Object>() {
 
             public boolean evaluate(Object object) {
                 Entry<String, String> entry = (Entry<String, String>) object;

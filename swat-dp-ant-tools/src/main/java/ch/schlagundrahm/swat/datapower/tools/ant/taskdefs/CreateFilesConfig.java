@@ -273,7 +273,7 @@ public class CreateFilesConfig extends Task {
 
         byte[] hash = null;
         try {
-            hash = DigestUtils.sha(is);
+            hash = DigestUtils.sha1(is);
         } finally {
             if (is != null) {
                 is.close();

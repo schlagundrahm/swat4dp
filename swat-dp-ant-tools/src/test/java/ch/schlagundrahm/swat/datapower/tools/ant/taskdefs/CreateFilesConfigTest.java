@@ -3,8 +3,9 @@
  */
 package ch.schlagundrahm.swat.datapower.tools.ant.taskdefs;
 
-import static org.junit.Assert.assertNotNull;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -60,7 +61,7 @@ class CreateFilesConfigTest {
     void testFilehash() throws Exception {
         File file = new File("src/test/resources/plaintext.txt");
 
-        assertNotNull("Input file is NULL!", file);
+        assertNotNull(file, "Input file is NULL!");
 
         byte[] data = Files.readAllBytes(file.toPath());
         MessageDigest digest = MessageDigest.getInstance("SHA-1");
