@@ -179,6 +179,90 @@
     </target>
 
     <!-- ================================= 
+          target: 27-domain-artifact              
+         ================================= -->
+    <target name="27-domain-artifact">
+
+        <!-- Step 1: Pack all services -->
+        <echo message="Step 1: Pack all services into one import file" />
+        <delete dir="dist/import/${swat.env.name}/${swat.domain.name}" />
+        <foreach target="domain-pack-service"
+                 list="${swat.service.list}"
+                 delimiter=","
+                 param="mgr.target.service.name"
+                 inheritall="true"
+                 inheritrefs="true" />
+        
+        <!-- Step 2: -->
+        <!-- Pack the service for the environment -->
+        <echo message="- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -" />
+        <echo message="Step 2:  ..." />
+        <property name="relative-import-dir" value="dist/import/${swat.env.name}/${swat.domain.name}" />
+        <property name="import-dir" value="${basedir}/${relative-import-dir}" />
+        <property name="files-dir" value="${import-dir}/master/common" />
+        <property name="xcfg-dir" value="${import-dir}/xcfg/common" />
+        <property name="pack-dir" value="${import-dir}/pack" />
+        <property name="zip-dir" value="${basedir}/dist" />
+        <property name="service.summary" value="env: ${swat.env.name} - services: ${swat.service.list}" />
+        
+        <!-- verify that all tokens within the files have been replaced -->
+        <verify-token-replacement-macro src-dir="${files-dir}" />
+
+        <!-- create files.xml -->
+        <createfilesconfig env="${swat.env.name}"
+                           createDpConfig="true"
+                           domain="${swat.domain.name}"
+                           comment="${service.summary}"
+                           targetdir="${import-dir}"
+                           targetfile="files.xml">
+            <fileset dir="${files-dir}">
+                <include name="**/*" />
+                <exclude name="**/*.xcfg" />
+                <exclude name="**/README" />
+                <exclude name="**/readme.txt" />
+            </fileset>
+        </createfilesconfig>
+
+        <!-- validating public keys i.e certificates if there are any -->
+        <validate-certs-macro source-dir="${files-dir}" />
+        
+        <!-- run schema validation on xcfg files -->
+        <validate-config-macro source-dir="${relative-import-dir}/xcfg/common" />
+
+        <!-- Combine the file files.xml and the additional .xcfg files into one 
+            export file -->
+        <combine-xcfg-files-macro input="${import-dir}/files.xml"
+                                  output="${import-dir}/export.xml"
+                                  xcfg-selection-expr="file:///${basedir}/${relative-import-dir}/xcfg/common/?select=*.xcfg" />
+        <delete file="${import-dir}/files.xml" />
+
+        <!-- Verify, that replacement tokens are all good -->
+        <verify-filter-xcfg-files-macro src-file="${import-dir}/export.xml" />
+
+        <!-- Pack the content to prepare for the final zip-file -->
+        <echo message="Copying to pack the zip-file..." />
+        <copy todir="${pack-dir}" filtering="false" verbose="true" overwrite="true">
+            <fileset dir="${files-dir}" />
+            <fileset dir="${import-dir}">
+                <filename name="export.xml" />
+            </fileset>
+        </copy>
+
+        <!-- Pack the final zip-file -->
+        <zip destfile="${zip-dir}/domain-${swat.domain.name}-${swat.env.name}.zip" basedir="${pack-dir}" />
+
+        <echo message="Done building the import-package for the domain ${swat.domain.name} for environment ${swat.env.name} in folder ${zip-dir}." />
+    </target>
+    
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: domain-pack-service 
+         - - - - - - - - - - - - - - - - - -->
+    <target name="domain-pack-service" depends="declare,load-service-props">
+        <domain-pack-service-macro service="${mgr.target.service.name}" />
+    </target>
+
+
+    <!-- ================================= 
           target: 28-domain-upload-file 
          ================================= -->
     <target name="28-domain-upload-file" depends="declare,load-domain-props">

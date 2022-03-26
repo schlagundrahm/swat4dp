@@ -199,6 +199,16 @@
              inheritrefs="true"
              useNativeBasedir="false" />
     </target>
+    
+    <!-- ================================= 
+          target: 27-domain-artifact 
+         ================================= -->
+    <target name="27-domain-artifact" depends="declare,load-domain-props" description="generate a deployment package for a domain containing all services in a sinlge zip archive">
+        <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
+             target="27-domain-artifact"
+             inheritrefs="true"
+             useNativeBasedir="false" />
+    </target>
 
     <!-- ================================= 
         target: 29-domain-documentation 

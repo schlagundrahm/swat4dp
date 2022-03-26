@@ -50,7 +50,7 @@
 
             <!-- Pack the individual service -->
             <ant antfile="${swat.current.service.home}/build.xml"
-                 target="32-service-pack2compare"
+                 target="33-service-pack2compare"
                  inheritrefs="true"
                  useNativeBasedir="true" />
 
@@ -58,7 +58,7 @@
             <if>
                 <available file="${swat.current.service.home}/dist/import/${swat.env.name}/xcfg/common" type="dir" />
                 <then>
-                    <copy todir="dist/import/${swat.env.name}/xcfg/common" verbose="true" overwrite="true">
+                    <copy todir="dist/import/${swat.env.name}/${swat.domain.name}/xcfg/common" verbose="true" overwrite="true">
                         <fileset dir="${swat.current.service.home}/dist/import/${swat.env.name}/xcfg/common"
                                  includes="**/*.xcfg" />
                     </copy>
@@ -66,6 +66,35 @@
             </if>
         </sequential>
     </macrodef>
+    
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: domain-pack-service-macro          
+         = = = = = = = = = = = = = = = = = -->
+        <macrodef name="domain-pack-service-macro">
+            <attribute name="service" />
+            <sequential>
+                <!-- Load the service props first -->
+                <load-service-props-macro zone="${swat.zone.name}"
+                                          env="${swat.env.name}"
+                                          domain="${swat.domain.name}"
+                                          service="@{service}" />
+
+                <!-- Pack the individual service -->
+                <ant antfile="${swat.current.service.home}/build.xml"
+                     target="33-service-pack2compare"
+                     inheritrefs="true"
+                     useNativeBasedir="true" />
+
+                <!-- Copy all import files to a sinlge directory -->
+                <copy todir="dist/import/${swat.env.name}/${swat.domain.name}" verbose="true" overwrite="true">
+                    <fileset dir="${swat.current.service.home}/dist/import/${swat.env.name}" />
+                </copy>
+                <!-- Copy empty-config file for further processing -->
+                <copy todir="dist/import/${swat.env.name}/${swat.domain.name}" filtering="true" verbose="true" overwrite="true">
+                    <fileset file="${swat.current.service.home}/dist/empty-config.xml" />
+                </copy>
+            </sequential>
+        </macrodef>
 
     <!-- = = = = = = = = = = = = = = = = =
           macrodef: domain-export-objects-macro          
