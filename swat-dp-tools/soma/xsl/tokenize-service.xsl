@@ -7,7 +7,7 @@
 <!-- restricted by GSA ADP Schedule Contract with IBM Corp. -->
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xalan="http://xml.apache.org/xslt"
     xmlns:env="http://www.w3.org/2003/05/soap-envelope" xmlns:dp="http://www.datapower.com/schemas/management"
-    xmlns:str="http://exslt.org/strings" exclude-result-prefixes="xalan str env">
+    exclude-result-prefixes="xalan env">
 
     <xsl:output method="xml" encoding="UTF-8" indent="yes" xalan:indent-amount="4" omit-xml-declaration="yes" />
     <xsl:strip-space elements="*" />
@@ -688,17 +688,6 @@
          </xsl:attribute>
             <xsl:for-each select="*">
                 <xsl:choose>
-                    <!--
-                        <ServicePortMatchRegexp>^{http://www.tgic.de/gsg/umd-registration-insurance/1.0}InsuranceRegistrationSOAPServicePort$</ServicePortMatchRegexp>
-                        <LocalEndpointProtocol>default</LocalEndpointProtocol>
-                        <LocalEndpointHostname>0.0.0.0</LocalEndpointHostname>
-                        <LocalEndpointPort>0</LocalEndpointPort>
-                        <LocalEndpointURI>/umd/registration/insurance/InsuranceRegistrationSOAPService</LocalEndpointURI>
-                        <FrontProtocol class="HTTPSourceProtocolHandler">UmdWebServiceEndpoint</FrontProtocol>
-                        <UseFrontProtocol>on</UseFrontProtocol>
-                        <WSDLBindingProtocol>soap-11</WSDLBindingProtocol>
-                        <FrontsidePortSuffix/>
-                    -->
                     <xsl:when test="local-name(.)='WSEndpointLocalRewriteRule'">
                         <xsl:element name="{name()}">
                             <xsl:for-each select="*">
@@ -797,18 +786,6 @@
                             </xsl:for-each>
                         </xsl:element>
                     </xsl:when>
-                    <!--
-                        <WSEndpointRemoteRewriteRule>
-                        <ServicePortMatchRegexp>^{http://www.tgic.de/gsg/umd-registration-insurance/1.0}InsuranceRegistrationSOAPServicePort$</ServicePortMatchRegexp>
-                        <RemoteEndpointProtocol>http</RemoteEndpointProtocol>
-                        <RemoteEndpointHostname>umd-app-e-01.ham.gdv.org</RemoteEndpointHostname>
-                        <RemoteEndpointPort>9080</RemoteEndpointPort>
-                        <RemoteEndpointURI>/umd/registration/insurance/InsuranceRegistrationSOAPService</RemoteEndpointURI>
-                        <RemoteMQQM/>
-                        <RemoteTibcoEMS/>
-                        <RemoteWebSphereJMS/>
-                        </WSEndpointRemoteRewriteRule>
-                    -->
                     <xsl:when test="local-name(.)='WSEndpointRemoteRewriteRule'">
                         <xsl:element name="{name()}">
                             <xsl:for-each select="*">
