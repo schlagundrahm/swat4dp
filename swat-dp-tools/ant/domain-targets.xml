@@ -181,7 +181,7 @@
     <!-- ================================= 
           target: 27-domain-artifact              
          ================================= -->
-    <target name="27-domain-artifact">
+    <target name="27-domain-artifact" depends="declare,load-domain-props">
 
         <!-- Step 1: Pack all services -->
         <echo message="Step 1: Pack all services into one import file" />
@@ -192,7 +192,7 @@
                  param="mgr.target.service.name"
                  inheritall="true"
                  inheritrefs="true" />
-        
+
         <!-- Step 2: -->
         <!-- Pack the service for the environment -->
         <echo message="- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -" />
@@ -204,7 +204,7 @@
         <property name="pack-dir" value="${import-dir}/pack" />
         <property name="zip-dir" value="${basedir}/dist" />
         <property name="service.summary" value="env: ${swat.env.name} - services: ${swat.service.list}" />
-        
+
         <!-- verify that all tokens within the files have been replaced -->
         <verify-token-replacement-macro src-dir="${files-dir}" />
 
@@ -225,7 +225,7 @@
 
         <!-- validating public keys i.e certificates if there are any -->
         <validate-certs-macro source-dir="${files-dir}" />
-        
+
         <!-- run schema validation on xcfg files -->
         <validate-config-macro source-dir="${relative-import-dir}/xcfg/common" />
 
@@ -248,12 +248,30 @@
             </fileset>
         </copy>
 
+        <!-- define artifact name -->
+        <if>
+            <and>
+                <isset property="swat.settings.domain.artifact.datestamp" />
+                <istrue value="${swat.settings.domain.artifact.datestamp}" />
+            </and>
+            <then>
+                <tstamp>
+                    <format property="DATESTAMP" pattern="yyyyMMdd" />
+                </tstamp>
+                <property name="domain.artifact.filename"
+                          value="domain-${swat.domain.name}-${swat.env.name}-${DATESTAMP}.zip" />
+            </then>
+            <else>
+                <property name="domain.artifact.filename" value="domain-${swat.domain.name}-${swat.env.name}.zip" />
+            </else>
+        </if>
+
         <!-- Pack the final zip-file -->
-        <zip destfile="${zip-dir}/domain-${swat.domain.name}-${swat.env.name}.zip" basedir="${pack-dir}" />
+        <zip destfile="${zip-dir}/${domain.artifact.filename}" basedir="${pack-dir}" />
 
         <echo message="Done building the import-package for the domain ${swat.domain.name} for environment ${swat.env.name} in folder ${zip-dir}." />
     </target>
-    
+
     <!-- - - - - - - - - - - - - - - - - - 
           target: domain-pack-service 
          - - - - - - - - - - - - - - - - - -->
@@ -309,7 +327,7 @@
 
         <delete-file-macro env="${mgr.target.env.name}" domain="${swat.domain.name}" path="${deletefile.path}" />
     </target>
-    
+
     <!-- ================================= 
           target: 30-domain-service-quiesce              
          ================================= -->
