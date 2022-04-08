@@ -12,7 +12,7 @@
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dp="http://www.datapower.com/schemas/management">
     <soapenv:Body>
         <dp:request domain="@domain.name@" xmlns:dp="http://www.datapower.com/schemas/management">
-            <dp:get-filestore location="local:" annotated="true" layout-only="false" no-subdirectories="false" />
+            <dp:get-filestore location="@dp.filestore.location@" annotated="true" layout-only="false" no-subdirectories="false" />
         </dp:request>
     </soapenv:Body>
 </soapenv:Envelope>

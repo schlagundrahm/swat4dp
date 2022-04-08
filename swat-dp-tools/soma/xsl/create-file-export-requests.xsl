@@ -6,68 +6,78 @@
     <xsl:strip-space elements="*" />
 
     <xsl:param name="domain" />
-    <xsl:param name="filestore" />
+    <xsl:param name="filelist" />
+
 
     <xsl:template match="//file">
 
-        <xsl:variable name="index" select="position()" />
-        <xsl:variable name="filename" select="@name" />
-
-        <xsl:variable name="request-filename"
-            select="concat('get-file-', $index,'-',translate(translate($filename,':',''),'/','_'),'.xml')" />
-        <xsl:variable name="response-filename"
-            select="concat('get-file-', $index,'-',translate(translate($filename,':',''),'/','_'),'-response.xml')" />
+        <xsl:variable name="filepattern" select="@name" />
         <xsl:message>
-            <xsl:value-of select="concat('filename=',$filename)" />
+            <xsl:value-of select="concat('file pattern = ', $filepattern)" />
         </xsl:message>
+        <xsl:message>
+            <xsl:value-of select="concat('file list = ',  $filelist)" />
+        </xsl:message>
+        <xsl:for-each select="document($filelist)//file[matches(./text(), $filepattern)]">
+            <xsl:variable name="index" select="position()" />
+            <xsl:variable name="filename" select="text()" />
+            <xsl:variable name="request-filename"
+                select="concat('get-file-', $index,'-',translate(translate($filename,':',''),'/','_'),'.xml')" />
+            <xsl:variable name="response-filename"
+                select="concat('get-file-', $index,'-',translate(translate($filename,':',''),'/','_'),'-response.xml')" />
+            <xsl:message>
+                <xsl:value-of select="concat('filename=',$filename)" />
+            </xsl:message>
 
-        <xsl:result-document method="xml" href="{$request-filename}" omit-xml-declaration="yes">
-            <xsl:comment>
-                <xsl:value-of select="concat(' Export file #', $index, ' ')" />
-            </xsl:comment>
-            <xsl:element name="soapenv:Envelope">
-                <xsl:element name="soapenv:Body">
-                    <xsl:element name="dp:request">
-                        <xsl:attribute name="domain"><xsl:value-of select="$domain" /></xsl:attribute>
+            <xsl:result-document method="xml" href="{$request-filename}" omit-xml-declaration="yes">
+                <xsl:comment>
+                    <xsl:value-of select="concat(' Export file #', $index, ' ')" />
+                </xsl:comment>
+                <xsl:element name="soapenv:Envelope">
+                    <xsl:element name="soapenv:Body">
+                        <xsl:element name="dp:request">
+                            <xsl:attribute name="domain"><xsl:value-of select="$domain" /></xsl:attribute>
 
-                        <xsl:element name="dp:get-file">
-                            <xsl:attribute name="name"><xsl:value-of select="$filename" /></xsl:attribute>
+                            <xsl:element name="dp:get-file">
+                                <xsl:attribute name="name"><xsl:value-of select="$filename" /></xsl:attribute>
+                            </xsl:element>
                         </xsl:element>
                     </xsl:element>
                 </xsl:element>
-            </xsl:element>
-        </xsl:result-document>
-        <xsl:element name="fileresponse">
-            <xsl:attribute name="path">
+            </xsl:result-document>
+            <xsl:element name="fileresponse">
+                <xsl:attribute name="path">
             <xsl:value-of select="substring-before(substring-after($filename, ':/'), '/')" />
          </xsl:attribute>
-            <xsl:attribute name="location">
+                <xsl:attribute name="location">
             <xsl:call-template name="get-file-location">
                <xsl:with-param name="input" select="$filename" />
             </xsl:call-template>
          </xsl:attribute>
-            <xsl:attribute name="file">
+                <xsl:attribute name="file">
             <xsl:call-template name="get-file-name">
                <xsl:with-param name="input" select="$filename" />
             </xsl:call-template>
          </xsl:attribute>
-            <xsl:value-of select="$response-filename" />
-        </xsl:element>
+                <xsl:value-of select="$response-filename" />
+            </xsl:element>
+        </xsl:for-each>
 
     </xsl:template>
+
 
     <xsl:template match="//dir">
 
         <xsl:variable name="dirname" select="@name" />
         <xsl:message>
-            <xsl:value-of select="concat('dirname=',$dirname)" />
+            <xsl:value-of select="concat('dirname = ',$dirname)" />
         </xsl:message>
         <xsl:message>
-            <xsl:value-of select="concat('filestore=',$filestore)" />
+            <xsl:value-of select="concat('file list = ', $filelist)" />
         </xsl:message>
-        <xsl:for-each select="document($filestore)//directory[@name=$dirname]/file/@name">
+        <xsl:for-each select="document($filelist)//file[starts-with(text(), $dirname)]">
             <xsl:variable name="index" select="position()" />
-            <xsl:variable name="filename" select="concat($dirname, '/', .)" />
+            <xsl:variable name="filename" select="text()" />
             <xsl:variable name="request-filename"
                 select="concat('get-file-', $index,'-',translate(translate($filename,':',''),'/','_'),'.xml')" />
             <xsl:variable name="response-filename"

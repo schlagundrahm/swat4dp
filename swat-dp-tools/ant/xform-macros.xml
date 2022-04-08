@@ -148,12 +148,20 @@
             <echo message="Create a soma request to export files from a given domain [input=@{input}]" />
             <delete file="@{output}" />
             <xslt processor="trax"
+                  in="${basedir}/dist/download/filestore-export-response.xml"
+                  style="${swat.dp.tools}/soma/xsl/convert-filestore-export-response.xsl"
+                  out="${basedir}/dist/download/filestore-file-list.xml"
+                  classpathref="swat.dp.tools.classpath">
+                <param name="domain" expression="@{domain}" />
+                <factory name="net.sf.saxon.TransformerFactoryImpl" />
+            </xslt>
+            <xslt processor="trax"
                   in="@{input}"
                   style="${swat.dp.tools}/soma/xsl/create-file-export-requests.xsl"
                   out="@{output}"
                   classpathref="swat.dp.tools.classpath">
                 <param name="domain" expression="@{domain}" />
-                <param name="filestore" expression="${basedir}/dist/download/filestore-export-response.xml" />
+                <param name="filelist" expression="${basedir}/dist/download/filestore-file-list.xml" />
                 <factory name="net.sf.saxon.TransformerFactoryImpl" />
             </xslt>
         </sequential>
@@ -287,8 +295,8 @@
         <sequential>
             <echo message="verifing token replacement in @{src-dir} ..." />
             <!-- look for files containing the standard replacement tokens -->
-            <fileset id="tokens-in-file" dir="@{src-dir}" excludesfile="${binary.excludes}" excludes="**/readme.txt" >
-                <containsregexp expression="@[0-9a-zA-Z.-_]*@"/>
+            <fileset id="tokens-in-file" dir="@{src-dir}" excludesfile="${binary.excludes}" excludes="**/readme.txt">
+                <containsregexp expression="@[0-9a-zA-Z.-_]*@" />
             </fileset>
             <echo message="tokens-in-file: ${toString:tokens-in-file}" />
             <fail message="Found tokens that have not been replaced in one or more files: ${toString:tokens-in-file}'">
@@ -299,7 +307,7 @@
         </sequential>
     </macrodef>
 
-	<!-- ================================= 
+    <!-- ================================= 
           macrodef: verify-soma-response-macro 
          ================================= -->
     <macrodef name="verify-soma-response-macro">
@@ -357,7 +365,8 @@
             <delete dir="${swat.current.service.home}/dist/@{tmp.dir}/@{soma.request}" />
 
             <!-- Unpack the backup zip file -->
-            <unzip src="${swat.current.service.home}/dist/@{tmp.dir}/@{soma.request}.zip" dest="dist/@{tmp.dir}/@{soma.request}" />
+            <unzip src="${swat.current.service.home}/dist/@{tmp.dir}/@{soma.request}.zip"
+                   dest="dist/@{tmp.dir}/@{soma.request}" />
         </sequential>
     </macrodef>
 
@@ -719,6 +728,166 @@
                     <include name="*.css" />
                 </fileset>
             </copy>
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: export-filestore-macro          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="export-filestore-macro">
+        <attribute name="env" />
+        <attribute name="device" />
+        <attribute name="domain" />
+        <attribute name="location" default="local:" />
+
+        <sequential>
+            <!-- Prepare the soma-request getfilestore -->
+            <prepare-export-filestore-macro domain="@{domain}" env="@{env}" location="@{location}" />
+
+            <!-- Run the soma-request getfilestore -->
+            <soma-run-single-request-on-single-device-macro device="@{device}"
+                                                            soma.request="filestore-export"
+                                                            tmp.dir="download"
+                                                            check.response="true" />
+
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: export-files-macro          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="export-files-macro">
+        <attribute name="env" />
+        <attribute name="device" />
+        <attribute name="domain" />
+        <attribute name="file-list" default="config/export/service-export-file-list.xml" />
+
+        <sequential>
+            <!-- Create the get-file requests according the service-export-file-list -->
+            <prepare-export-files-macro domain="@{domain}" env="@{env}" file-list="@{file-list}" />
+
+            <for param="getfile">
+
+                <mappedresources>
+                    <fileset dir="${basedir}/dist/download/files/" excludes="get-file.xml" />
+                    <mapper type="regexp" from="([\w-\.]*)\.xml" to="\1" />
+                </mappedresources>
+
+                <sequential>
+                    <echo message="Download @{getfile} ..." />
+                    <soma-run-single-request-on-single-device-macro soma.request="@{getfile}"
+                                                                    device="@{device}"
+                                                                    tmp.dir="download/files"
+                                                                    check.response="false" />
+
+
+                    <!-- Base64 Decode the extracted file -->
+
+                    <!-- base64-decode-macro infile="dist/download/files/@{soma.request}.b64"
+                                             outfile="dist/@{tmp.dir}/@{soma.request}.zip" / -->
+                </sequential>
+            </for>
+
+            <for param="response">
+                <fileset dir="${basedir}/dist/download/files/" includes="*-response.xml" excludes="get-file.xml" />
+                <sequential>
+                    <xslt processor="trax"
+                          in="@{response}"
+                          style="${swat.dp.tools}/soma/xsl/extract-file-from-getfile-response.xsl"
+                          out="@{response}.b64"
+                          classpathref="swat.dp.tools.classpath">
+                        <param name="device" expression="@{device}" />
+                        <param name="domain" expression="@{domain}" />
+                        <factory name="net.sf.saxon.TransformerFactoryImpl" />
+                    </xslt>
+                </sequential>
+            </for>
+
+            <for param="file">
+                <fileset dir="${basedir}/dist/download/service-export/" includes="**/*.b64" />
+
+                <sequential>
+                    <propertyregex property="newfile"
+                                   input="@{file}"
+                                   regexp="(.*)\.b64"
+                                   select="\1"
+                                   casesensitive="false" />
+                    <echo message="DEBUG: decode @{file} to ${newfile}" />
+                    <base64-decode-macro infile="@{file}" outfile="${newfile}" />
+                    <var name="newfile" unset="true" />
+                    <delete file="@{file}" />
+                </sequential>
+            </for>
+
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: prepare-export-filestore-macro          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="prepare-export-filestore-macro">
+        <attribute name="domain" />
+        <attribute name="env" />
+        <attribute name="location" default="local:" />
+        <sequential>
+
+            <!-- Prepare filter for the soma-request -->
+            <filterset id="filstore.filter.id">
+                <filter token="dp.filestore.location" value="@{location}" />
+            </filterset>
+
+            <!-- Prepare the soma-request filestore-export -->
+            <soma-prepare-request-macro soma.request="filestore-export"
+                                        domain="@{domain}"
+                                        content.exists="false"
+                                        tmp.dir="download"
+                                        custom.filter="filstore.filter.id" />
+
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: prepare-export-files-macro          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="prepare-export-files-macro">
+        <attribute name="domain" />
+        <attribute name="env" />
+        <attribute name="file-list" />
+        <sequential>
+            <if>
+                <available file="@{file-list}" />
+                <then>
+                    <!-- Define content filterset -->
+                    <filterset id="content.filter" onmissingfiltersfile="ignore">
+                        <filtersfile file="build.properties" />
+                        <filtersfile file="config/@{env}.properties" />
+                        <filtersfile file="${swat.dp.infra}/build.properties" />
+                        <filter token="build.time" value="${FILESTAMP}" />
+                    </filterset>
+
+                    <!-- Copy and filter the file-list -->
+                    <echo message="Copying file-list filtered ..." />
+                    <copy tofile="dist/download/export-file-list.xml" filtering="true" verbose="true" overwrite="true">
+                        <fileset file="@{file-list}" />
+                        <filterset refid="content.filter" />
+                    </copy>
+
+                    <!-- Step 2: Create all getfile requests -->
+                    <!-- Clear the download files directory -->
+                    <delete dir="dist/download/files" />
+                    <echo message="Step 2: Create all getfile requests" />
+                    <create-file-export-requests-macro input="dist/download/export-file-list.xml"
+                                                       output="dist/download/files/get-file.xml"
+                                                       domain="@{domain}" />
+                </then>
+                <else>
+                    <!-- Prepare the soma-request service-export -->
+                    <soma-prepare-request-macro soma.request="getfile"
+                                                domain="@{domain}"
+                                                content.exists="false"
+                                                tmp.dir="download" />
+                </else>
+            </if>
         </sequential>
     </macrodef>
 </project>
