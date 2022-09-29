@@ -13,35 +13,79 @@
 <!-- ====================================================================== -->
 <!-- Ant build file (http://ant.apache.org/) for Ant 1.8.2 or above. -->
 <!-- ====================================================================== -->
-<project name="Swat4DP" default="info" basedir=".">
+<project name="swat4dp" default="info" basedir=".">
 
     <!-- Copyright (c) 2010, 2013 schlag&rahm AG, Switzerland. All Rights Reserved -->
     <!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
     <!-- The schlag&rahm WebSphere Administration Toolkit for DataPower - Swat4DP -->
 
     <description>The schlag&amp;rahm WebSphere Administration Toolkit for DataPower - Swat4DP</description>
-    
-	<!-- ATTENTION
-	     works only when exceuted from within eclipse 
-	     and only if the runtime JRE is set to "Run int the same JRE as the workspace"
-	-->
-    <eclipse.convertPath resourcePath="${swat.customer}-swat-dp-infra" property="swat.dp.infra"/>
 
     <!-- The build.properties file defines the path to local jar files -->
     <property file="build.properties" />
 
-    <property file="${swat.dp.infra}/build.properties" />
-    <property file="${swat.dp.infra}/settings/${user.name}.properties" />
+    <condition property="runningWithinEclipse" else="false">
+        <typefound name="eclipse.convertPath" />
+    </condition>
+
+    <echo message="are we running within eclipse? ${runningWithinEclipse}" />
+
+    <echo message="trying to load '${user.home}/${ant.project.name}.properties' ..." />
+    <property file="${user.home}/${ant.project.name}.properties" />
+    <property name="config.filename" value="${user.home}/.${ant.project.name}/build.properties" />
+    <echo message="... or '${config.filename}'" />
+    <property file="${config.filename}" />
 
     <!-- Import the common tasks to all dp-administration -->
     <import file="${swat.dp.tools}/macros.xml" />
 
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: init                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="init" depends="declare">
+
+        <!-- FIXME: remove -->
+        <echoproperties prefix="swat" />
+
+        <if>
+            <!-- 
+                 works only when exceuted from within eclipse 
+                 and only if the runtime JRE is set to "Run int the same JRE as the workspace"
+            -->
+            <typefound name="eclipse.convertPath" />
+            <then>
+                <eclipse.convertPath resourcePath="${swat.customer}-swat-dp-infra" property="swat.dp.infra" />
+                <echo message="running within Eclipse (${swat.dp.infra})" />
+            </then>
+            <!-- we're not running within eclipse therefore we assume that all mandatory properties are defined in the ~/.swat4dp/build.properies file -->
+            <elseif>
+                <isset property="swat.${swat.customer}.customer.home" />
+                <then>
+                    <propertycopy property="swat.dp.customer.home" from="swat.${swat.customer}.customer.home" />
+                    <property name="swat.dp.infra" value="${swat.dp.customer.home}/${swat.customer}-swat-dp-infra" />
+                    <echo message="setting swat.dp.infra to ${swat.dp.infra}" />
+                </then>
+            </elseif>
+            <elseif>
+                <isset property="swat.dp.customer.home" />
+                <then>
+                    <property name="swat.dp.infra" value="${swat.dp.customer.home}/${swat.customer}-swat-dp-infra" />
+                    <echo message="setting swat.dp.infra to ${swat.dp.infra}" />
+                </then>
+            </elseif>
+            <else>
+                <fail message="The property 'swat.dp.customer.home' has not been defined! Either you're not running within Eclipse or didn't specify the property in your ~/.swat4dp/build.properties file." />
+            </else>
+        </if>
+        <property file="${swat.dp.infra}/build.properties" />
+        <property file="${swat.dp.infra}/settings/${user.name}.properties" />
+    </target>
+
+
     <!-- ================================= 
           target: 10-device-deploy 
          ================================= -->
-    <target name="10-device-deploy"
-            depends="declare,choose-device"
-            description="running device default domain deployment">
+    <target name="10-device-deploy" depends="init,choose-device" description="running device default domain deployment">
         <ant antfile="${swat.dp.devices}/build.xml"
              target="10-device-deploy"
              inheritrefs="true"
@@ -51,7 +95,7 @@
     <!-- ================================= 
           target: 11-device-export 
          ================================= -->
-    <target name="11-device-export" depends="declare,choose-device" description="running device default domain export">
+    <target name="11-device-export" depends="init,choose-device" description="running device default domain export">
         <ant antfile="${swat.dp.devices}/build.xml"
              target="11-device-export"
              inheritrefs="true"
@@ -61,9 +105,7 @@
     <!-- ================================= 
           target: 12-device-pack2compare 
          ================================= -->
-    <target name="12-device-pack2compare"
-            depends="declare,choose-device"
-            description="running device default domain pack">
+    <target name="12-device-pack2compare" depends="init,choose-device" description="running device default domain pack">
         <ant antfile="${swat.dp.devices}/build.xml"
              target="12-device-pack2compare"
              inheritrefs="true"
@@ -74,7 +116,7 @@
           target: 15-device-key-generate 
          ================================= -->
     <target name="15-device-key-generate"
-            depends="declare,choose-device"
+            depends="init,choose-device"
             description="running device create of the device-id">
         <ant antfile="${swat.dp.devices}/build.xml"
              target="15-device-key-generate"
@@ -86,7 +128,7 @@
           target: 18-device-xcfg-reformat 
          ================================= -->
     <target name="18-device-xcfg-reformat"
-            depends="declare,choose-device"
+            depends="init,choose-device"
             description="reformatting xcfg of device project">
         <ant antfile="${swat.dp.devices}/build.xml"
              target="18-device-xcfg-reformat"
@@ -97,7 +139,7 @@
     <!-- ================================= 
           target: 19-device-project-clean 
          ================================= -->
-    <target name="19-device-project-clean" depends="declare" description="cleaning device project">
+    <target name="19-device-project-clean" depends="init" description="cleaning device project">
         <ant antfile="${swat.dp.devices}/build.xml"
              target="99-project-clean"
              inheritrefs="true"
@@ -108,7 +150,7 @@
           target: 20-domain-services-deploy 
          ================================= -->
     <target name="20-domain-services-deploy"
-            depends="declare,load-domain-props"
+            depends="init,load-domain-props"
             description="running domain-services deployment">
         <foreach target="30-service-deploy"
                  list="${swat.service.list}"
@@ -122,7 +164,7 @@
           target: 21-domain-services-export 
          ================================= -->
     <target name="21-domain-services-export"
-            depends="declare,load-domain-props"
+            depends="init,load-domain-props"
             description="running domain-services export">
         <foreach target="32-service-export"
                  list="${swat.service.list}"
@@ -136,7 +178,7 @@
           target: 22-domain-services-pack2compare 
          ================================= -->
     <target name="22-domain-services-pack2compare"
-            depends="declare,load-domain-props"
+            depends="init,load-domain-props"
             description="running domain-services pack2compare">
         <foreach target="33-service-pack2compare"
                  list="${swat.service.list}"
@@ -150,7 +192,7 @@
           target: 23-domain-common-create-object-list 
          ================================= -->
     <target name="23-domain-services-object-list-create"
-            depends="declare,load-domain-props"
+            depends="init,load-domain-props"
             description="running to create the object list for domain-services">
         <foreach target="34-service-object-list-create"
                  list="${swat.service.list}"
@@ -163,7 +205,7 @@
     <!-- ================================= 
           target: 24-domain-cleanup 
          ================================= -->
-    <target name="24-domain-cleanup" depends="declare,load-domain-props" description="running domain-cleanup">
+    <target name="24-domain-cleanup" depends="init,load-domain-props" description="running domain-cleanup">
         <!-- Load implicitly chosen device-set settings -->
         <load-device-set-props-macro device-set="${swat.device-set.name}" />
 
@@ -177,11 +219,10 @@
                  inheritrefs="true" />
     </target>
 
-    
     <!-- ================================= 
           target: 25-domain-checkpoints 
          ================================= -->
-    <target name="25-domain-checkpoints" depends="declare,load-domain-props" description="get domain checkpoints">
+    <target name="25-domain-checkpoints" depends="init,load-domain-props" description="get domain checkpoints">
         <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
              target="25-domain-checkpoints"
              inheritrefs="true"
@@ -192,18 +233,20 @@
           target: 26-domain-password-alias 
          ================================= -->
     <target name="26-domain-password-alias"
-            depends="declare,load-domain-props"
+            depends="init,load-domain-props"
             description="add or overwrite a PasswordAlias">
         <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
              target="26-domain-password-alias-deploy"
              inheritrefs="true"
              useNativeBasedir="false" />
     </target>
-    
+
     <!-- ================================= 
           target: 27-domain-artifact 
          ================================= -->
-    <target name="27-domain-artifact" depends="declare,load-domain-props" description="generate a deployment package for a domain containing all services in a sinlge zip archive">
+    <target name="27-domain-artifact"
+            depends="init,load-domain-props"
+            description="generate a deployment package for a domain containing all services in a sinlge zip archive">
         <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
              target="27-domain-artifact"
              inheritrefs="true"
@@ -213,9 +256,7 @@
     <!-- ================================= 
         target: 29-domain-documentation 
        ================================= -->
-    <target name="29-domain-documentation"
-            depends="declare,load-domain-props"
-            description="running domain-documentation">
+    <target name="29-domain-documentation" depends="init,load-domain-props" description="running domain-documentation">
 
         <concat destfile="${basedir}/dist/docs/${mgr.target.zone.name}/${mgr.target.env.name}/${mgr.target.domain.alias}/index.html">
             <string>&lt;html&gt;&lt;head&gt;&lt;title&gt;${mgr.target.zone.name} - ${mgr.target.env.name} - ${mgr.target.domain.alias}&lt;/title&gt;&lt;/head&gt;</string>
@@ -260,7 +301,7 @@
     <!-- ================================= 
           target: 30-service-deploy 
          ================================= -->
-    <target name="30-service-deploy" depends="declare,load-service-props" description="running service deployment">
+    <target name="30-service-deploy" depends="init,load-service-props" description="running service deployment">
         <ant antfile="${swat.current.service.home}/build.xml"
              target="30-service-deploy"
              inheritrefs="true"
@@ -271,7 +312,7 @@
           target: 31-service-deploy-with-options 
          ================================= -->
     <target name="31-service-deploy-with-options"
-            depends="declare,load-service-props"
+            depends="init,load-service-props"
             description="running service deployment with all options">
         <ant antfile="${swat.current.service.home}/build.xml"
              target="31-service-deploy-with-options"
@@ -282,7 +323,7 @@
     <!-- ================================= 
           target: 32-service-export 
          ================================= -->
-    <target name="32-service-export" depends="declare,load-service-props" description="running service export">
+    <target name="32-service-export" depends="init,load-service-props" description="running service export">
         <ant antfile="${swat.current.service.home}/build.xml"
              target="32-service-export"
              inheritrefs="true"
@@ -292,7 +333,7 @@
     <!-- ================================= 
           target: 33-service-pack2compare 
          ================================= -->
-    <target name="33-service-pack2compare" depends="declare,load-service-props" description="running service export">
+    <target name="33-service-pack2compare" depends="init,load-service-props" description="running service export">
         <ant antfile="${swat.current.service.home}/build.xml"
              target="33-service-pack2compare"
              inheritrefs="true"
@@ -303,7 +344,7 @@
           target: 34-service-object-list-create 
          ================================= -->
     <target name="34-service-object-list-create"
-            depends="declare,load-service-props"
+            depends="init,load-service-props"
             description="running service object-list create">
         <ant antfile="${swat.current.service.home}/build.xml"
              target="34-service-object-list-create"
@@ -315,7 +356,7 @@
           target: 35-service-key-generate 
          ================================= -->
     <target name="35-service-key-generate"
-            depends="declare,load-service-props"
+            depends="init,load-service-props"
             description="running service object-list create">
         <ant antfile="${swat.current.service.home}/build.xml"
              target="35-service-key-generate"
@@ -327,7 +368,7 @@
           target: 36-service-key-distribute 
          ================================= -->
     <target name="36-service-key-distribute"
-            depends="declare,load-service-props"
+            depends="init,load-service-props"
             description="running service object-list create">
         <ant antfile="${swat.current.service.home}/build.xml"
              target="36-service-key-distribute"
@@ -339,7 +380,7 @@
           target: 37-service-cert-distribute 
          ================================= -->
     <target name="37-service-cert-distribute"
-            depends="declare,load-service-props"
+            depends="init,load-service-props"
             description="running service object-list create">
         <ant antfile="${swat.current.service.home}/build.xml"
              target="37-service-cert-distribute"
@@ -351,7 +392,7 @@
           target: 38-service-xcfg-reformat 
          ================================= -->
     <target name="38-service-xcfg-reformat"
-            depends="declare,load-service-props"
+            depends="init,load-service-props"
             description="reformatting xcfg of service project">
         <ant antfile="${swat.current.service.home}/build.xml"
              target="38-service-xcfg-reformat"
@@ -362,7 +403,7 @@
     <!-- ================================= 
           target: 39-service-project-clean 
          ================================= -->
-    <target name="39-service-project-clean" depends="declare,load-service-props" description="cleaning service project">
+    <target name="39-service-project-clean" depends="init,load-service-props" description="cleaning service project">
         <ant antfile="${swat.current.service.home}/build.xml"
              target="39-service-project-clean"
              inheritrefs="true"
@@ -373,7 +414,7 @@
           target: 39-service-documentation 
          ================================= -->
     <target name="39-service-documentation"
-            depends="declare,load-service-props"
+            depends="init,load-service-props"
             description="create service documentation">
         <ant antfile="${swat.current.service.home}/build.xml"
              target="39-service-documentation"
@@ -396,7 +437,7 @@
     <!-- ================================= 
           target: 40-service-template-seed 
          ================================= -->
-    <target name="40-service-template-seed" depends="declare" description="running service template seed">
+    <target name="40-service-template-seed" depends="init" description="running service template seed">
         <ant antfile="${swat.dp.service.templates}/build.xml"
              target="seed-service"
              inheritrefs="true"
@@ -406,7 +447,7 @@
     <!-- ================================= 
           target: 41-service-template-clone 
          ================================= -->
-    <target name="41-service-template-clone" depends="declare" description="running service template clone">
+    <target name="41-service-template-clone" depends="init" description="running service template clone">
         <ant antfile="${swat.dp.service.templates}/build.xml"
              target="clone-project"
              inheritrefs="true"
@@ -416,7 +457,7 @@
     <!-- ================================= 
           target: 50-ops-ping-host 
          ================================= -->
-    <target name="50-ops-ping-host" depends="declare,choose-device" description="running ping on device">
+    <target name="50-ops-ping-host" depends="init,choose-device" description="running ping on device">
         <property name="mgr.target.domain.name" value="default" />
         <ant antfile="${swat.dp.devices}/build.xml"
              target="50-ops-ping-host"
@@ -427,18 +468,18 @@
     <!-- ================================= 
            target: 51-ops-get-cpu-usage 
           ================================= -->
-    <target name="51-ops-get-cpu-usage" depends="declare,choose-device" description="running StatusCPUUsage on device">
+    <target name="51-ops-get-cpu-usage" depends="init,choose-device" description="running StatusCPUUsage on device">
         <property name="mgr.target.domain.name" value="default" />
         <ant antfile="${swat.dp.devices}/build.xml"
              target="51-ops-get-cpu-usage"
              inheritrefs="true"
              useNativeBasedir="true" />
     </target>
-	
+
     <!-- ================================= 
            target: 52-ops-secure-backup 
           ================================= -->
-    <target name="52-ops-secure-backup" depends="declare,choose-device" description="create Secure Backup on device">
+    <target name="52-ops-secure-backup" depends="init,choose-device" description="create Secure Backup on device">
         <property name="mgr.target.domain.name" value="default" />
         <ant antfile="${swat.dp.devices}/build.xml"
              target="52-ops-secure-backup"
@@ -449,7 +490,7 @@
     <!-- ================================= 
           target: 90-swat-clean-all-projects 
          ================================= -->
-    <target name="90-swat-clean-all-projects" depends="declare" description="--> clean all dist folders">
+    <target name="90-swat-clean-all-projects" depends="init" description="--> clean all dist folders">
         <delete verbose="true" includeemptydirs="true">
             <fileset dir="${basedir}/../">
                 <include name="Swat4DP/dist/**" />
@@ -463,7 +504,7 @@
           target: 93-swat-show-user-pw-properties              
          ================================= -->
     <target name="93-swat-show-user-pw-properties"
-            depends="declare"
+            depends="init"
             description="show all configured user specific password properties [pw|password|auth]">
         <echo message="searching user settings in ${swat.dp.infra} ..." />
         <showfile byline="true">
@@ -474,7 +515,7 @@
         </showfile>
     </target>
 
-    <target name="93-swat-show-device-serial" depends="declare" description="show all serial and entitlement numbers">
+    <target name="93-swat-show-device-serial" depends="init" description="show all serial and entitlement numbers">
         <echo message="searching serials in ${swat.dp.devices}} ..." />
         <showfile byline="true">
             <regexp pattern="^.*(serial|entitlement)=" />
@@ -487,7 +528,7 @@
     <!-- ================================= 
           target: 92-swat-show-device-sets              
          ================================= -->
-    <target name="92-swat-show-device-sets" depends="declare" description="show all configured devices sets">
+    <target name="92-swat-show-device-sets" depends="init" description="show all configured devices sets">
         <echo message="searching device sets in ${swat.dp.infra} ..." />
         <echo message=" " />
         <showfile byline="true">
@@ -501,7 +542,7 @@
     <!-- ================================= 
           target: 91-swat-show-devices              
          ================================= -->
-    <target name="91-swat-show-devices" depends="declare" description="show all configured devices">
+    <target name="91-swat-show-devices" depends="init" description="show all configured devices">
         <echo message="searching devices in ${swat.dp.devices} ..." />
         <echo message=" " />
         <showfile byline="true">
@@ -515,7 +556,7 @@
     <!-- ================================= 
           target: 94-swat-show-env-properties              
          ================================= -->
-    <target name="94-swat-show-env-properties" depends="declare,load-env-props" description="show environment settings">
+    <target name="94-swat-show-env-properties" depends="init,load-env-props" description="show environment settings">
         <echo message="searching '${mgr.target.env.name}' properties in ${swat.dp.customer.home} ..." />
         <echo message=" " />
         <showfile byline="true">
@@ -530,7 +571,7 @@
           target: 94-swat-encrypt-user-settings              
          ================================= -->
     <target name="94-swat-encrypt-user-settings"
-            depends="declare"
+            depends="init"
             description="Encrypt all passwords in the user settings file.">
         <if>
             <resourceexists>
@@ -575,7 +616,7 @@
           target: 95-swat-decrypt-user-settings              
          ================================= -->
     <target name="95-swat-decrypt-user-settings"
-            depends="declare"
+            depends="init"
             description="Decrypt all passwords in the user settings file.">
         <if>
             <not>
@@ -616,10 +657,21 @@
     </target>
 
     <!-- ================================= 
+          target: 96-swat-create-infra              
+         ================================= -->
+    <target name="96-swat-create-infra" depends="init" description="Create a swat4dp infrastructure project.">
+        <ant antfile="${swat.dp.tools}/ant/infra-targets.xml"
+             target="10-infra-create-project"
+             inheritrefs="true"
+             useNativeBasedir="false" />
+    </target>
+
+
+    <!-- ================================= 
           target: 59-ops-sanitize-error-report 
          ================================= -->
     <target name="59-ops-sanitize-error-report"
-            depends="declare"
+            depends="init"
             description="sanitize a given DataPower error report by replacing clear text passwords">
         <antform title="DataPower Error Report and Configuration Export Sanitizer">
             <label>Sanitize error report</label>
@@ -715,15 +767,14 @@
           target: 60-mvn-deploy-artifact     
          ================================= -->
     <target name="60-mvn-deploy-artifact"
-            depends="declare,load-service-props,choose-deployment-policy"
+            depends="init,load-service-props,choose-deployment-policy"
             description="--> deploy DataPower Maven artifact">
 
         <property name="version" value="${project.version}" />
 
         <echoproperties prefix="swat" />
 
-        <property name="nexus.search.url"
-                  value="${swat.nexus.search.url}${swat.current.service}" />
+        <property name="nexus.search.url" value="${swat.nexus.search.url}${swat.current.service}" />
         <property name="nexus.tmp.dir" value="${basedir}/nexus" />
         <delete dir="${nexus.tmp.dir}" />
         <mkdir dir="${nexus.tmp.dir}" />
@@ -828,7 +879,7 @@
     <!-- - - - - - - - - - - - - - - - - - 
           target: addServiceToIndexPage                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="addServiceToIndexPage" depends="declare,load-service-props">
+    <target name="addServiceToIndexPage" depends="init,load-service-props">
 
 
         <echo message="addServiceToIndexPage: ${swat.current.service.home} - ${mgr.target.service.name}" />
