@@ -91,8 +91,8 @@
 
                     <!-- ...and send the CSR to the signer entity -->
                     <send-mail-macro mail.to="${swat.ca.csr.email.address}"
-                                     subject="DataPower CSR for ${local.crypto.cn} on device @{device}"
-                                     message="Could you please sign the attached Certificate Signing Request - thanks."
+                                     subject="${swat.ca.csr.email.subject}"
+                                     message="${swat.ca.csr.email.message}"
                                      att.dir="dist/crypto/@{device}"
                                      att.file="${local.file.name}" />
                 </then>
