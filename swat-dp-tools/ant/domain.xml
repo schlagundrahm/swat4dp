@@ -19,17 +19,17 @@
     <import file="${ant_domain.dir}/taskdefs.xml" />
     <import file="${ant_domain.dir}/chooser.xml" />
 
-    <!-- ================================= 
-          target: info              
-         ================================= -->
+    <!-- =================================
+        target: info
+        ================================= -->
     <target name="info">
         <echo message="Macros for domains for swat-dp-tools" />
     </target>
 
 
-    <!-- ================================= 
-          target: domain-pack-service-xcfg 
-         ================================= -->
+    <!-- =================================
+        target: domain-pack-service-xcfg
+        ================================= -->
     <target name="domain-pack-service-xcfg" depends="declare,load-service-props">
         <domain-pack-service-xcfg-macro service="${mgr.target.service.name}" />
     </target>
@@ -37,83 +37,82 @@
 
 
     <!-- = = = = = = = = = = = = = = = = =
-          macrodef: domain-pack-service-xcfg-macro          
-         = = = = = = = = = = = = = = = = = -->
+        macrodef: domain-pack-service-xcfg-macro
+        = = = = = = = = = = = = = = = = = -->
     <macrodef name="domain-pack-service-xcfg-macro">
         <attribute name="service" />
         <sequential>
             <!-- Load the service props first -->
-            <load-service-props-macro zone="${swat.zone.name}"
-                                      env="${swat.env.name}"
-                                      domain="${swat.domain.name}"
-                                      service="@{service}" />
+            <load-service-props-macro zone="${swat.zone.name}" env="${swat.env.name}" domain="${swat.domain.name}"
+                service="@{service}" />
 
             <!-- Pack the individual service -->
-            <ant antfile="${swat.current.service.home}/build.xml"
-                 target="33-service-pack2compare"
-                 inheritrefs="true"
-                 useNativeBasedir="true" />
+            <ant antfile="${swat.current.service.home}/build.xml" target="33-service-pack2compare" inheritrefs="true"
+                useNativeBasedir="true" />
 
             <!-- Copy it closer and in one dir -->
             <if>
                 <available file="${swat.current.service.home}/dist/import/${swat.env.name}/xcfg/common" type="dir" />
                 <then>
                     <copy todir="dist/import/${swat.env.name}/${swat.domain.name}/xcfg/common" verbose="true" overwrite="true">
-                        <fileset dir="${swat.current.service.home}/dist/import/${swat.env.name}/xcfg/common"
-                                 includes="**/*.xcfg" />
+                        <fileset dir="${swat.current.service.home}/dist/import/${swat.env.name}/xcfg/common" includes="**/*.xcfg" />
                     </copy>
                 </then>
             </if>
         </sequential>
     </macrodef>
-    
-    <!-- = = = = = = = = = = = = = = = = =
-          macrodef: domain-pack-service-macro          
-         = = = = = = = = = = = = = = = = = -->
-        <macrodef name="domain-pack-service-macro">
-            <attribute name="service" />
-            <sequential>
-                <!-- Load the service props first -->
-                <load-service-props-macro zone="${swat.zone.name}"
-                                          env="${swat.env.name}"
-                                          domain="${swat.domain.name}"
-                                          service="@{service}" />
-
-                <!-- Pack the individual service -->
-                <ant antfile="${swat.current.service.home}/build.xml"
-                     target="33-service-pack2compare"
-                     inheritrefs="true"
-                     useNativeBasedir="true" />
-
-                <!-- Copy all import files to a sinlge directory -->
-                <copy todir="dist/import/${swat.env.name}/${swat.domain.name}" verbose="true" overwrite="true">
-                    <fileset dir="${swat.current.service.home}/dist/import/${swat.env.name}" />
-                </copy>
-                <!-- Copy empty-config file for further processing -->
-                <copy todir="dist/import/${swat.env.name}/${swat.domain.name}" filtering="true" verbose="true" overwrite="true">
-                    <fileset file="${swat.current.service.home}/dist/empty-config.xml" />
-                </copy>
-            </sequential>
-        </macrodef>
 
     <!-- = = = = = = = = = = = = = = = = =
-          macrodef: domain-export-objects-macro          
-         = = = = = = = = = = = = = = = = = -->
+        macrodef: domain-pack-service-macro
+        = = = = = = = = = = = = = = = = = -->
+    <macrodef name="domain-pack-service-macro">
+        <attribute name="service" />
+        <sequential>
+            <!-- Load the service props first -->
+            <load-service-props-macro zone="${swat.zone.name}" env="${swat.env.name}" domain="${swat.domain.name}"
+                service="@{service}" />
+
+            <!-- Pack the individual service -->
+            <ant antfile="${swat.current.service.home}/build.xml" target="33-service-pack2compare" inheritrefs="true"
+                useNativeBasedir="true" />
+
+            <!-- Copy all import files to a sinlge directory -->
+            <if>
+                <equals arg1="@{service}" arg2="common" />
+                <then>
+                    <copy todir="dist/import/${swat.env.name}/${swat.domain.name}" verbose="true" overwrite="true">
+                        <fileset dir="${swat.current.service.home}/dist/import/${swat.env.name}" />
+                        <!-- we need this mapper to change the sort order as the common xcfg files have to be loaded first -->
+                        <regexpmapper from="(.*)common-(.*)" to="\1_common-\2" />
+                    </copy>
+                </then>
+                <else>
+                    <copy todir="dist/import/${swat.env.name}/${swat.domain.name}" verbose="true" overwrite="true">
+                        <fileset dir="${swat.current.service.home}/dist/import/${swat.env.name}" />
+                    </copy>
+                </else>
+            </if>
+            <!-- Copy empty-config file for further processing -->
+            <copy todir="dist/import/${swat.env.name}/${swat.domain.name}" filtering="true" verbose="true" overwrite="true">
+                <fileset file="${swat.current.service.home}/dist/empty-config.xml" />
+            </copy>
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+        macrodef: domain-export-objects-macro
+        = = = = = = = = = = = = = = = = = -->
     <macrodef name="domain-export-objects-macro">
         <attribute name="device" />
         <attribute name="domain" />
         <sequential>
             <!-- Prepare the soma-request service-export -->
-            <soma-prepare-request-macro soma.request="domain-export"
-                                        domain="@{domain}"
-                                        content.exists="false"
-                                        tmp.dir="download" />
+            <soma-prepare-request-macro soma.request="domain-export" domain="@{domain}" content.exists="false"
+                tmp.dir="download" />
 
             <!-- Run the soma-request service-export -->
             <soma-run-single-request-on-single-device-macro device="@{device}"
-                                                            soma.request="domain-export"
-                                                            tmp.dir="download"
-                                                            check.response="true" />
+                soma.request="domain-export" tmp.dir="download" check.response="true" />
 
             <!-- Extract the objects from the downloaded soma-response -->
             <extract-zip-file-macro soma.request="domain-export" tmp.dir="download" />
@@ -121,8 +120,8 @@
     </macrodef>
 
     <!-- = = = = = = = = = = = = = = = = =
-          macrodef: add-password-alias-macro          
-         = = = = = = = = = = = = = = = = = -->
+        macrodef: add-password-alias-macro
+        = = = = = = = = = = = = = = = = = -->
     <macrodef name="add-password-alias-macro">
         <attribute name="env" />
         <attribute name="domain" />
@@ -149,29 +148,19 @@
             </filterset>
 
             <!-- Prepare the soma-request service-export -->
-            <soma-prepare-request-macro soma.request="password-alias-config-template"
-                                        domain="@{domain}"
-                                        content.dir="${basedir}/dist"
-                                        custom.filter="password-alias.filter.id" />
+            <soma-prepare-request-macro soma.request="password-alias-config-template" domain="@{domain}"
+                content.dir="${basedir}/dist" custom.filter="password-alias.filter.id" />
 
-            <soma-prepare-request-macro soma.request="do-import"
-                                        domain="@{domain}"
-                                        content.exists="true"
-                                        content.dir="dist/upload"
-                                        content.type="XML"
-                                        content.file="password-alias-config-template.xml"
-                                        content.overwrite.objects="@{overwrite}" />
+            <soma-prepare-request-macro soma.request="do-import" domain="@{domain}" content.exists="true"
+                content.dir="dist/upload" content.type="XML" content.file="password-alias-config-template.xml"
+                content.overwrite.objects="@{overwrite}" />
 
-            <soma-prepare-request-macro soma.request="config-save"
-                                        domain="${local.domain}"
-                                        content.exists="false"
-                                        content.dir="dist/upload" />
+            <soma-prepare-request-macro soma.request="config-save" domain="${local.domain}"
+                content.exists="false" content.dir="dist/upload" />
 
             <!-- Run the soma-request service-export -->
             <soma-run-multi-requests-on-multi-devices-macro device.set="${local.device.set}"
-                                                            soma.requests="do-import,config-save"
-                                                            check.response="true"
-                                                            check.response.pattern="skipped" />
+                soma.requests="do-import,config-save" check.response="true" check.response.pattern="skipped" />
 
             <!-- clean up the upload directory as files contain the password in clear text -->
             <delete>
@@ -185,8 +174,8 @@
     </macrodef>
 
     <!-- = = = = = = = = = = = = = = = = =
-          macrodef: upload-file-macro     
-         = = = = = = = = = = = = = = = = = -->
+        macrodef: upload-file-macro
+        = = = = = = = = = = = = = = = = = -->
     <macrodef name="upload-file-macro">
         <attribute name="env" />
         <attribute name="domain" />
@@ -200,11 +189,8 @@
             <property name="local.domain" value="@{domain}" />
             <property name="local.content.dir" value="${basedir}/dist/uploadfile" />
             <echo message="source.file = @{source.file}" />
-            <propertyregex property="local.content.file"
-                           input="@{source.file}"
-                           regexp="([^\\/]+)$"
-                           select="\1"
-                           casesensitive="false" />
+            <propertyregex property="local.content.file" input="@{source.file}" regexp="([^\\/]+)$" select="\1"
+                casesensitive="false" />
             <echo message="local.content.file = ${local.content.file}" />
             <!-- Clear the upload directories -->
             <delete dir="${local.content.dir}" />
@@ -213,21 +199,13 @@
             <copy file="@{source.file}" todir="${local.content.dir}" />
 
             <!-- prepare soma-request setfile -->
-            <soma-prepare-request-macro soma.request="setfile"
-                                        domain="${local.domain}"
-                                        env="${swat.env.name}"
-                                        content.exists="true"
-                                        content.dir="${local.content.dir}"
-                                        content.file="${local.content.file}"
-                                        tmp.dir="uploadfile"
-                                        dp.file.name="@{target.dir}/${local.content.file}" />
+            <soma-prepare-request-macro soma.request="setfile" domain="${local.domain}" env="${swat.env.name}"
+                content.exists="true" content.dir="${local.content.dir}" content.file="${local.content.file}" tmp.dir="uploadfile"
+                dp.file.name="@{target.dir}/${local.content.file}" />
 
             <!-- Run the soma-request service-export -->
             <soma-run-multi-requests-on-multi-devices-macro device.set="${local.device.set}"
-                                                            soma.requests="setfile"
-                                                            tmp.dir="uploadfile"
-                                                            check.response="true"
-                                                            check.response.pattern="skipped" />
+                soma.requests="setfile" tmp.dir="uploadfile" check.response="true" check.response.pattern="skipped" />
 
             <!-- clean up the upload directory as files contain the password in clear text -->
             <delete>
@@ -239,13 +217,13 @@
     </macrodef>
 
     <!-- = = = = = = = = = = = = = = = = =
-          macrodef: delete-file-macro     
-         = = = = = = = = = = = = = = = = = -->
+        macrodef: delete-file-macro
+        = = = = = = = = = = = = = = = = = -->
     <macrodef name="delete-file-macro">
         <attribute name="env" />
         <attribute name="domain" />
         <attribute name="path" />
-        
+
         <sequential>
 
             <!-- Prepare local variables -->
@@ -254,19 +232,12 @@
             <property name="local.domain" value="@{domain}" />
 
             <!-- prepare soma-request setfile -->
-            <soma-prepare-request-macro soma.request="deletefile"
-                                        domain="${local.domain}"
-                                        env="${swat.env.name}"
-                                        content.exists="false"
-                                        tmp.dir="deletefile"
-                                        dp.file.name="@{path}" />
+            <soma-prepare-request-macro soma.request="deletefile" domain="${local.domain}" env="${swat.env.name}"
+                content.exists="false" tmp.dir="deletefile" dp.file.name="@{path}" />
 
             <!-- Run the soma-request service-export -->
             <soma-run-multi-requests-on-multi-devices-macro device.set="${local.device.set}"
-                                                            soma.requests="deletefile"
-                                                            tmp.dir="deletefile"
-                                                            check.response="true"
-                                                            check.response.pattern="skipped" />
+                soma.requests="deletefile" tmp.dir="deletefile" check.response="true" check.response.pattern="skipped" />
 
         </sequential>
     </macrodef>
