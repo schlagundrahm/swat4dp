@@ -76,14 +76,17 @@
             <ant antfile="${swat.current.service.home}/build.xml" target="33-service-pack2compare" inheritrefs="true"
                 useNativeBasedir="true" />
 
-            <!-- Copy all import files to a sinlge directory -->
+            <!-- Copy all import files to a single directory -->
             <if>
                 <equals arg1="@{service}" arg2="common" />
                 <then>
                     <copy todir="dist/import/${swat.env.name}/${swat.domain.name}" verbose="true" overwrite="true">
                         <fileset dir="${swat.current.service.home}/dist/import/${swat.env.name}" />
                         <!-- we need this mapper to change the sort order as the common xcfg files have to be loaded first -->
-                        <regexpmapper from="(.*)common-(.*)" to="\1_common-\2" />
+                        <firstmatchmapper>
+                            <regexpmapper from="(.*)common-(.*)\.xcfg$" to="\1_common-\2.xcfg" />
+                            <identitymapper/>
+                        </firstmatchmapper>
                     </copy>
                 </then>
                 <else>
