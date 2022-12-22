@@ -235,6 +235,11 @@
                     <equals arg1="${swat.env.type}" arg2="productive" />
                 </or>
                 <then>
+                    <soma-prepare-request-macro soma.request="checkpoint-list"
+                                                env="${local.env}"
+                                                domain="@{local.domain}"
+                                                content.exists="false"
+                                                custom.filter="checkpoint.filter.id" />
                     <soma-prepare-request-macro soma.request="checkpoint-remove"
                                                 env="${local.env}"
                                                 domain="${local.domain}"
@@ -245,7 +250,7 @@
                                                 domain="${local.domain}"
                                                 content.exists="false"
                                                 custom.filter="checkpoint.filter.id" />
-                    <var name="checkpoint.req.list" value="checkpoint-remove,checkpoint-save" />
+                    <var name="checkpoint.req.list" value="checkpoint-remove,checkpoint-list,checkpoint-save" />
                 </then>
                 <else>
                     <var name="checkpoint.req.list" value="" />
@@ -438,6 +443,7 @@
         <attribute name="all-devices" default="true" />
         <attribute name="primary" default="true" />
         <attribute name="do-save" default="false" />
+        <attribute name="do-standby" default="false" />
         <attribute name="verify" default="true" />
         <sequential>
             <!-- Prepare local variables -->
@@ -467,12 +473,12 @@
             <xmlproperty file="${local.dir}/@{artifact}-@{version}.pom" keepRoot="false" />
             <property name="service.object.name" value="${properties.swat.service.object.name}" />
             <property name="service.object.class" value="${properties.swat.service.object.class}" />
-            <fail message="The property service.object.name is not defined! Check the @{artifact} POM.">
+            <fail message="The property 'service.object.name' is not defined! Check the @{artifact} POM.">
                 <condition>
                     <contains string="${service.object.name}" substring="{" />
                 </condition>
             </fail>
-            <fail message="The property serivce.object.class is not defined! Check the @{artifact} POM.">
+            <fail message="The property 'serivce.object.class' is not defined! Check the @{artifact} POM.">
                 <condition>
                     <contains string="${service.object.class}" substring="{" />
                 </condition>
@@ -487,6 +493,24 @@
             <echoproperties prefix="service" />
             <echoproperties prefix="swat" />
 
+            <!-- prepare soma-request status-get standby -->
+            <if>
+                <or>
+                    <equals arg1="@{do-standby}" arg2="true" />
+                    <equals arg1="${swat.settings.deploy.do-standby}" arg2="true" />
+                </or>
+                <then>
+                    <soma-prepare-request-macro soma.request="standby-status"
+                                                env="${local.env}"
+                                                domain="${local.domain}"
+                                                content.exists="false" />
+                    <var name="standby.req.list" value="standby-status" />
+                </then>
+                <else>
+                    <var name="standby.req.list" value="" />
+                </else>
+            </if>
+
             <!-- prepare soma-request checkpoint-save -->
             <filterset id="checkpoint.filter.id">
                 <filter token="checkpoint.name" value="${local.service}" />
@@ -497,6 +521,11 @@
                     <equals arg1="${swat.env.type}" arg2="productive" />
                 </or>
                 <then>
+                    <soma-prepare-request-macro soma.request="checkpoint-list"
+                                                env="${local.env}"
+                                                domain="@{local.domain}"
+                                                content.exists="false"
+                                                custom.filter="checkpoint.filter.id" />
                     <soma-prepare-request-macro soma.request="checkpoint-remove"
                                                 env="${local.env}"
                                                 domain="${local.domain}"
@@ -507,7 +536,7 @@
                                                 domain="${local.domain}"
                                                 content.exists="false"
                                                 custom.filter="checkpoint.filter.id" />
-                    <var name="checkpoint.req.list" value="checkpoint-remove,checkpoint-save" />
+                    <var name="checkpoint.req.list" value="checkpoint-remove,checkpoint-list,checkpoint-save" />
                 </then>
                 <else>
                     <var name="checkpoint.req.list" value="" />
@@ -562,14 +591,24 @@
             <if>
                 <or>
                     <equals arg1="${service.object.name}" arg2="n/a" />
-                    <equals arg1="${service.object.name}" arg2="" />
                     <equals arg1="${service.object.class}" arg2="n/a" />
-                    <equals arg1="${service.object.class}" arg2="" />
                 </or>
                 <then>
+                    <echo message="Non-service deployment --> disabling quiesce/unquiesce." />
                     <var name="quiesce.req.list" value="" />
                     <var name="unquiesce.req.list" value="" />
                 </then>
+                <elseif>
+                    <or>
+                        <equals arg1="${service.object.name}" arg2="" />
+                        <equals arg1="${service.object.class}" arg2="" />
+                    </or>
+                    <then>
+                        <echo message="ATTENTION: Service object name and/or class has not been provided --> disabling quiesce/unquiesce!" />
+                        <var name="quiesce.req.list" value="" />
+                        <var name="unquiesce.req.list" value="" />
+                    </then>
+                </elseif>
                 <else>
                     <if>
                         <equals arg1="@{do-quiesce}" arg2="true" />
@@ -637,7 +676,8 @@
                 </else>
             </if>
             <!-- prepare soma-request list -->
-            <join-vars-macro result="inter1" arg1="${checkpoint.req.list}" arg2="${quiesce.req.list}" />
+            <join-vars-macro result="inter0" arg1="${standby.req.list}" arg2="${checkpoint.req.list}" />
+            <join-vars-macro result="inter1" arg1="${inter0}" arg2="${quiesce.req.list}" />
             <join-vars-macro result="inter2" arg1="${inter1}" arg2="${import.req.list}" />
             <join-vars-macro result="inter3" arg1="${inter2}" arg2="${flush.req.list}" />
             <join-vars-macro result="inter4" arg1="${inter3}" arg2="${unquiesce.req.list}" />

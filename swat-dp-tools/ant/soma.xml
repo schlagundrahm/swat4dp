@@ -226,6 +226,41 @@
                                 </then>
                             </if>
 
+                            <if>
+                                <equals arg1="@{foreach.soma.request}" arg2="checkpoint-list" />
+                                <then>
+                                    <xmltask source="dist/${local.tmp.dir}/@{foreach.soma.request}-response.xml">
+                                        <!-- TODO: use a property for the greater comparision instead of a hardcoded number -->
+                                        <copy path="//DomainCheckpointStatus[count(following-sibling::*) > 3]/ChkName/text()"
+                                              property="checkpoints.delete"
+                                              append="true"
+                                              propertySeparator="," />
+                                    </xmltask>
+                                    <echoproperties prefix="checkpoints" />
+                                    <if>
+                                        <isset property="checkpoints.delete" />
+                                        <then>
+                                            <for list="${checkpoints.delete}" delimiter="," param="checkpoint">
+                                                <sequential>
+                                                    <filterset id="checkpoint.filter.id">
+                                                        <filter token="checkpoint.name" value="@{checkpoint}" />
+                                                    </filterset>
+                                                    <soma-prepare-request-macro soma.request="checkpoint-remove"
+                                                                                env="${local.env}"
+                                                                                domain="${local.domain}"
+                                                                                content.exists="false"
+                                                                                custom.filter="checkpoint.filter.id" />
+                                                    <soma-run-single-request-on-single-device-macro soma.request="checkpoint-remove"
+                                                                                                    device="${local.device}"
+                                                                                                    tmp.dir="${local.tmp.dir}"
+                                                                                                    check.response="${local.check.response}"
+                                                                                                    check.response.pattern="${local.check.response.pattern}" />
+                                                </sequential>
+                                            </for>
+                                        </then>
+                                    </if>
+                                </then>
+                            </if>
                         </else>
                     </if>
                 </sequential>
@@ -469,7 +504,10 @@
 
                     <!-- fail in a productive environment if Object Status contains potential issues -->
                     <if>
-                        <istrue value="${swat.settings.verify.objectstatus}" />
+                        <or>
+                            <istrue value="${swat.settings.verify.objectstatus}" />
+                            <equals arg1="${swat.env.type}" arg2="productive" />
+                        </or>
                         <then>
                             <fail message="The Object Status shows potential issues! See console output for more information."
                                   if="objects-to-be-verified" />
