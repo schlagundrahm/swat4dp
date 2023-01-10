@@ -165,10 +165,17 @@
                     <verify-filter-xcfg-files-macro src-file="dist/download/service-export.xml" />
                 </then>
                 <else>
+                    <!-- Define export filterset -->
+                    <filterset id="export.filter" onmissingfiltersfile="ignore">
+                        <filter token="export.service.object.class" value="@{class}"/>
+                        <filter token="export.service.object.name" value="@{object}"/>
+                        <filter token="export.service.objects.additional" value=""/>
+                    </filterset>
                     <!-- Prepare the soma-request service-export -->
                     <soma-prepare-request-macro soma.request="service-export"
                                                 domain="@{domain}"
                                                 content.exists="false"
+                                                custom.filter="export.filter"
                                                 tmp.dir="download" />
                 </else>
             </if>
