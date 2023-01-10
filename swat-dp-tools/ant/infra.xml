@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ================================================================================================= -->
+<!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
+<!-- Licensed Materials - Property of schlag&rahm -->
+<!-- Copyright © 2022 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Licensed Materials - Property of IBM -->
+<!-- Copyright IBM Corporation 2022. All Rights Reserved. -->
+<!-- US Government Users Restricted Rights - Use, duplication or disclosure -->
+<!-- restricted by GSA ADP Schedule Contract with IBM Corp. -->
+<!-- ================================================================================================= -->
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.10.x or above. -->
+<!-- ====================================================================== -->
+<project name="swat-dp-tools.infra" default="info" basedir=".">
+
+    <dirname file="${ant.file.swat-dp-tools.infra}" property="ant_infra.dir" />
+    <import file="${ant_infra.dir}/taskdefs.xml" />
+
+    <!-- ================================= 
+          target: info 
+         ================================= -->
+    <target name="info">
+        <echo message="Macros for the swat-dp-tools infrastructure" />
+    </target>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: infra-export-domain-list-macro          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="infra-export-domain-list-macro">
+        <attribute name="device" />
+        <sequential>
+            <!-- Load the device-props -->
+            <load-device-props-macro device="@{device}" />
+
+            <!-- Prepare the soma-request get-domain-list -->
+            <soma-prepare-request-macro soma.request="infra-export-domain-list" content.exists="false" tmp.dir="download" />
+
+            <!-- Run the soma-request device-export -->
+            <soma-run-single-request-on-single-device-macro device="@{device}"
+                                                            soma.request="infra-export-domain-list"
+                                                            tmp.dir="download"
+                                                            check.response="true" />
+
+            <!-- Extract the objects from the downloaded soma-response -->
+            <extract-zip-file-macro soma.request="infra-export-domain-list" tmp.dir="download" />
+        </sequential>
+    </macrodef>
+</project>

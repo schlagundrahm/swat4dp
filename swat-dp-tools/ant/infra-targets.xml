@@ -1,0 +1,612 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- ================================================================================================= -->
+<!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
+<!-- Copyright © 2022 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- ================================================================================================= -->
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.10.0 or above. -->
+<!-- ====================================================================== -->
+<project name="swat-dp-tools.infra-targets" default="info" basedir=".">
+
+    <dirname file="${ant.file.swat-dp-tools.infra-targets}" property="ant_infratargets.dir" />
+    <import file="${ant_infratargets.dir}/taskdefs.xml" />
+    <import file="${ant_infratargets.dir}/chooser.xml" />
+
+    <!-- - - - - - - - - - - - - - - - - -
+        target: info
+        - - - - - - - - - - - - - - - - - -->
+    <target name="info">
+        <echo message="Common infrastructure targets for swat-dp-tools" />
+        <echoproperties prefix="swat" />
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - -
+        target: init
+        - - - - - - - - - - - - - - - - - -->
+    <target name="init">
+        <!-- Create a time stamp -->
+        <tstamp>
+            <format property="FILESTAMP" pattern="yyyyMMdd_HHmmss" />
+            <format property="YEAR" pattern="yyyy" />
+        </tstamp>
+        <!-- 
+            IMPORTANT NOTE: 
+            Eventhough the infra project is not a service projet the swat.current.serivce.home property has to be set.
+            Furhtermore, if it is not set now it will be set to the wrong value in the load-device-props-macro.
+        -->
+        <property name="swat.current.service.home" location="${swat.dp.infra}" />
+        <echo message="***** infra-targets initialized at ${FILESTAMP} *****" />
+        <echo message="current basedir = ${basedir}" />
+        <echo message="current project = ${ant.project.name}" />
+        <echo message="---------- predefined properties ----------" />
+        <echoproperties prefix="swat" />
+        <echoproperties regex="(mgr\.target\.device|mgr\.target\.user|confirm|overwrite)" />
+    </target>
+
+    <!-- =================================
+        target: 70-infra-create-projects
+        ================================= -->
+    <target name="70-infra-create-projects" depends="declare,init" description="create the swat4dp infrastructure projects">
+
+        <property name="infra.customer" value="${swat.customer}" />
+        <property name="infra.zones" value="dmz" />
+        <property name="infra.environments" value="int,prd" />
+        <property name="infra.device-sets" value="int,prd" />
+    	<propertycopy name="infra.target.dir" from="swat.${swat.customer}.customer.home" />
+    	<property name="infra.user" value="${user.name}" />
+
+        <!-- initial dialog for the architecture - customer prefix, zones, environments and device sets -->
+        <echo message="Step 1: Define infrastucture configuration properties" />
+        <antform title="Swat4DP - create infra project" stylesheet="${swat.styles.dir}/style.properties"
+            icon="${swat.styles.dir}/favicon.png">
+            <label>Specify the values for an initial swat4dp infrastructure setup.</label>
+            <textProperty label="Customer Prefix : " property="infra.customer"
+                tooltip="Prefix to be used for swat4dp projects for a particular customer setup" />
+            <fileSelectionProperty label="Project directory : " property="infra.target.dir" directoryChooser="true"
+                tooltip="Target location for this infrastructure project." />
+            <textProperty label="Zone names : " property="infra.zones"
+                tooltip="Comma separated list of zone names for this particular infrastructure setup" />
+            <textProperty label="Environment names : " property="infra.environments"
+                tooltip="Comma separated list of environment labels for this particular infrastructure setup" />
+            <textProperty label="Device sets : " property="infra.device-sets"
+                tooltip="Comma separated list of device-set labels for this particular infrastructure setup" />
+            <separator />
+            <label>Specify the default user to access the to access the DataPower management interface.</label>
+            <textProperty label="Default user : " property="infra.user"
+                tooltip="Will be used to set the mgr.target.user.name.default property." />
+            <separator />
+            <label>Specify the cURL binary to be used to access the DataPower management interface.</label>
+            <label>Alternativley you can create a Java Key Store (JKS) named "${infra.customer}-truststore.jks" located in the ${infra.customer}-swat-dp-infra/config/ directory to use a native Java/Ant HTTP client to access the DataPower management interface.</label>
+            <fileSelectionProperty label="cURL executable : " property="infra.curl.exec"
+                tooltip="Location of the local cURL executable." />
+            <separator />
+            <controlbar>
+                <button label="Create" type="ok" />
+                <button label="Cancel" type="cancel" target="cancel" />
+            </controlbar>
+        </antform>
+        <fail unless="infra.customer" message="Customer name is missing!" />
+        <fail message="Customer name is empty!">
+            <condition>
+                <not>
+                    <length string="${infra.customer}" when="greater" length="0" />
+                </not>
+            </condition>
+        </fail>
+
+        <fail unless="infra.target.dir" message="infra bootstrap has been aborted." />
+        <fail message="target dir name is empty!">
+            <condition>
+                <not>
+                    <length string="${infra.target.dir}" when="greater" length="0" />
+                </not>
+            </condition>
+        </fail>
+
+        <!-- write properties -->
+        <propertyfile file="infra-bootstrap.properties"
+            comment="swat4dp infrastructure properties for customer ${infra.customer}">
+            <entry key="infra.customer" value="${infra.customer}" />
+            <entry key="infra.zones" value="${infra.zones}" />
+            <entry key="infra.environments" value="${infra.environments}" />
+            <entry key="infra.device-sets" value="${infra.device-sets}" />
+            <entry key="infra.target.dir" value="${infra.target.dir}" />
+        </propertyfile>
+
+
+        <filterset id="content.filter" onmissingfiltersfile="ignore">
+            <filter token="customer" value="${infra.customer}" />
+            <filter token="year" value="${YEAR}" />
+            <filter token="swat.dp.tools" value="${swat.dp.tools}" />
+        </filterset>
+
+        <!-- infra project -->
+        <echo message="Step 2: Create infrastucture project ${infra.target.dir}/${infra.customer}-swat-dp-infra" />
+        <property name="infra.project-dir" value="${infra.target.dir}/${infra.customer}-swat-dp-infra" />
+        <mkdir dir="${infra.project-dir}/config/zones" />
+        <mkdir dir="${infra.project-dir}/config/device-sets" />
+        <mkdir dir="${infra.project-dir}/settings" />
+
+        <touch file="${infra.project-dir}/README.md" />
+        <echo file="${infra.project-dir}/README.md" append="false" message="${infra.customer}-swat-dp-infra" />
+
+        <echo message="Copying infra templates..." />
+        <copy todir="${infra.project-dir}" filtering="true" verbose="true" overwrite="true">
+            <fileset dir="${swat.dp.tools}/templates" defaultexcludes="false">
+                <include name="infra_*" />
+            </fileset>
+            <filterset refid="content.filter" />
+            <firstmatchmapper>
+                <regexpmapper from="infra_eclipse_(.*)\.xml" to="\.\1" />
+                <regexpmapper from="infra_(.*)" to="\1" />
+            </firstmatchmapper>
+        </copy>
+
+        <!-- create zones.properties file -->
+        <propertyfile file="${infra.project-dir}/config/zones/zones.properties"
+            comment="common zone properties for customer ${infra.customer}">
+            <entry key="swat.zone.list" value="${infra.zones}" />
+        </propertyfile>
+
+        <!-- create zones.properties file -->
+        <propertyfile file="${infra.project-dir}/config/device-sets/device-sets.properties"
+            comment="common device properties for customer ${infra.customer}">
+            <entry key="swat.device-set.list" value="${infra.device-sets}" />
+        </propertyfile>
+
+        <!-- create user settings file -->
+        <propertyfile file="${infra.project-dir}/settings/${user.name}.properties"
+            comment="private ${infra.customer} properties for user ${user.name}">
+            <entry key="swat.customer" value="${infra.customer}" />
+            <entry key="swat.customer.home" value="${infra.target.dir}" />
+            <entry key="swat.tools.home" value="${basedir}/.." />
+            <entry key="swat.dp.infra" value="$${swat.dp.customer.home}/${swat.customer}-swat-dp-infra" />
+            <entry key="swat.dp.devices" value="$${swat.dp.customer.home}/${swat.customer}-swat-dp-devices" />
+            <entry key="swat.dp.service.templates" value="$${swat.dp.customer.home}/${infra.customer}-swat-dp-service-template" />
+            <entry key="mgr.target.user.name.default" value="${infra.user}" />
+        </propertyfile>
+
+
+        <if>
+            <isset property="infra.curl.exec" />
+            <then>
+                <echo message="using cURL instead of 'ml-ant-http'" />
+                <propertyfile file="${infra.project-dir}/settings/${user.name}.properties">
+                    <entry key="curl.exec" value="${infra.curl.exec}" />
+                </propertyfile>
+            </then>
+            <else>
+                <echo message="ATTENTION: For the native Java/Ant HTTP client you have to create a JKS (${infra.project-dir}/config/${infra.customer}-truststore.jks)!" />
+            </else>
+        </if>
+
+
+        <!-- devices project -->
+        <echo message="Step 3: Create devices project ${infra.target.dir}/${infra.customer}-swat-dp-devices" />
+        <property name="devices.project-dir" value="${infra.target.dir}/${infra.customer}-swat-dp-devices" />
+        <mkdir dir="${devices.project-dir}/config" />
+        <mkdir dir="${devices.project-dir}/master/common/local" />
+        <mkdir dir="${devices.project-dir}/xcfg/common" />
+        <mkdir dir="${devices.project-dir}/settings" />
+
+        <touch file="${devices.project-dir}/README.md" />
+        <echo file="${devices.project-dir}/README.md" append="false" message="${infra.customer}-swat-dp-devices" />
+
+        <echo message="Copying infra templates..." />
+        <copy todir="${devices.project-dir}" filtering="true" verbose="true" overwrite="true">
+            <fileset dir="${swat.dp.tools}/templates" defaultexcludes="false">
+                <include name="devices_*" />
+            </fileset>
+            <filterset refid="content.filter" />
+            <firstmatchmapper>
+                <regexpmapper from="devices_eclipse_(.*)\.xml" to="\.\1" />
+                <regexpmapper from="devices_(.*)" to="\1" />
+            </firstmatchmapper>
+        </copy>
+
+        <!-- create zone properties -->
+        <echo message="Step 4: Loop over all zones (${infra.zones}) and define zone properties [${infra.project-dir}/config/zones/...]" />
+        <var name="idx.loop.zones" value="0" />
+        <for list="${infra.zones}" param="zone">
+            <sequential>
+                <echo message="creating zone '@{zone}' ..." />
+                <mkdir dir="${infra.project-dir}/config/zones/@{zone}" />
+                <mkdir dir="${infra.project-dir}/config/zones/@{zone}/envs" />
+
+                <var name="var.zone.label" unset="true" />
+                <var name="var.zone.short" unset="true" />
+                <property name="var.zone.label" value="@{zone} zone" />
+                <property name="var.zone.short" value="@{zone}" />
+
+                <math result="idx.loop.zones" operand1="${idx.loop.zones}" operation="+" operand2="1" datatype="int" />
+
+                <echo message="Step 4.${idx.loop.zones}: Define @{zone} zone configuration properties" />
+                <antform title="Swat4DP - create zone properties for @{zone}" stylesheet="${swat.styles.dir}/style.properties"
+                    icon="${swat.styles.dir}/favicon.png">
+                    <label>Specify zone specific properties.</label>
+                    <textProperty label="Zone label : " property="var.zone.label" tooltip="description" />
+                    <textProperty label="Zone short name : " property="var.zone.short" tooltip="short name" />
+                    <separator />
+                    <controlbar>
+                        <button label="Create" type="ok" />
+                    </controlbar>
+                </antform>
+
+                <!-- write properties -->
+                <propertyfile file="infra-bootstrap.properties"
+                    comment="swat4dp infrastructure properties for customer ${infra.customer} | zone @{zone}">
+                    <entry key="infra.zone.@{zone}.label" value="${var.zone.label}" />
+                    <entry key="infra.zone.@{zone}.shortname" value="${var.zone.short}" />
+                </propertyfile>
+
+                <!-- create zone properties file -->
+                <echo message="creating zone properties ${infra.project-dir}/config/zones/@{zone}/@{zone}.properties ..." />
+                <propertyfile file="${infra.project-dir}/config/zones/@{zone}/@{zone}.properties"
+                    comment="specific '@{zone}' zone properties for customer ${infra.customer}">
+                    <entry key="swat.zone.name" value="@{zone}" />
+                    <entry key="swat.zone.label" value="${var.zone.label}" />
+                    <entry key="swat.zone.short" value="${var.zone.short}" />
+                </propertyfile>
+
+
+                <!-- create envs.properties file -->
+                <echo message="creating envs properties ${infra.project-dir}/config/zones/@{zone}/envs/envs.properties ..." />
+                <propertyfile file="${infra.project-dir}/config/zones/@{zone}/envs/envs.properties"
+                    comment="common environment properties properties for customer ${infra.customer}">
+                    <entry key="swat.env.list" value="${infra.environments}" />
+                </propertyfile>
+
+                <!-- create environment properties -->
+                <echo message="Step 4.2: Loop over all environments (${infra.environments}) and define environment properties" />
+                <var name="idx.loop.envs" value="0" />
+                <for list="${infra.environments}" param="env">
+                    <sequential>
+                        <mkdir dir="${infra.project-dir}/config/zones/@{zone}/envs/@{env}" />
+                        <mkdir dir="${infra.project-dir}/config/zones/@{zone}/envs/@{env}/domains" />
+
+                        <var name="var.env.label" unset="true" />
+                        <var name="var.env.short" unset="true" />
+                        <var name="var.env.device-set" unset="true" />
+                        <var name="var.env.isprod" unset="true" />
+
+                        <property name="var.env.label" value="@{env} environment in the @{zone} zone" />
+                        <property name="var.env.short" value="@{env}" />
+                        <property name="var.env.device-set" value="@{env}" />
+                        <property name="var.env.isprod" value="false" />
+
+                        <math result="idx.loop.envs" operand1="${idx.loop.envs}" operation="+" operand2="1" datatype="int" />
+
+                        <echo message="Step 4.2.${idx.loop.envs}: Define @{env} environment configuration properties" />
+                        <antform title="Swat4DP - create environment properties for @{env}"
+                            stylesheet="${swat.styles.dir}/style.properties" icon="${swat.styles.dir}/favicon.png">
+                            <label>Specify environment specific properties.</label>
+                            <textProperty label="Environment label : " property="var.env.label" tooltip="description" />
+                            <textProperty label="Environment short name : " property="var.env.short" tooltip="short name" />
+                            <booleanProperty label="Is production environment?" property="var.env.isprod"
+                                tooltip="if checked this environment will be treated as a production environment" />
+                            <textProperty label="Related device set : " property="var.env.device-set" tooltip="device-set name" />
+                            <separator />
+                            <controlbar>
+                                <button label="Create" type="ok" />
+                            </controlbar>
+                        </antform>
+
+                        <!-- write properties -->
+                        <propertyfile file="infra-bootstrap.properties"
+                            comment="swat4dp infrastructure properties for customer ${infra.customer} | zone @{zone} | @{env}">
+                            <entry key="infra.zone.@{zone}.env.@{env}.label" value="${var.env.label}" />
+                            <entry key="infra.zone.@{zone}.env.@{env}.shortname" value="${var.env.short}" />
+                            <entry key="infra.zone.@{zone}.env.@{env}.isprod" value="${var.env.isprod}" />
+                        </propertyfile>
+
+                        <!-- create environment properties file -->
+                        <propertyfile file="${infra.project-dir}/config/zones/@{zone}/envs/@{env}/@{env}.properties"
+                            comment="environment-specific properties for '@{env}' in the @{zone} zone">
+                            <entry key="swat.env.name" value="@{env}" />
+                            <entry key="swat.env.label" value="${var.env.label}" />
+                            <entry key="swat.env.short" value="${var.env.short}" />
+
+                            <entry key="swat.device-set.name" value="${var.env.device-set}" />
+                            <entry key="swat.domain.list" value="__@{env}_domain_list__" />
+
+                            <entry key="swat.env.dept" value="" />
+                            <entry key="swat.env.phone" value="" />
+                            <entry key="swat.env.email" value="" />
+                        </propertyfile>
+
+                        <if>
+                            <istrue value="${env.isprod}" />
+                            <then>
+                                <echo message="mark '@{env}' as a production environment ..." />
+                                <propertyfile file="${infra.project-dir}/config/zones/@{zone}/envs/@{env}/@{env}.properties">
+                                    <entry key="swat.env.type" value="production" />
+                                </propertyfile>
+                            </then>
+                            <else>
+                                <propertyfile file="${infra.project-dir}/config/zones/@{zone}/envs/@{env}/@{env}.properties">
+                                    <entry key="swat.env.type" operation="del" />
+                                </propertyfile>
+                            </else>
+                        </if>
+                    </sequential>
+                </for>
+
+                <!-- create device set properties -->
+                <echo message="Step 4.3: Loop over all device sets (${infra.device-sets}) and define device set properties" />
+                <var name="idx.loop.device-sets" value="0" />
+                <for list="${infra.device-sets}" param="device-set">
+                    <sequential>
+
+                        <var name="var.device-set.label" unset="true" />
+                        <var name="var.device-set.short" unset="true" />
+                        <var name="var.device-set.list" unset="true" />
+                        <var name="var.device-set.master" unset="true" />
+
+                        <property name="var.device-set.label" value="@{device-set} devices in the @{zone} zone" />
+                        <property name="var.device-set.short" value="@{device-set}" />
+                        <property name="var.device-set.list" value="@{device-set}1,@{device-set}2" />
+                        <property name="var.device-set.master" value="@{device-set}1" />
+
+                        <math result="idx.loop.device-sets" operand1="${idx.loop.device-sets}" operation="+" operand2="1"
+                            datatype="int" />
+
+                        <echo message="Step 4.3.${idx.loop.device-sets}: Define @{device-set} device set configuration properties" />
+                        <antform title="Swat4DP - create device-set properties for @{device-set}"
+                            stylesheet="${swat.styles.dir}/style.properties" icon="${swat.styles.dir}/favicon.png">
+                            <label>Specify environment specific properties.</label>
+                            <textProperty label="Device set label : " property="var.device-set.label" tooltip="description" />
+                            <textProperty label="Device set short name : " property="var.device-set.short" tooltip="short name" />
+                            <textProperty label="Device set list : " property="device-set.list"
+                                tooltip="comma separated list of devices within this set (all device names need to be unique)" />
+                            <textProperty label="Master device : " property="var.device-set.master"
+                                tooltip="Master device within this set (usually the first in the list)" />
+                            <separator />
+                            <controlbar>
+                                <button label="Create" type="ok" />
+                            </controlbar>
+                        </antform>
+
+                        <!-- write properties -->
+                        <propertyfile file="infra-bootstrap.properties"
+                            comment="swat4dp infrastructure properties for customer ${infra.customer} | zone @{zone} | @{device-set}">
+                            <entry key="infra.zone.@{zone}.device-set.@{device-set}.label" value="${var.device-set.label}" />
+                            <entry key="infra.zone.@{zone}.device-set.@{device-set}.short" value="${var.device-set.short}" />
+                            <entry key="infra.zone.@{zone}.device-set.@{device-set}.devices" value="${device-set.list}" />
+                        </propertyfile>
+
+                        <!-- create environment properties file -->
+                        <propertyfile file="${infra.project-dir}/config/device-sets/@{device-set}.properties"
+                            comment="device-set-specific properties for '@{device-set}'">
+                            <entry key="swat.device-set.name" value="@{device-set}" />
+                            <entry key="swat.device-set.label" value="${var.device-set.label}" />
+                            <entry key="swat.device-set.short" value="${var.device-set.short}" />
+                            <entry key="swat.device.list" value="${device-set.list}" />
+                            <entry key="swat.device.master" value="${var.device-set.master}" />
+                        </propertyfile>
+
+                        <for list="${device-set.list}" param="device">
+                            <sequential>
+
+                                <var name="var.device.label" unset="true" />
+                                <var name="var.device.emphasis" unset="true" />
+                                <var name="var.mgmt.prot" value="https" />
+                                <var name="var.mgmt.port" unset="true" />
+
+                                <property name="var.device.label" value="@{device}" />
+                                <property name="var.device.emphasis" value="to be replaced" />
+                                <property name="var.mgmt.prot" value="https" />
+                                <!-- property name="var.mgmt.host" value="FQDN or IP" / -->
+                                <property name="var.mgmt.port" value="5550" />
+
+
+                                <antform title="Swat4DP - create device properties for @{device}"
+                                    stylesheet="${swat.styles.dir}/style.properties" icon="${swat.styles.dir}/favicon.png">
+                                    <label>Specify environment specific properties.</label>
+                                    <textProperty label="Device label : " property="var.device.label" tooltip="Device label" />
+                                    <textProperty label="Device emphasis : " property="var.device.emphasis"
+                                        tooltip="addtional device qualifier" />
+                                    <textProperty label="SOMA protocol : " property="var.mgmt.prot"
+                                        tooltip="protocal to access the XML Mamangement Interface" />
+                                    <textProperty label="SOMA hostname : " property="var.mgmt.host"
+                                        tooltip="FQDN or IP address of the XML Mamangement Interface" />
+                                    <textProperty label="SOMA port : " property="var.mgmt.port"
+                                        tooltip="Port of the XML Mamangement Interface" />
+                                    <separator />
+                                    <controlbar>
+                                        <button label="Create" type="ok" />
+                                    </controlbar>
+                                </antform>
+
+                                <!-- write properties -->
+                                <propertyfile file="infra-bootstrap.properties"
+                                    comment="swat4dp infrastructure properties for customer ${infra.customer} | zone @{zone} | @{device-set} | @{device}">
+                                    <entry key="infra.zone.@{zone}.device-set.@{device-set}.device.@{device}.label"
+                                        value="${var.device.label}" />
+                                    <entry key="infra.zone.@{zone}.device-set.@{device-set}.device.@{device}.emphasis"
+                                        value="${var.device.emphasis}" />
+                                    <entry key="infra.zone.@{zone}.device-set.@{device-set}.device.@{device}.xmlmgmt.protocol"
+                                        value="${var.mgmt.prot}" />
+                                    <entry key="infra.zone.@{zone}.device-set.@{device-set}.device.@{device}.xmlmgmt.address"
+                                        value="${var.mgmt.host}" />
+                                    <entry key="infra.zone.@{zone}.device-set.@{device-set}.device.@{device}.xmlmgmt.port"
+                                        value="${var.mgmt.port}" />
+                                </propertyfile>
+
+
+                                <!-- create environment properties file -->
+                                <propertyfile file="${devices.project-dir}/config/@{device}.properties"
+                                    comment="device-specific properties for '@{device}'">
+                                    <entry key="device.label" value="${var.device.label}" />
+                                    <entry key="device.organisation" value="${infra.customer}" />
+                                    <entry key="device.emphasis" value="${var.device.emphasis}" />
+
+                                    <entry key="ui.banner.header" value="&lt;strong>@device.emphasis@ - @device.label@&lt;/strong>" />
+                                    <entry key="ui.banner.footer"
+                                        value="@device.organisation@ - DataPower @device.name@ - &lt;strong>@device.emphasis@&lt;/strong> - (s/n @device.entitlement@)" />
+                                    <entry key="ui.banner.prelogin"
+                                        value="@device.organisation@, @device.location@ - &lt;strong>@device.emphasis@&lt;/strong> environment" />
+
+                                    <entry key="ui.banner.color.foreground" value="yellow" />
+                                    <entry key="ui.banner.color.background" value="blue" />
+                                    <entry key="ui.banner.prelogin.color" value="orange" />
+
+                                    <entry key="text.banner.system" value="@device.label@ - @device.emphasis@" />
+                                    <entry key="text.banner.prelogin"
+                                        value="@device.organisation@, @device.location@ - @device.emphasis@ environment" />
+                                    <entry key="text.banner.postlogin"
+                                        value="Be cautious while working on @device.organisation@'s Security Gateway!" />
+
+                                    <entry key="mgmt.prot" value="${var.mgmt.prot}" />
+                                    <entry key="mgmt.host" value="${var.mgmt.host}" />
+                                    <entry key="mgmt.port" value="${var.mgmt.port}" />
+                                </propertyfile>
+                            </sequential>
+                        </for>
+                    </sequential>
+                </for>
+
+
+            </sequential>
+        </for>
+
+    </target>
+
+    <!-- ================================= 
+          target: 71-infra-export-domain-list 
+         ================================= -->
+    <target name="71-infra-export-domain-list"
+            depends="declare,init,choose-device"
+            description="Export the list of configured domains from the given device.">
+        <infra-export-domain-list-macro device="${mgr.target.device.name}" />
+    </target>
+
+    <!-- =================================
+        target: 71-infra-bootstrap
+        ================================= -->
+    <target name="71-infra-bootstrap" depends="declare,init,choose-device"
+        description="Bootstrap the swat4dp infrastructure project from a given device.">
+
+        <!-- get the list of configured domains -->
+        <echo message="Step 1: Get all configured domains" />
+        <infra-export-domain-list-macro device="${mgr.target.device.name}" />
+
+        <!-- extract domain names -->
+        <echo message="Step 2: Extract domain names using an xmltask" />
+        <xmltask source="dist/download/infra-export-domain-list/export.xml" dest="dist/download/infra-export-domain-list/domains.xml">
+            <remove path="//export-details" />
+            <remove path="//interface-data" />
+            <remove path="//files" />
+            <remove path="//Domain[@name = 'default']" />
+            <remove path="//Domain[contains(@name, 'trash')]" />
+            <attr path="//Domain" attr="xmlns:env" remove="true"/>
+            <attr path="//Domain" attr="xmlns:dp" remove="true"/>
+            <copy path="//Domain[@name != 'default' and not(contains(@name,'trash')) and mAdminState!='disabled']/@name" property="domains" append="true" propertySeparator="," />
+        </xmltask>
+        <echo message="configured domains: ${domains}" />
+
+        <echo message="Step 3: Loop over all domains (${domains}) and get the service status" />
+        <var name="idx.loop.domains" value="0" />
+        <for list="${domains}" param="domain">
+            <sequential>
+
+                <var name="var.domain.name" unset="true" />
+                <var name="var.domain.short" unset="true" />
+                <var name="var.domain.description" unset="true" />
+                <var name="var.domain.service-list" unset="true" />
+                <var name="var.domain.rule.index" unset="true" />
+
+                <property name="var.domain.name" value="@{domain}" />
+                <property name="var.domain.short" value="@{domain}" />
+                <property name="var.domain.rule.index" value="false" />
+
+                <xmltask source="dist/download/infra-export-domain-list/export.xml">
+                    <copy path="//Domain[@name = '@{domain}']/UserSummary/text()"  property="var.domain.description" append="false"/>
+                </xmltask>
+
+
+                <!-- get the service list -->
+                <get-status-macro device="${mgr.target.device.name}" domain="@{domain}" status="ServicesStatus" />
+                <!-- extract service names -->
+                <xmltask source="dist/status/${mgr.target.device.name}/@{domain}/status-get-response.xml">
+                    <copy path="//ServiceName/text()" property="var.domain.service-list" append="true" propertySeparator="," />
+                </xmltask>
+                <echo message="configured services in domain @{domain}: ${var.domain.service-list}" />
+
+
+                <math result="idx.loop.domains" operand1="${idx.loop.domains}" operation="+" operand2="1" datatype="int" />
+
+                <echo message="Step x.${idx.loop.domains}: Define @{domain} domain configuration properties" />
+                <antform title="Swat4DP - create domain properties for @{domain}" stylesheet="${swat.styles.dir}/style.properties"
+                    icon="${swat.styles.dir}/favicon.png">
+                    <label>Specify specific properties for domain @{domain}.</label>
+                    <textProperty label="Domain description : " property="var.domain.description" tooltip="description" />
+                    <textProperty label="Domain short name : " property="var.domain.short" tooltip="short name" />
+                    <textProperty label="Domain service list : " property="var.domain.service-list"
+                        tooltip="comma separated list of services within this domain" />
+                    <booleanProperty label="Use numeric index in services rule names?" property="var.domain.rule.index"
+                        tooltip="if checked the services exported from this domain will have a numeric index in rule name files" />
+                    <separator />
+                    <controlbar>
+                        <button label="Create" type="ok" />
+                    </controlbar>
+                </antform>
+
+                <!-- add domain list to the environment properties -->
+                <propertyfile
+                    file="${swat.dp.infra}/config/zones/${swat.zone.name}/envs/${mgr.target.env.name}/${mgr.target.env.name}.properties">
+                    <entry key="swat.domain.list" value="${domains}" />
+                </propertyfile>
+
+
+                <!-- create domain properties file -->
+                <propertyfile file="${swat.dp.infra}/config/zones/${swat.zone.name}/envs/${mgr.target.env.name}/domains/${var.domain.short}.properties"
+                    comment="domain-specific properties for '@{domain}' in the @{zone} zone">
+                    <entry key="swat.domain.name" value="@{domain}" />
+                    <entry key="swat.domain.description" value="${var.domain.description}" />
+                    <entry key="swat.domain.short" value="${var.domain.short}" />
+                    <entry key="swat.service.list" value="${var.domain.service-list}" />
+                    <entry key="swat.settings.splitting.policy.useIndexInRuleName" value="${var.domain.rule.index}" />
+                </propertyfile>
+
+                <for list="${var.domain.service-list}" param="service">
+                    <sequential>
+                        <var name="var.service.object.name" unset="true" />
+                        <var name="var.service.object.class" unset="true" />
+                        <var name="var.service.name" unset="true" />
+                        <var name="var.service.dir" unset="true" />
+                        <var name="var.service.deployment-policy-list" unset="true" />
+
+                        <property name="var.service.object.name" value="@{service}" />
+                        <xmltask source="dist/status/${mgr.target.device.name}/@{domain}/status-get-response.xml">
+                            <copy path="//ServiceStatus[ServiceName='@{service}']/ServiceClass" property="var.service.object.class" append="false" />
+                        </xmltask>
+                        <property name="var.service.dir" value="local:///services/@{service}" />
+                        <property name="var.service.deployment-policy-list" value="" />
+
+                        <antform title="Swat4DP - create service project for @{service}" stylesheet="${swat.styles.dir}/style.properties"
+                            icon="${swat.styles.dir}/favicon.png">
+                            <label>Specify service specific properties for the service @{service}.</label>
+                            <textProperty label="Service object name : " property="var.service.object.name" tooltip="taken from the current configuration" />
+                            <textProperty label="Service object class : " property="var.service.object.class" tooltip="taken from the current configuration" />
+                            <textProperty label="Service name : " property="var.service.name" tooltip="project name on the filesystem" />
+                            <textProperty label="Service directory : " property="var.service.dir" tooltip="dedicated service directory on DataPower" />
+                            <textProperty label="Deployment policy list : " property="var.service.deployment-policy-list"
+                                tooltip="comma separated list of deployment policies to be activated for this service" />
+                            <booleanProperty label="Use numeric index in services rule names?" property="var.domain.rule.index"
+                                tooltip="if checked the services exported from this domain will have a numeric index in rule name files" />
+                            <separator />
+                            <controlbar>
+                                <button label="Create" type="ok" />
+                            </controlbar>
+                        </antform>
+                    </sequential>
+                </for>
+
+            </sequential>
+        </for>
+
+    </target>
+
+</project>

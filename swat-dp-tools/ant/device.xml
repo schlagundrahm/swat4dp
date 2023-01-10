@@ -159,24 +159,4 @@
 
         </sequential>
     </macrodef>
-
-    <!-- = = = = = = = = = = = = = = = = =
-          macrodef: device-export-domain-list-macro          
-         = = = = = = = = = = = = = = = = = -->
-    <macrodef name="device-export-domain-list-macro">
-        <attribute name="device" />
-        <sequential>
-            <!-- Prepare the soma-request get-domain-list -->
-            <soma-prepare-request-macro soma.request="device-domain-export" content.exists="false" tmp.dir="download" />
-
-            <!-- Run the soma-request device-export -->
-            <soma-run-single-request-on-single-device-macro device="@{device}"
-                                                            soma.request="device-domain-export"
-                                                            tmp.dir="download"
-                                                            check.response="true" />
-
-            <!-- Extract the objects from the downloaded soma-response -->
-            <extract-zip-file-macro soma.request="device-domain-export" tmp.dir="download" />
-        </sequential>
-    </macrodef>
 </project>

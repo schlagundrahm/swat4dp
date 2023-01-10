@@ -44,12 +44,9 @@
          - - - - - - - - - - - - - - - - - -->
     <target name="init" depends="declare">
 
-        <!-- FIXME: remove -->
-        <echoproperties prefix="swat" />
-
         <if>
             <!-- 
-                 works only when exceuted from within eclipse 
+                 works only when executed from within eclipse 
                  and only if the runtime JRE is set to "Run int the same JRE as the workspace"
             -->
             <typefound name="eclipse.convertPath" />
@@ -657,15 +654,37 @@
     </target>
 
     <!-- ================================= 
-          target: 96-swat-create-infra              
+          target: 70-infra-create-projects              
          ================================= -->
-    <target name="96-swat-create-infra" depends="init" description="Create a swat4dp infrastructure project.">
+    <target name="70-infra-create-projects" depends="init" description="Create the swat4dp infrastructure projects (infra and devices).">
         <ant antfile="${swat.dp.tools}/ant/infra-targets.xml"
-             target="10-infra-create-project"
+             target="70-infra-create-projects"
              inheritrefs="true"
              useNativeBasedir="false" />
     </target>
 
+    <!-- ================================= 
+              target: 71-infra-export-domain-list
+         ================================= -->
+    <target name="71-infra-export-domain-list" depends="init,choose-env,choose-device" description="Create a swat4dp domain structure in the infra project.">
+        <echo message="Basedir: ${basedir}" />
+        <ant antfile="${swat.dp.infra}/build.xml"
+             target="71-infra-export-domain-list"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+              target: 71-infra-bootstrap
+         ================================= -->
+    <target name="71-infra-bootstrap" depends="init,choose-env,choose-device" description="Create a swat4dp domain structure in the infra project.">
+        <echo message="Basedir: ${basedir}" />
+        <ant antfile="${swat.dp.infra}/build.xml"
+             target="71-infra-bootstrap"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+        <echo message="Basedir: ${basedir}" />
+    </target>
 
     <!-- ================================= 
           target: 59-ops-sanitize-error-report 

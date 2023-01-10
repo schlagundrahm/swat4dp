@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ================================================================================================= -->
+<!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
+<!-- Copyright © @year@ schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- ================================================================================================= -->
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.10.0 or above. -->
+<!-- ====================================================================== -->
+<project name="@customer@-swat-dp-infra" default="info" basedir=".">
+
+	<!-- The build.properties file defines the path to local jar files -->
+	<property file="build.properties" />
+	<property file="${swat.dp.infra}/settings/${user.name}.properties" />
+
+	<!-- ================================= 
+          target: info              
+         ================================= -->
+    <target name="info" description="show project info">
+        <echoproperties prefix="swat" />
+	</target>
+
+</project>
