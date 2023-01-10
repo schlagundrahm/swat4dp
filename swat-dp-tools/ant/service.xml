@@ -463,6 +463,7 @@
                            input="@{artifact}"
                            regexp="[^\s\\/]-swat-dp-services-([a-z]+)-([a-z]+)-([a-z-]+)"
                            select="\3" />
+            <!-- FIXME: the regex should either take the environment labels from the actual infra config or it should be generic -->
             <propertyregex property="artifact.env"
                            input="@{artifact}"
                            regexp="[^\s\\/]*-([test|qtst|prod])\.zip"
