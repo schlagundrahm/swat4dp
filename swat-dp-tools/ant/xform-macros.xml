@@ -549,6 +549,15 @@
                   classpathref="swat.dp.tools.classpath">
                 <factory name="net.sf.saxon.TransformerFactoryImpl" />
             </xslt>
+            
+            <xslt processor="trax"
+                  basedir="@{src-dir}"
+                  style="${swat.dp.tools}/soma/xsl/tokenize-service-write-properties-file.xsl"
+                  destdir="@{dst-dir}-properties"
+                  extension=".properties"
+                  classpathref="swat.dp.tools.classpath">
+                <factory name="net.sf.saxon.TransformerFactoryImpl" />
+            </xslt>
         </sequential>
     </macrodef>
 
