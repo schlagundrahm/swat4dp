@@ -3,10 +3,11 @@
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
 <!-- Copyright (c) 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Copyright (c) 2022 IBM Schweiz AG, Switherland. All rights reserved. -->
 <!-- ================================================================================================= -->
 
 <!-- ====================================================================== -->
-<!-- Ant build file (http://ant.apache.org/) for Ant 1.8.2 or above. -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.10.x or above. -->
 <!-- ====================================================================== -->
 <project name="swat-dp-tools" default="info" basedir=".">
 
@@ -41,6 +42,9 @@
     <import file="${swat.dp.tools}/ant/device-pack.xml" />
     <import file="${swat.dp.tools}/ant/device-split.xml" />
 
+    <!-- Infrastructure libraries -->
+    <import file="${swat.dp.tools}/ant/infra.xml" />
+
     <!-- Domain libraries -->
     <import file="${swat.dp.tools}/ant/domain.xml" />
 
@@ -61,8 +65,9 @@
     <target name="info" description="show Swat4DP project information" depends="init">
         <echo message="===================================================================================================" />
         <echo message="* * * * * * * * * *   W e l c o m e  t o  S w a t 4 D P   * * * * * * * * * *" />
-        <echo message="schlag&amp;rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP)" />
-        <echo message="Copyright (c) 2010-2013 schlag&amp;rahm AG, Switzerland. All rights reserved." />
+        <echo message="schlag&amp;rahm WebSphere Administration Toolkit for IBM DataPower Gateway appliances (Swat4DP)" />
+        <echo message="Copyright (c) 2010-2023 schlag&amp;rahm AG, Switzerland. All rights reserved." />
+        <echo message="Copyright (c) 2013-2023 IBM Corporation. All rights reserved." />
         <echo message="===================================================================================================" />
         <fail unless="swat.customer"
               message="Mandator/customer property has not yet been defined! Please set swat.customer with Windows-->Preferences-->Ant-->Runtime-->Properties or set the property in your swat4dp properties file (~/.swat4dp/build.properties)." />
@@ -94,14 +99,19 @@
         <echo message="user home=${user.home}" />
         <echo message="" />
         <echo message="********************************************" />
+        <echo message="service prefix" />
         <echoproperties prefix="service" />
         <echo message="--------------------------------------------" />
+        <echo message="swat prefix" />
         <echoproperties prefix="swat" />
         <echo message="--------------------------------------------" />
+        <echo message="user prefix" />
         <echoproperties prefix="user" />
         <echo message="--------------------------------------------" />
+        <echo message="env prefix" />
         <echoproperties prefix="env" />
         <echo message="--------------------------------------------" />
+        <echo message="ant prefix" />
         <echoproperties prefix="ant" />
         <echo message="********************************************" />
     </target>
