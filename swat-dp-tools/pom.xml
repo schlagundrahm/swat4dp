@@ -9,7 +9,7 @@
 
     <groupId>ch.schlagundrahm.swat.datapower</groupId>
     <artifactId>swat-dp-tools</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Swat4DP Tooling</name>
@@ -26,7 +26,7 @@
         <dependency>
             <groupId>ch.schlagundrahm.swat.datapower.tools.ant</groupId>
             <artifactId>swat-dp-ant-tools</artifactId>
-            <version>1.1.0</version>
+            <version>1.1.2</version>
         </dependency>
 
         <!-- ANT tools -->
@@ -90,6 +90,35 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
+                <version>1.0.2</version>
+                <executions>
+                    <execution>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>validate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <validationSets>
+                        <validationSet>
+                            <dir>${project.basedir}</dir>
+                            <includes>
+                                <include>**/*.xml</include>
+                                <include>**/*.xsd</include>
+                                <include>**/*.xsl</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/modify-config.xml</exclude>
+                                <exclude>**/yield-standby.xml</exclude>
+                            </excludes>
+                        </validationSet>
+                    </validationSets>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
