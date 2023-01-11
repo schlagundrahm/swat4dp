@@ -35,12 +35,12 @@
                 <configuration>
                     <validationSets>
                         <validationSet>
-                            <dir>/src</dir>
+                            <dir>${project.basedir}</dir>
+                            <includes>
+                                <include>**/*.xml</include>
+                            </includes>
                         </validationSet>
                     </validationSets>
-                    <catalogs>
-                        <catalog>/src/test/resources/schema/xmlcatalog.xml</catalog>
-                    </catalogs>
                 </configuration>
             </plugin>
             <plugin>
