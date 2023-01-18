@@ -493,6 +493,8 @@
                 <include name="Swat4DP/dist/**" />
                 <include name="${swat.customer}-swat-dp-devices/dist/**" />
                 <include name="${swat.customer}-swat-dp-services-*/dist/**" />
+                <include name="${swat.settings.project.services.prefix}-*/dist/**" />
+                <include name="${swat.settings.project.services.prefix}-*/target/**" />
             </fileset>
         </delete>
     </target>

@@ -486,7 +486,7 @@
                     <contains string="${service.object.name}" substring="{" />
                 </condition>
             </fail>
-            <fail message="The property 'serivce.object.class' is not defined! Check the @{artifact} POM.">
+            <fail message="The property 'service.object.class' is not defined! Check the @{artifact} POM.">
                 <condition>
                     <contains string="${service.object.class}" substring="{" />
                 </condition>
