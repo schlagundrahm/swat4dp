@@ -3,7 +3,7 @@
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
 <!-- Licensed Materials - Property of schlag&rahm -->
-<!-- Copyright © 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Copyright Â© 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
 <!-- Licensed Materials - Property of IBM -->
 <!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
 <!-- US Government Users Restricted Rights - Use, duplication or disclosure -->
@@ -244,7 +244,7 @@
                 <then>
                     <soma-prepare-request-macro soma.request="checkpoint-list"
                                                 env="${local.env}"
-                                                domain="@{local.domain}"
+                                                domain="${local.domain}"
                                                 content.exists="false"
                                                 custom.filter="checkpoint.filter.id" />
                     <soma-prepare-request-macro soma.request="checkpoint-remove"
@@ -531,7 +531,8 @@
                 <then>
                     <soma-prepare-request-macro soma.request="checkpoint-list"
                                                 env="${local.env}"
-                                                domain="@{local.domain}"
+                                                domain="$
+                                                        {local.domain}"
                                                 content.exists="false"
                                                 custom.filter="checkpoint.filter.id" />
                     <soma-prepare-request-macro soma.request="checkpoint-remove"
