@@ -153,7 +153,7 @@
 				<filter token="build.time" value="${FILESTAMP}"/>
 			    <filter token="build.user" value="${env.USERNAME}"/>
 			    <filter token="artifactId" value="${pom.artifactId}"/>
-			    <filter token="groupId" value="${pom.groupId}"/>
+			    <filter token="groupId" value="${group-id}"/>
 			    <filter token="description" value="${pom.description}"/>
 			</filterset>
 

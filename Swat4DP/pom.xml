@@ -9,7 +9,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Swat4DP</name>
+    <name>Swat4DP Launcher</name>
     <description>Main ANT build file for the schlag&amp;rahm websphere administration toolkit for IBM DataPower</description>
 
     <scm>
