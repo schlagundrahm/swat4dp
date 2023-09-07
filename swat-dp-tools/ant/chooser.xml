@@ -622,7 +622,7 @@
                                                   from="mgr.target.password.value.temp" />
                                 </then>
                                 <else>
-                                    <echo message="No password has been set in your settings file (${swat.dp.infra}/settings/${user.name}.properties)." />
+                                    <echo message="No password has been set for the device set @{device-set} in your settings file (${swat.dp.infra}/settings/${user.name}.properties)." />
                                     <dialog-password-macro property="mgr.target.password.value"
                                                            title="Password for user ${mgr.target.user.name} on @{device-set}" />
                                     <var name="mgr.target.password.value.temp" value="${mgr.target.password.value}" />
