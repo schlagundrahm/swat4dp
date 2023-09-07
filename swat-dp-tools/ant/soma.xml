@@ -448,7 +448,7 @@
                             <!-- verify response properties -->
                             <verify-soma-response-macro src-file="dist/@{tmp.dir}/@{soma.request}-response.properties"
                                                         result-property="failure-properties"
-                                                        pattern="&lt;error-log&gt;|[^-_\. ]error[^-_\.A-Z]+|ERROR|failed|failure|cannot|:fault|malformed|verboten" />
+                                                        pattern="&lt;error-log&gt;|[^-_\. ]error[^-_\.A-Z]+|[^-_\. ]ERROR|failed|failure|cannot|:fault|malformed|verboten" />
                             <!-- check for custom failure pattern -->
                             <if>
                                 <length string="@{check.response.pattern}" when="greater" length="0" />
