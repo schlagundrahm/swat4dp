@@ -207,6 +207,7 @@
             <xsd:element name="AS2SourceProtocolHandler" type="ConfigElement" />
             <xsd:element name="AS3SourceProtocolHandler" type="ConfigElement" />
             <xsd:element name="EBMS2SourceProtocolHandler" type="ConfigElement" />
+            <xsd:element name="EBMS3SourceProtocolHandler" type="ConfigElement" />
             <xsd:element name="FTPFilePollerSourceProtocolHandler" type="ConfigElement" />
             <xsd:element name="NFSFilePollerSourceProtocolHandler" type="ConfigElement" />
             <xsd:element name="SFTPFilePollerSourceProtocolHandler" type="ConfigElement" />

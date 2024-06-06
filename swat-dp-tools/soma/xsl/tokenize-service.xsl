@@ -311,6 +311,204 @@
     </xsl:template>
 
 
+    <!-- B2B Gateway Service -->
+    <xsl:template match="B2BGateway">
+        <xsl:variable name="label">
+            <xsl:value-of select="@name" />
+        </xsl:variable>
+
+        <xsl:element name="{name()}">
+            <xsl:copy-of select="document('')/*/namespace::*[name()='env']" />
+            <xsl:copy-of select="document('')/*/namespace::*[name()='dp']" />
+            <xsl:copy-of select="@*[name()!='name']" />
+            <xsl:attribute name="name">
+            <xsl:call-template name="set-attribute-token">
+               <xsl:with-param name="name">
+                  <xsl:value-of select="string('name')" />
+               </xsl:with-param>
+               <xsl:with-param name="key">
+                  <xsl:value-of select="string('service.object.name')" />
+               </xsl:with-param>
+            </xsl:call-template>
+         </xsl:attribute>
+            <xsl:for-each select="*">
+                <xsl:choose>
+                    <xsl:when test="local-name(.)='mAdminState'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="string('service.state')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='UserSummary'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="string('service.summary')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='DocStoreLocation'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="string('b2b.docstore.location')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='ASFrontProtocol'">
+                        <xsl:element name="{name()}">
+                            <xsl:for-each select="*">
+                                <xsl:choose>
+                                    <xsl:when test="local-name(.)='FrontProtocol'">
+                                        <xsl:call-template name="set-attribute-and-value-token">
+                                            <xsl:with-param name="attrname">
+                                                <xsl:value-of select="string('class')" />
+                                            </xsl:with-param>
+                                            <xsl:with-param name="attrkey">
+                                                <xsl:value-of
+                                                    select="concat('fsh.',count(../preceding-sibling::ASFrontProtocol)+1,'.class')" />
+                                            </xsl:with-param>
+                                            <xsl:with-param name="key">
+                                                <xsl:value-of
+                                                    select="concat('fsh.',count(../preceding-sibling::ASFrontProtocol)+1,'.name')" />
+                                            </xsl:with-param>
+                                        </xsl:call-template>
+                                    </xsl:when>
+                                    <xsl:when test="local-name(.)='MDNReceiver'">
+                                        <xsl:call-template name="set-token">
+                                            <xsl:with-param name="key">
+                                                <xsl:value-of
+                                                    select="concat('fsh.',count(../preceding-sibling::ASFrontProtocol)+1,'.mdn')" />
+                                            </xsl:with-param>
+                                        </xsl:call-template>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:copy-of select="." />
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:for-each>
+                        </xsl:element>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='B2BProfiles'">
+                        <xsl:element name="{name()}">
+                            <xsl:for-each select="*">
+                                <xsl:choose>
+                                    <xsl:when test="local-name(.)='PartnerProfile'">
+                                        <xsl:call-template name="set-token">
+                                            <xsl:with-param name="key">
+                                                <xsl:value-of
+                                                    select="concat('b2b.profile.',count(../preceding-sibling::B2BProfiles)+1,'.name')" />
+                                            </xsl:with-param>
+                                        </xsl:call-template>
+                                    </xsl:when>
+                                    <xsl:when test="local-name(.)='ProfileEnabled'">
+                                        <xsl:call-template name="set-token">
+                                            <xsl:with-param name="key">
+                                                <xsl:value-of
+                                                    select="concat('b2b.profile.',count(../preceding-sibling::B2BProfiles)+1,'.enabled')" />
+                                            </xsl:with-param>
+                                        </xsl:call-template>
+                                    </xsl:when>
+                                    <xsl:when test="local-name(.)='ProfileDest'">
+                                        <xsl:call-template name="set-token">
+                                            <xsl:with-param name="key">
+                                                <xsl:value-of
+                                                    select="concat('b2b.profile.',count(../preceding-sibling::B2BProfiles)+1,'.destination.selected')" />
+                                            </xsl:with-param>
+                                        </xsl:call-template>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:copy-of select="." />
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:for-each>
+                        </xsl:element>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='B2BProfileInternal'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="string('b2b.profile.internal')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='ArchiveLocation'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="string('b2b.archive.location')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='ArchiveFileName'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="string('b2b.archive.filename')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='FrontSideTimeout'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="string('frontside.timeout')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='RequestType'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="string('request.type')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='ResponseType'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="string('response.type')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='XMLManager'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="string('xml.manager')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='Type'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="string('backend.type')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='XPathRoutingPolicies'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="string('b2b.routing.policy')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='DebugMode'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="string('debug.mode')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='DebugHistory'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="string('debug.history')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:copy-of select="." />
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:for-each>
+        </xsl:element>
+    </xsl:template>
+
+
     <!-- WebTokenService -->
     <xsl:template match="WebTokenService">
         <xsl:variable name="label">
@@ -945,7 +1143,7 @@
     </xsl:template>
 
     <!-- HTTP(S) Front Side Handler -->
-    <xsl:template match="HTTPSSourceProtocolHandler|HTTPSourceProtocolHandler">
+    <xsl:template match="HTTPSSourceProtocolHandler|HTTPSourceProtocolHandler|EBMS3SourceProtocolHandler">
         <xsl:variable name="label">
             <xsl:value-of select="@name" />
         </xsl:variable>
@@ -1020,6 +1218,130 @@
                         <xsl:call-template name="set-token">
                             <xsl:with-param name="key">
                                 <xsl:value-of select="concat('fsh.',$index,'.acl')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:copy-of select="." />
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:for-each>
+        </xsl:element>
+    </xsl:template>
+
+    <!-- B2B Profiles -->
+    <xsl:template match="B2BProfile">
+        <xsl:variable name="label">
+            <xsl:value-of select="@name" />
+        </xsl:variable>
+        <xsl:variable name="index">
+            <xsl:value-of
+                select="position() - (count(../preceding-sibling::*[name()!='B2BProfile' and name()!='B2BProfile']) + 0)" />
+        </xsl:variable>
+
+        <xsl:element name="{name()}">
+            <xsl:copy-of select="document('')/*/namespace::*[name()='env']" />
+            <xsl:copy-of select="document('')/*/namespace::*[name()='dp']" />
+            <xsl:copy-of select="@*[name()!='name']" />
+            <xsl:attribute name="name">
+            <xsl:call-template name="set-attribute-token">
+                <xsl:with-param name="name">
+                    <xsl:value-of select="string('name')" />
+                </xsl:with-param>
+                <xsl:with-param name="key">
+                    <xsl:value-of select="concat('b2b.profile.',$index,'.name')" />
+                </xsl:with-param>
+            </xsl:call-template>
+            </xsl:attribute>
+            <xsl:for-each select="*">
+                <xsl:choose>
+                    <xsl:when test="local-name(.)='UserSummary'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="concat('b2b.profile.',$index,'.summary')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='ProfileType'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="concat('b2b.profile.',$index,'.type')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='BusinessIDs'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of
+                                    select="concat('b2b.profile.',$index,'.id.',count(./preceding-sibling::BusinessIDs)+1)" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='CustomStylePolicy'">
+                        <xsl:call-template name="set-attribute-and-value-token">
+                            <xsl:with-param name="attrname">
+                                <xsl:value-of select="string('class')" />
+                            </xsl:with-param>
+                            <xsl:with-param name="attrkey">
+                                <xsl:value-of select="concat('b2b.profile.',$index,'.custom.policy.class')" />
+                            </xsl:with-param>
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="concat('b2b.profile.',$index,'.custom.policy.name')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='Destinations'">
+                        <xsl:element name="{name()}">
+                            <xsl:for-each select="*">
+                                <xsl:choose>
+                                    <xsl:when test="local-name(.)='DestName'">
+                                        <xsl:call-template name="set-token">
+                                            <xsl:with-param name="key">
+                                                <xsl:value-of
+                                                    select="concat('b2b.profile.',$index,'.destination.',count(../preceding-sibling::Destinations)+1,'.name')" />
+                                            </xsl:with-param>
+                                        </xsl:call-template>
+                                    </xsl:when>
+                                    <xsl:when test="local-name(.)='DestURL'">
+                                        <xsl:call-template name="set-token">
+                                            <xsl:with-param name="key">
+                                                <xsl:value-of
+                                                    select="concat('b2b.profile.',$index,'.destination.',count(../preceding-sibling::Destinations)+1,'.url')" />
+                                            </xsl:with-param>
+                                        </xsl:call-template>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:copy-of select="." />
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:for-each>
+                        </xsl:element>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='EBMSRole'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="concat('b2b.profile.',$index,'.ebms.role')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='EBMS3OutboundSignIdCred'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="concat('b2b.profile.',$index,'.ebms3.outbound.signidcred')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='EBMS3AllowDuplicateMessage'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="concat('b2b.profile.',$index,'.ebms3.duplicates.allow')" />
+                            </xsl:with-param>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="local-name(.)='EBMS3DuplicateDetectionNotification'">
+                        <xsl:call-template name="set-token">
+                            <xsl:with-param name="key">
+                                <xsl:value-of select="concat('b2b.profile.',$index,'.ebms3.duplicates.notification')" />
                             </xsl:with-param>
                         </xsl:call-template>
                     </xsl:when>
