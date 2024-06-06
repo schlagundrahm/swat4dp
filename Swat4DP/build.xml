@@ -444,8 +444,8 @@
     <!-- ================================= 
           target: 41-service-template-clone 
          ================================= -->
-    <target name="41-service-template-clone" depends="init" description="running service template clone">
-        <ant antfile="${swat.dp.service.templates}/build.xml"
+    <target name="41-service-template-clone" depends="init" description="clone an existing service configuration">
+        <ant antfile="${swat.dp.tools}/ant/template-targets.xml"
              target="clone-project"
              inheritrefs="true"
              useNativeBasedir="true" />
