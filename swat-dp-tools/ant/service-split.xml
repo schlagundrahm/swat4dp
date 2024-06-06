@@ -78,6 +78,9 @@
                     <not>
                         <equals arg1="@{service}" arg2="common" />
                     </not>
+                    <not>
+                        <isset property="swat.skip.export.objectfilter" />
+                    </not>
                     <available file="${swat.current.service.common.home}" type="dir" />
                 </and>
                 <then>

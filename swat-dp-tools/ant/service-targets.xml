@@ -39,6 +39,7 @@
         <echo message="current basedir = ${basedir}" />
         <echo message="current project = ${ant.project.name}" />
         <echo message="---------- predefined properties ----------" />
+        <echoproperties prefix="swat" />
         <echoproperties regex="(mgr\.target\.[^pass]+|confirm|overwrite)" />
     </target>
 
@@ -119,8 +120,7 @@
     <!-- ================================= 
               target: service-auto-deploy         
          ================================= -->
-    <target name="service-auto-deploy"
-            depends="declare,init,load-service-props">
+    <target name="service-auto-deploy" depends="declare,init,load-service-props">
 
         <!-- Deploy the service on the device-set associated with this environment -->
         <service-deploy-macro env="${mgr.target.env.name}"
@@ -137,13 +137,37 @@
     <!-- ================================= 
               target: artifact-deploy         
          ================================= -->
-    <target name="artifact-deploy"
-            depends="declare,init">
+    <target name="artifact-deploy" depends="declare,init">
+
+        <if>
+            <or>
+                <not>
+                    <isset property="deploy.policy" />
+                </not>
+            </or>
+            <then>
+                <property name="deploy.policy" value="" />
+            </then>
+        </if>
+
+        <if>
+            <or>
+                <not>
+                    <isset property="deploy.class" />
+                </not>
+            </or>
+            <then>
+                <property name="deploy.class" value="" />
+            </then>
+        </if>
 
         <!-- Deploy a service artifact on the device-set associated with this environment -->
         <artifact-deploy-macro env="${deploy.environment}"
+                               zone="${deploy.zone}"
+                               domain="${deploy.domain}"
                                sourcedir="${deploy.sourcedir}"
                                artifact="${deploy.artifact.id}"
+                               class="${deploy.class}"
                                version="${deploy.artifact.version}"
                                do-quiesce="true"
                                do-import="true"
@@ -296,15 +320,15 @@
     </target>
 
     <!-- ================================= 
-		  target: 39-service-project-clean 
-		 ================================= -->
+          target: 39-service-project-clean 
+         ================================= -->
     <target name="39-service-project-clean" description="Clean the dist-folder of the project">
         <delete dir="${basedir}/dist" />
     </target>
 
     <!-- ================================= 
-		  target: 39-service-documentation 
-		 ================================= -->
+          target: 39-service-documentation 
+         ================================= -->
     <target name="39-service-documentation" description="Create the service documentation">
         <!-- Step 1: Pack the service for the environment -->
         <echo message="Step 1: Pack service" />

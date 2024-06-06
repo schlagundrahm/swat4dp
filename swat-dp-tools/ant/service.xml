@@ -3,7 +3,7 @@
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
 <!-- Licensed Materials - Property of schlag&rahm -->
-<!-- Copyright Â© 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Copyright © 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
 <!-- Licensed Materials - Property of IBM -->
 <!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
 <!-- US Government Users Restricted Rights - Use, duplication or disclosure -->
@@ -438,9 +438,12 @@
          = = = = = = = = = = = = = = = = = -->
     <macrodef name="artifact-deploy-macro">
         <attribute name="env" />
+        <attribute name="zone" />
+        <attribute name="domain" />
         <attribute name="sourcedir" />
         <attribute name="artifact" />
         <attribute name="version" />
+        <attribute name="class" default="" />
         <attribute name="deployment.policy" default="" />
         <attribute name="do-quiesce" default="true" />
         <attribute name="do-import" default="true" />
@@ -455,38 +458,20 @@
         <sequential>
             <!-- Prepare local variables -->
             <property name="local.env" value="@{env}" />
+            <property name="local.zone" value="@{zone}" />
+            <property name="local.domain.short" value="@{domain}" />
+            <property name="service.object.name" value="@{object}" />
+            <property name="service.object.class" value="@{class}" />
             <property name="local.dir" value="@{sourcedir}" />
             <property name="local.version" value="@{version}" />
             <property name="local.file" value="@{artifact}-@{version}-${local.env}.zip" />
-            <propertyregex property="local.zone"
-                           input="@{artifact}"
-                           regexp="[^\s\\/]-swat-dp-services-([a-z]+)-([a-z]+)-([a-z-]+)"
-                           select="\1" />
-            <propertyregex property="local.domain.short"
-                           input="@{artifact}"
-                           regexp="[^\s\\/]-swat-dp-services-([a-z]+)-([a-z]+)-([a-z-]+)"
-                           select="\2" />
-            <propertyregex property="local.service"
-                           input="@{artifact}"
-                           regexp="[^\s\\/]-swat-dp-services-([a-z]+)-([a-z]+)-([a-z-]+)"
-                           select="\3" />
-            <!-- FIXME: the regex should either take the environment labels from the actual infra config or it should be generic -->
-            <propertyregex property="artifact.env"
-                           input="@{artifact}"
-                           regexp="[^\s\\/]*-([test|qtst|prod])\.zip"
-                           select="\1" />
 
-            <!-- load important properties that would be in the project's build.properties from the Maven POM artifact -->
-            <echo message="Loading service POM: ${local.dir}/@{artifact}-@{version}.pom" />
-            <xmlproperty file="${local.dir}/@{artifact}-@{version}.pom" keepRoot="false" />
-            <property name="service.object.name" value="${properties.swat.service.object.name}" />
-            <property name="service.object.class" value="${properties.swat.service.object.class}" />
-            <fail message="The property 'service.object.name' is not defined! Check the @{artifact} POM.">
+            <fail message="The property 'service.object.name' has not been defined! Check the @{artifact} POM.">
                 <condition>
                     <contains string="${service.object.name}" substring="{" />
                 </condition>
             </fail>
-            <fail message="The property 'service.object.class' is not defined! Check the @{artifact} POM.">
+            <fail message="The property 'service.object.class' has not been defined! Check the @{artifact} POM.">
                 <condition>
                     <contains string="${service.object.class}" substring="{" />
                 </condition>
@@ -521,7 +506,7 @@
 
             <!-- prepare soma-request checkpoint-save -->
             <filterset id="checkpoint.filter.id">
-                <filter token="checkpoint.name" value="${local.service}" />
+                <filter token="checkpoint.name" value="@{artifact}" />
             </filterset>
             <if>
                 <or>
@@ -531,8 +516,7 @@
                 <then>
                     <soma-prepare-request-macro soma.request="checkpoint-list"
                                                 env="${local.env}"
-                                                domain="$
-                                                        {local.domain}"
+                                                domain="${local.domain}"
                                                 content.exists="false"
                                                 custom.filter="checkpoint.filter.id" />
                     <soma-prepare-request-macro soma.request="checkpoint-remove"

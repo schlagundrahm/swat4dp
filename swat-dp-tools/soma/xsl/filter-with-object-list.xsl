@@ -22,19 +22,13 @@
                     <xsl:choose>
                         <xsl:when test="$currentObjectFound > 0">
                             <xsl:message>
-                                REMOVE - Object:
-                                <xsl:value-of select="$currentType" />
-                                /
-                                <xsl:value-of select="$currentName" />
+                                <xsl:value-of select="concat('REMOVE - Object: (', $currentType, ')', $currentName)" />
                             </xsl:message>
                         </xsl:when>
                         <xsl:otherwise>
                             <xsl:if test="number($log-level) &lt; 2">
                                 <xsl:message>
-                                    COPY - Object:
-                                    <xsl:value-of select="$currentType" />
-                                    /
-                                    <xsl:value-of select="$currentName" />
+                                    <xsl:value-of select="concat('COPY - Object: (', $currentType, ')', $currentName)" />
                                 </xsl:message>
                             </xsl:if>
                             <xsl:copy-of select="." />
