@@ -134,7 +134,7 @@
             depends="init,choose-domain"
             description="Clone an existing project and do some pattern replacement">
 
-        <property name="clone.source.dir" value="${basedir}/.." />
+        <property name="clone.source.dir" value="${swat.dp.customer.home}" />
         <property name="clone.target.base.dir" value="${swat.dp.customer.home}" />
         <loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/${mgr.target.zone.name}.properties" />
         <loadproperties srcfile="${swat.dp.infra}/config/zones/${mgr.target.zone.name}/envs/${mgr.target.env.name}/${mgr.target.env.name}.properties" />
