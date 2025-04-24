@@ -55,12 +55,6 @@
                  classname="ise.antelope.tasks.StringUtilTask"
                  classpathref="swat.dp.tools.classpath" />
 
-        <!-- Flaka Expression Language tasks -->
-        <!-- uri has to match the uri of the dp namespace prefix -->
-        <!-- taskdef uri="antlib:it.haefelinger.flaka" 
-		         resource="it/haefelinger/flaka/antlib.xml" 
-		         classpathref="swat.dp.tools.classpath" / -->
-
         <!-- declare antcontrib tasks -->
         <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="swat.dp.tools.classpath" />
         <taskdef resource="com/sardak/antform/taskdefs.properties" classpathref="swat.dp.tools.classpath" />
@@ -72,15 +66,6 @@
         <taskdef name="http"
                  classname="org.missinglink.ant.task.http.HttpClientTask"
                  classpathref="swat.dp.tools.classpath" />
-
-        <!-- Task definitions based on scripts -->
-        <scriptdef language="javascript" name="lowercase">
-            <attribute name="string" /> 
-            <attribute name="property" />
-
-            project.setProperty( attributes.get( "property" ),
-                                 attributes.get( "string" ).toLowerCase() );
-        </scriptdef>
 
     </target>
 </project>

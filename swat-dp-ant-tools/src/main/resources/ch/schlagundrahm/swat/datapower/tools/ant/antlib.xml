@@ -6,4 +6,5 @@
    <taskdef name="crypto" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.Crypto" onerror="ignore" />
    <taskdef name="showfile" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.ShowFile" onerror="ignore" />
    <taskdef name="validatecertificate" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.ValidateCertificate" onerror="ignore" />
+   <taskdef name="stringmod" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.StringMod" onerror="ignore" />
 </antlib>
