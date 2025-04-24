@@ -1,8 +1,13 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
-<!-- Copyright © 2022 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Licensed Materials - Property of schlag&rahm -->
+<!-- Copyright (c) 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Licensed Materials - Property of IBM -->
+<!-- Copyright (c) 2024, IBM Corporation. All Rights Reserved. -->
+<!-- US Government Users Restricted Rights - Use, duplication or disclosure -->
+<!-- restricted by GSA ADP Schedule Contract with IBM Corp. -->
 <!-- ================================================================================================= -->
 
 <!-- ====================================================================== -->
@@ -43,6 +48,10 @@
         <echo message="---------- predefined properties ----------" />
         <echoproperties prefix="swat" />
         <echoproperties regex="(mgr\.target\.device|mgr\.target\.user|confirm|overwrite)" />
+    </target>
+    
+    <target name="exit">
+        <fail message="Process aborted by user." />
     </target>
 
     <!-- =================================
@@ -87,7 +96,7 @@
                 tooltip="If checked a Maven parent POM will be generated based on additional input" />
             <controlbar>
                 <button label="Create" type="ok" />
-                <button label="Cancel" type="cancel" target="cancel" />
+                <button label="Cancel" type="cancel" target="exit" />
             </controlbar>
         </antform>
         <fail unless="infra.customer" message="Customer name is missing!" />
@@ -246,7 +255,7 @@
                     <separator />
                     <controlbar>
                         <button label="Create" type="ok" />
-                        <button label="Cancel" type="cancel" target="cancel" />
+                        <button label="Cancel" type="cancel" target="exit" />
                     </controlbar>
                 </antform>
 
@@ -669,7 +678,9 @@
                         tooltip="if checked the services exported from this domain will have a numeric index in rule name files" />
                     <separator />
                     <controlbar>
+                        <button label="Skip" type="cancel" loopexit="false" />
                         <button label="Create" type="ok" />
+                        <button label="Cancel" type="cancel" loopexit="true" target="exit" />
                     </controlbar>
                 </antform>
 
@@ -688,41 +699,53 @@
                     <entry key="swat.service.list" value="common,${var.domain.service-list}" />
                     <entry key="swat.settings.splitting.policy.useIndexInRuleName" value="${var.domain.rule.index}" />
                 </propertyfile>
-
-                <for list="${var.domain.service-list}" param="service">
-                    <sequential>
-                        <var name="var.service.object.name" unset="true" />
-                        <var name="var.service.object.class" unset="true" />
-                        <var name="var.service.name" unset="true" />
-                        <var name="var.service.dir" unset="true" />
-                        <var name="var.service.deployment-policy-list" unset="true" />
-
-                        <property name="var.service.object.name" value="@{service}" />
-                        <xmltask source="dist/status/${mgr.target.device.name}/@{domain}/status-get-response.xml">
-                            <copy path="//ServicesStatus[ServiceName='@{service}']/ServiceClass/text()" property="var.service.object.class" append="false" />
-                        </xmltask>
-                        <lowercase property="var.service.name" string="${var.service.object.name}" />
-                        <property name="var.service.dir" value="local:///services/@{service}" />
-                        <property name="var.service.deployment-policy-list" value="" />
-
-                        <antform title="Swat4DP - create service project for @{service}" stylesheet="${swat.styles.dir}/style.properties"
-                            icon="${swat.styles.dir}/favicon.png">
-                            <label>Specify service specific properties for the service @{service}.</label>
-                            <textProperty label="Service object name : " property="var.service.object.name" tooltip="taken from the current configuration" />
-                            <textProperty label="Service object class : " property="var.service.object.class" tooltip="taken from the current configuration" />
-                            <textProperty label="Service name : " property="var.service.name" tooltip="project name on the filesystem" />
-                            <textProperty label="Service directory : " property="var.service.dir" tooltip="dedicated service directory on DataPower" />
-                            <textProperty label="Deployment policy list : " property="var.service.deployment-policy-list"
-                                tooltip="comma separated list of deployment policies to be activated for this service" />
-                            <booleanProperty label="Use numeric index in services rule names?" property="var.domain.rule.index"
-                                tooltip="if checked the services exported from this domain will have a numeric index in rule name files" />
-                            <separator />
-                            <controlbar>
-                                <button label="Create" type="ok" />
-                            </controlbar>
-                        </antform>
-                    </sequential>
-                </for>
+                
+                <if>
+                    <isset property="var.domain.service-list" />
+                    <then>
+                        <echo message="entering the service loop ..." />
+                        <for list="${var.domain.service-list}" param="service">
+                            <sequential>
+                                <var name="var.service.object.name" unset="true" />
+                                <var name="var.service.object.class" unset="true" />
+                                <var name="var.service.name" unset="true" />
+                                <var name="var.service.dir" unset="true" />
+                                <var name="var.service.deployment-policy-list" unset="true" />
+                
+                                <property name="var.service.object.name" value="@{service}" />
+                                <xmltask source="dist/status/${mgr.target.device.name}/@{domain}/status-get-response.xml">
+                                    <copy path="//ServicesStatus[ServiceName='@{service}']/ServiceClass/text()" property="var.service.object.class" append="false" />
+                                </xmltask>
+                                <stringmod property="var.service.name" input="${var.service.object.name}" action="lowercase" />
+                                <property name="var.service.dir" value="local:///services/@{service}" />
+                                <property name="var.service.deployment-policy-list" value="" />
+                
+                                <antform title="Swat4DP - create service project for @{service}" stylesheet="${swat.styles.dir}/style.properties"
+                                    icon="${swat.styles.dir}/favicon.png">
+                                    <label>Specify service specific properties for the service @{service}.</label>
+                                    <textProperty label="Service object name : " property="var.service.object.name" tooltip="taken from the current configuration" />
+                                    <textProperty label="Service object class : " property="var.service.object.class"
+                                        tooltip="taken from the current configuration" />
+                                    <textProperty label="Service name : " property="var.service.name" tooltip="project name on the filesystem" />
+                                    <textProperty label="Service directory : " property="var.service.dir" tooltip="dedicated service directory on DataPower" />
+                                    <textProperty label="Deployment policy list : " property="var.service.deployment-policy-list"
+                                        tooltip="comma separated list of deployment policies to be activated for this service" />
+                                    <booleanProperty label="Use numeric index in services rule names?" property="var.domain.rule.index"
+                                        tooltip="if checked the services exported from this domain will have a numeric index in rule name files" />
+                                    <separator />
+                                    <controlbar>
+                                        <button label="Skip" type="cancel" loopexit="false" />
+                                        <button label="Create" type="ok" />
+                                        <button label="Cancel" type="cancel" loopexit="true" target="exit" />
+                                    </controlbar>
+                                </antform>
+                            </sequential>
+                        </for>
+                    </then>
+                    <else>
+                        <echo message="skipped domain @{domain}" />
+                    </else>
+                </if>
 
             </sequential>
         </for>
