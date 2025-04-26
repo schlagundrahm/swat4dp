@@ -42,6 +42,9 @@ public class ShowFile extends Task {
     // output separator (80 dashes)
     private String separator = "--------------------------------------------------------------------------------";
 
+    /**
+     * ShowFile constructor.
+     */
     public ShowFile() {
         file = null;
         filesets = new Vector<FileSet>();
@@ -50,10 +53,18 @@ public class ShowFile extends Task {
         regex = null;
     }
 
+    /**
+     * Sets the file property.
+     * @param file The input file
+     */
     public void setFile(File file) {
         this.file = file;
     }
 
+    /**
+     * Sets the match property.
+     * @param match The regular expression to look for within the file(s)
+     */
     public void setMatch(String match) {
         if (regex != null) {
             throw new BuildException("Only one regular expression is allowed");
@@ -65,10 +76,18 @@ public class ShowFile extends Task {
         }
     }
 
+    /**
+     * Sets the flags property.
+     * @param flags The flags (options) for the regular expression
+     */
     public void setFlags(String flags) {
         this.flags = flags;
     }
 
+    /**
+     * Sets the byline property.
+     * @param byline whether to do a regular expression match by line
+     */
     public void setByLine(String byline) {
         Boolean res = Boolean.valueOf(byline);
 
@@ -79,10 +98,18 @@ public class ShowFile extends Task {
         this.byline = res.booleanValue();
     }
 
+    /**
+     * Adds a file set to this task.
+     * @param set The file set to use as input
+     */
     public void addFileset(FileSet set) {
         filesets.addElement(set);
     }
 
+    /**
+     * Creates a regular expression object.
+     * @return a plain regular expression objext
+     */
     public RegularExpression createRegexp() {
         if (regex != null) {
             throw new BuildException("Only one regular expression is allowed.");
@@ -93,12 +120,26 @@ public class ShowFile extends Task {
         }
     }
 
+    /**
+     * Performs a regular expression match on given input string.
+     * @param r The regular expression object
+     * @param input The input string
+     * @param options The regular exprerssion option flags
+     * @return true in case  a match has been found
+     */
     protected boolean doMatch(RegularExpression r, String input, int options) {
         Regexp regexp = r.getRegexp(getProject());
 
         return regexp.matches(input, options);
     }
 
+    /**
+     * Performs a regular expression match on the given input file.
+     * @param f The input file
+     * @param options The regular expression option flags
+     * @param counter The index to be used for the log output
+     * @throws IOException in case the file can not be read
+     */
     protected void doMatch(File f, int options, int counter) throws IOException {
         FileReader r;
 
@@ -195,6 +236,9 @@ public class ShowFile extends Task {
         r = null;
     }
 
+    /**
+     * Main task
+     */
     public void execute() throws BuildException {
         if (regex == null) {
             throw new BuildException("No expression to match.");

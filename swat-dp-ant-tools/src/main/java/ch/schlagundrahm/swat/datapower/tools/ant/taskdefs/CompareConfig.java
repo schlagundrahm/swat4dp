@@ -56,6 +56,7 @@ import de.schlichtherle.truezip.file.TFileInputStream;
 public class CompareConfig extends Task {
 
     /**
+     * Sets the flag to include the intrinsic objects in the comparison.
      * @param includeIntrinsic the includeIntrinsic to set
      */
     public void setIncludeIntrinsic(boolean includeIntrinsic) {
@@ -63,6 +64,7 @@ public class CompareConfig extends Task {
     }
 
     /**
+     * Sets the flag
      * @param nodeTypeDiff the nodeTypeDiff to set
      */
     public void setNodeTypeDiff(boolean nodeTypeDiff) {
@@ -70,6 +72,7 @@ public class CompareConfig extends Task {
     }
 
     /**
+     * Sets the flag
      * @param nodeValueDiff the nodeValueDiff to set
      */
     public void setNodeValueDiff(boolean nodeValueDiff) {
@@ -82,6 +85,9 @@ public class CompareConfig extends Task {
     static private String OUTPUT_SEPARATOR_2 = "===============================================================================";
     static private String OUTPUT_SEPARATOR_3 = "_______________________________________________________________________________";
 
+    /**
+     * Common attributes of DataPower Configuration nodes. 
+     */
     static public enum DP_ATTRIBUTE {
         name, intrinsic
     };
@@ -97,10 +103,18 @@ public class CompareConfig extends Task {
     private boolean nodeTypeDiff = false;
     private boolean nodeValueDiff = true;
 
+    /**
+     * Specifies the first configuration file.
+     * @param cfgFile1 The file to use in the comparison
+     */
     public void setCfgFile1(File cfgFile1) {
         this.cfgFile1 = cfgFile1;
     }
 
+    /**
+     * Specifies the second configuration file.
+     * @param cfgFile2 The file to use in the comparison
+     */
     public void setCfgFile2(File cfgFile2) {
         this.cfgFile2 = cfgFile2;
     }
@@ -149,6 +163,9 @@ public class CompareConfig extends Task {
         this.includeConfigFolder = includeConfigFolder;
     }
 
+    /**
+     * Main task execution
+     */
     @Override
     public void execute() throws BuildException {
 
@@ -353,6 +370,12 @@ public class CompareConfig extends Task {
 
     }
 
+    /**
+     * Compares two input streams.
+     * @param in1 The first input stream
+     * @param in2 The second input stream
+     * @param fileNameToBePrinted The file name to be printed in the output
+     */
     private void compareConfig(InputStream in1, InputStream in2, String fileNameToBePrinted) {
         // reset result list
         List<String> diffs = new ArrayList<String>();
@@ -490,6 +513,14 @@ public class CompareConfig extends Task {
 
     }
 
+    /**
+     * Computes the differences of two configuration files in the form of input streams.
+     * @param is1 The input stream of the first configuration file 
+     * @param is2 The input stream of the second configuration file
+     * @param diffs The list of differences
+     * @return A flag whether the two input streams have differences
+     * @throws IOException
+     */
     private boolean diff(InputStream is1, InputStream is2, List<String> diffs) throws IOException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
@@ -651,7 +682,11 @@ public class CompareConfig extends Task {
     }
 
     /**
-     * Diff the nodes
+     * Generate a list of differences for the two given nodes.
+     * @param node1 The first node
+     * @param node2 The second node
+     * @param diffs The list of differences
+     * @return returns true if the two nodes have differences
      */
     private boolean diffNodes(Node node1, Node node2, List<String> diffs) {
         // Sort by Name
@@ -688,7 +723,11 @@ public class CompareConfig extends Task {
     }
 
     /**
-     * Diff two DataPower configuration nodes
+     * Generate a list of differences for the two given configuration nodes.
+     * @param node1 The first configuration node
+     * @param node2 The second configuration node
+     * @param diffs The list of differences
+     * @return returns true if the two nodes have differences
      */
     private boolean diffDataPowerNodes(Node node1, Node node2, List<String> diffs) {
         // Sort by Name
@@ -725,7 +764,11 @@ public class CompareConfig extends Task {
     }
 
     /**
-     * Diff two DataPower file nodes
+     * Generate a list of differences for the two given file nodes.
+     * @param node1 The first file node
+     * @param node2 The second file node
+     * @param diffs The list of differences
+     * @return returns true if the two nodes have differences
      */
     private boolean diffDataPowerFileNodes(Node node1, Node node2, List<String> diffs) {
         // Sort by Name
@@ -762,7 +805,11 @@ public class CompareConfig extends Task {
     }
 
     /**
-     * Diff attributes of two DataPower file nodes
+     * Generate a list of attribute differences for the two given file nodes.
+     * @param node1 The first file node
+     * @param node2 The second file node
+     * @param diffs The list of differences
+     * @return returns true if the two nodes have different attributes
      */
     private boolean diffFileAttributes(Node node1, Node node2, List<String> diffs) {
         // Sort by Name
@@ -796,12 +843,11 @@ public class CompareConfig extends Task {
     }
 
     /**
-     * Diff attributes of two given XML nodes.
-     * 
-     * @param node1
-     * @param node2
-     * @param diffs
-     * @return
+     * Generate a list of attribute differences for the two given nodes.
+     * @param node1 The first node
+     * @param node2 The second node
+     * @param diffs The list of differences
+     * @return returns true if the two nodes have different attributes
      */
     private boolean diffAttributes(Node node1, Node node2, List<String> diffs) {
         // Sort by Name
@@ -834,7 +880,11 @@ public class CompareConfig extends Task {
     }
 
     /**
-     * Check that the nodes exist
+     * Checks whether the two nodes exist.
+     * @param node1 The first node
+     * @param node2 The second node
+     * @param diffs The list of differences
+     * @return returns true if the two nodes are not null
      */
     private boolean diffNodeExists(Node node1, Node node2, List<String> diffs) {
         if (node1 == null && node2 == null) {
@@ -856,7 +906,11 @@ public class CompareConfig extends Task {
     }
 
     /**
-     * Check that the DataPower nodes exist in both files.
+     * Checks whether the DataPower nodes exist in both files.
+     * @param node1 The first node
+     * @param node2 The second node
+     * @param diffs The list of differences
+     * @return returns true if the two nodes are not null
      */
     private boolean diffDataPowerNodeExists(Node node1, Node node2, List<String> diffs) {
         if (node1 == null && node2 == null) {

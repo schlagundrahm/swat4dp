@@ -38,36 +38,64 @@ public class Base64Task extends Task {
     private boolean decode;
     private Boolean binary;
 
+    /**
+     * Sets the binary flag for the input data.
+     * @param binary If the true the input data is treated as binary.
+     */
     public void setBinary(boolean binary) {
         this.binary = binary;
     }
 
+    /**
+     * Sets the input file.
+     * @param infile The input file
+     */
     public void setInfile(File infile) {
         this.infile = infile;
     }
 
+    /**
+     * Sets the output file
+     * @param outfile The output file
+     */
     public void setOutfile(File outfile) {
         this.outfile = outfile;
     }
 
+    /**
+     * Sets the input string that should be decode or encoded.
+     * @param in The input string
+     */
     public void setIn(String in) {
         this.in = in;
     }
 
+    /**
+     * Sets the property name for the return value.
+     * @param property The name of the property
+     */
     public void setProperty(String property) {
         this.property = property;
     }
 
+    /**
+     * Sets the decode/encode mode.
+     * @param decode Whether to decode or encode the input.
+     */
     public void setDecode(boolean decode) {
         this.decode = decode;
     }
 
+    /**
+     * Whether to override an existing property with the new value.
+     * @param override Override the given property.
+     */
     public void setOverride(boolean override) {
         this.override = override;
     }
 
     /**
-     * 
+     * By default, do base64 encoding and do not override existing properties.
      */
     public Base64Task() {
         this.decode = false;
@@ -177,19 +205,40 @@ public class Base64Task extends Task {
 
     }
 
+    /**
+     * Encodes a string into a Base64 encoded string.
+     * 
+     * @param value The string to encode
+     * @return The Base64 encoded string
+     */
     private String encode(String value) {
         return Base64.getMimeEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * Decodes a base64 encoded string.
+     * @param value The string to decode
+     * @return The decoded string
+     */
     private String decode(String value) {
         byte[] decodedValue = Base64.getMimeDecoder().decode(value);
         return new String(decodedValue, StandardCharsets.UTF_8);
     }
 
+    /**
+     * Encodes a byte array into a Base64 encoded byte array.
+     * @param value The byte array to encode
+     * @return The Base64 encoded byte array
+     */
     private byte[] encode(byte[] value) {
         return Base64.getMimeEncoder().encode(value);
     }
 
+    /**
+     * Decode Base64 encoded byte array.
+     * @param value The encoded byte array
+     * @return The decoded byte array
+     */
     private byte[] decode(byte[] value) {
         return Base64.getMimeDecoder().decode(value);
     }
@@ -205,6 +254,12 @@ public class Base64Task extends Task {
         return result;
     }
 
+    /**
+     * Reads the data from the specified file.
+     * 
+     * @param file The file to read
+     * @return The text in the file
+     */
     private String readText(File file) {
         String result = null;
         try {
@@ -216,6 +271,12 @@ public class Base64Task extends Task {
         return result;
     }
 
+    /**
+    * Writes the given data to the specified file.
+    * 
+    * @param data The data to write.
+    * @param file The file to write to.
+    */
     private void writeFile(byte[] data, File file) {
         if (Files.exists(file.toPath()) && !override) {
             throw new BuildException("The 'outfile' already exists! Delete it or set 'override' to true.",
@@ -230,6 +291,11 @@ public class Base64Task extends Task {
         }
     }
 
+    /**
+     * Identifes the file type by probing the content.
+     * @param file The file to inspect
+     * @return The file type
+     */
     private String identifyFileTypeUsingFilesProbeContentType(File file) {
         String fileType = "Undetermined";
         try {
@@ -241,6 +307,10 @@ public class Base64Task extends Task {
         return fileType;
     }
 
+    /**
+     * Determines whether an input file is binary or not.
+     * @return True for binary files
+     */
     private boolean isBinaryInputFile() {
         String fileType = identifyFileTypeUsingFilesProbeContentType(infile);
         if (fileType != null && fileType.startsWith("text")) {

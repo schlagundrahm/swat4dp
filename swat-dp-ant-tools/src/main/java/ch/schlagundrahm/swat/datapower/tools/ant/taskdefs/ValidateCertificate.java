@@ -1,12 +1,27 @@
+// Assisted by watsonx Code Assistant 
 /*
+ * (C) Copyright IBM Corp. 2023.
+ * (C) Copyright 2009-2013 schlag&rahm AG, Switzerland. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * Created by Pierce Shah
  * 
  * Ant Tools for Swat4DP
  * Schlag&rahm WebSphere Administration Toolkit for DataPower
  * 
- * Copyright (c) 2009-2013 schlag&rahm AG, Switzerland. All rights reserved.
  *
- *      http://www.schlagundrahm.ch
+ *      https://github.com/schlagundrahm/swat4dp/tree/master/swat-dp-ant-tools
  *
  */
 package ch.schlagundrahm.swat.datapower.tools.ant.taskdefs;
@@ -47,7 +62,7 @@ public class ValidateCertificate extends Task {
     private boolean result = true;
 
     /**
-     * 
+     * ValidateCertificate constructor.
      */
     public ValidateCertificate() {
         input = null;
@@ -58,26 +73,56 @@ public class ValidateCertificate extends Task {
         property = null;
     }
 
+    /**
+     * Set the input file.
+     * 
+     * @param input
+     */
     public void setInput(File input) {
         this.input = input;
     }
 
+    /**
+     * Set whether to check the certificate's validity.
+     * 
+     * @param checkValidity
+     */
     public void setCheckValidity(boolean checkValidity) {
         this.checkValidity = checkValidity;
     }
 
+    /**
+     * Set whether to log verbose output.
+     * 
+     * @param verbose
+     */
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
 
+    /**
+     * Set whether the build should fail if an error occurs.
+     * 
+     * @param failonerror
+     */
     public void setFailonerror(boolean failonerror) {
         this.failonerror = failonerror;
     }
 
+    /**
+     * Set the name of the property to set with the result.
+     * 
+     * @param property The property name
+     */
     public void setProperty(String property) {
         this.property = property;
     }
 
+    /**
+     * Add a set of files to validate.
+     * 
+     * @param fileset The input file set
+     */
     public void addFileSet(FileSet fileset) {
         if (!filesets.contains(fileset)) {
             filesets.add(fileset);
@@ -124,13 +169,19 @@ public class ValidateCertificate extends Task {
 
     }
 
+    /**
+     * Read an X.509 certificate from a file.
+     * 
+     * @param file The file containing the X.509 certificate
+     * @return the certificate
+     */
     private X509Certificate readCertFile(File file) {
         InputStream inStream = null;
         X509Certificate cert = null;
         try {
             inStream = new FileInputStream(file);
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            cert = (X509Certificate)cf.generateCertificate(inStream);
+            cert = (X509Certificate) cf.generateCertificate(inStream);
             if (verbose) {
                 log("validating certificate file '" + file.getName() + "' ...", Project.MSG_INFO);
             }
@@ -156,6 +207,14 @@ public class ValidateCertificate extends Task {
 
     }
 
+    /**
+     * Check the validity of an X.509 certificate.
+     * 
+     * @param cert
+     * @param fail
+     * @param index
+     * @return
+     */
     private boolean checkValidity(X509Certificate cert, boolean fail, int index) {
         boolean valid = true;
         try {

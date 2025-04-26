@@ -67,7 +67,7 @@ public class CreateFilesConfig extends Task {
     private final SimpleDateFormat tf = new SimpleDateFormat("HH:mm:ss");
 
     /**
-     * 
+     * CreateFilesConfig constructor
      */
     public CreateFilesConfig() {
         fileUtils = FileUtils.getFileUtils();
@@ -76,50 +76,97 @@ public class CreateFilesConfig extends Task {
 
     }
 
+    /**
+     * Sets the input file property.
+     * @param file The file to use
+     */
     public void setFile(File file) {
         this.file = file;
     }
 
+    /**
+     * Sets the file set property.
+     * @param set The file set to use
+     */
     public void addFileset(FileSet set) {
         filesets.addElement(set);
     }
 
+    /**
+     * Sets the environment property
+     * @param env The runtime environment (e.g. test)
+     */
     public void setEnv(String env) {
         this.env = env;
     }
 
+    /**
+     * Sets the target directory property.
+     * @param targetdir The directory to use
+     */
     public void setTargetdir(String targetdir) {
         this.targetdir = targetdir;
     }
 
+    /**
+     * Sets the target file property.
+     * @param targetfile The file to use
+     */
     public void setTargetfile(String targetfile) {
         this.targetfile = targetfile;
     }
 
+    /**
+     * Sets the location property.
+     * @param location The location
+     */
     public void setLocation(String location) {
         this.location = location;
     }
 
+    /**
+     * Sets the flag property to use the base directory.
+     * @param useBaseDir set to true to use the base directory
+     */
     public void setUseBaseDir(boolean useBaseDir) {
         this.useBaseDir = useBaseDir;
     }
 
+    /**
+     * Sets the basedir property.
+     * @param dpBaseDir The base directory
+     */
     public void setDpBaseDir(String dpBaseDir) {
         this.dpBaseDir = dpBaseDir;
     }
 
+    /**
+     * Sets the falg property to create a DataPower configuration file.
+     * @param createDpConfig set to true to create a configuration file
+     */
     public void setCreateDpConfig(boolean createDpConfig) {
         this.createDpConfig = createDpConfig;
     }
 
+    /**
+     * Sets the domain property
+     * @param domain The DataPower domain
+     */
     public void setDomain(String domain) {
         this.domain = domain;
     }
 
+    /**
+     * Sets the comment property.
+     * @param comment The comment to use
+     */
     public void setComment(String comment) {
         this.comment = comment;
     }
 
+    /**
+     * Main task to execute.
+     */
     public void execute() throws BuildException {
 
         if ((file != null) && (filesets.size() > 0)) {
@@ -267,6 +314,12 @@ public class CreateFilesConfig extends Task {
         }
     }
 
+    /**
+     * Calculates the sha1 hash of the given file.
+     * @param file The input file
+     * @return
+     * @throws IOException
+     */
     public String calculateFileHash(File file) throws IOException {
 
         InputStream is = new FileInputStream(file);
