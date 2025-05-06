@@ -3,7 +3,7 @@
 
     <groupId>ch.schlagundrahm.swat.datapower</groupId>
     <artifactId>swat-dp-pom</artifactId>
-    <version>1.1.4-SNAPSHOT</version>
+    <version>1.1.4</version>
     <packaging>pom</packaging>
 
     <name>swat-dp-pom</name>
@@ -29,7 +29,7 @@
         <url>https://github.com/schlagundrahm/swat4dp</url>
         <connection>scm:git:https://github.com/schlagundrahm/swat4dp.git</connection>
         <developerConnection>scm:git:ssh://git@github.com:schlagundrahm/swat4dp.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>swat-dp-pom-1.1.4</tag>
     </scm>
 
     <distributionManagement>
