@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.tools.ant.Project;
@@ -99,7 +100,7 @@ class Base64TaskTest {
         task.setOverride(true);
         task.execute();
         System.out.println("writing result to file : " + outfile);
-        List<String> content = null;
+        List<String> content = new ArrayList<>();
         try {
             content = Files.readAllLines(outfile.toPath());
         } catch (IOException e) {
@@ -125,7 +126,7 @@ class Base64TaskTest {
         task.setOverride(true);
         task.execute();
         System.out.println("writing result to file : " + outfile);
-        List<String> content = null;
+        List<String> content = new ArrayList<>();
         try {
             content = Files.readAllLines(outfile.toPath());
         } catch (IOException e) {
@@ -153,7 +154,7 @@ class Base64TaskTest {
         task.setOverride(true);
         task.execute();
         System.out.println("writing result to file : " + outfile);
-        byte[] content = null;
+        byte[] content = new byte[0]; 
         try {
             content = Files.readAllBytes(outfile.toPath());
         } catch (IOException e) {
@@ -203,7 +204,7 @@ class Base64TaskTest {
         // task.setBinary(true);
         task.execute();
         System.out.println("writing result to file : " + outfile);
-        List<String> content = null;
+        List<String> content = new ArrayList<>();
         try {
             content = Files.readAllLines(outfile.toPath());
         } catch (IOException e) {
