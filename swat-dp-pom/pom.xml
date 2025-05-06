@@ -136,7 +136,9 @@
                 <configuration>
                     <publishingServerId>central</publishingServerId>
                     <checksums>required</checksums>
-                    <deploymentName>Maven Deployment</deploymentName>
+                    <deploymentName>${project.artifactId}-${project.version} mvn release</deploymentName>
+                    <autoPublish>true</autoPublish>
+                    <waitUntil>validated</waitUntil>
                 </configuration>
             </plugin>
         </plugins>
