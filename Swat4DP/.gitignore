@@ -11,3 +11,4 @@ buildNumber.properties
 /.settings/
 /.project
 /.dbeaver/
+/infra-bootstrap.properties
