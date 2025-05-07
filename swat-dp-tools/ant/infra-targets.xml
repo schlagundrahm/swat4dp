@@ -48,6 +48,13 @@
         <echo message="---------- predefined properties ----------" />
         <echoproperties prefix="swat" />
         <echoproperties regex="(mgr\.target\.device|mgr\.target\.user|confirm|overwrite)" />
+        <property name="infra.properties.file" value="infra-bootstrap.properties" />
+        <property file="${infra.properties.file}" />
+        <echo message="---------- existing infra properties ----------" />
+        <echoproperties prefix="infra" />
+        <echo message="---------- existing devices properties ----------" />
+        <echoproperties prefix="devices" />
+        
     </target>
     
     <target name="exit">
@@ -82,7 +89,7 @@
             <textProperty label="Device sets : " property="infra.device-sets"
                 tooltip="Comma separated list of device-set labels for this particular infrastructure setup" />
             <separator />
-            <label>Specify the default user to access the to access the DataPower management interface.</label>
+            <label>Specify the default user to access the DataPower management interface.</label>
             <textProperty label="Default user : " property="infra.user"
                 tooltip="Will be used to set the mgr.target.user.name.default property." />
             <separator />
@@ -118,7 +125,7 @@
         </fail>
 
         <!-- write properties -->
-        <propertyfile file="infra-bootstrap.properties"
+        <propertyfile file="${infra.properties.file}"
             comment="swat4dp infrastructure properties for customer ${infra.customer}">
             <entry key="infra.customer" value="${infra.customer}" />
             <entry key="infra.zones" value="${infra.zones}" />
@@ -260,7 +267,7 @@
                 </antform>
 
                 <!-- write properties -->
-                <propertyfile file="infra-bootstrap.properties"
+                <propertyfile file="${infra.properties.file}"
                     comment="swat4dp maven properties for customer ${infra.customer}">
                     <entry key="user.id" value="${user.id}" />
                     <entry key="user.fullname" value="${user.fullname}" />
@@ -358,6 +365,9 @@
                 <var name="var.zone.short" unset="true" />
                 <property name="var.zone.label" value="@{zone} zone" />
                 <property name="var.zone.short" value="@{zone}" />
+                
+                <propertycopy property="var.zone.label" from="infra.zone.@{zone}.label" override="true" silent="true" />
+                <propertycopy property="var.zone.short" from="infra.zone.@{zone}.shortname" override="true" silent="true" />
 
                 <math result="idx.loop.zones" operand1="${idx.loop.zones}" operation="+" operand2="1" datatype="int" />
 
@@ -374,7 +384,7 @@
                 </antform>
 
                 <!-- write properties -->
-                <propertyfile file="infra-bootstrap.properties"
+                <propertyfile file="${infra.properties.file}"
                     comment="swat4dp infrastructure properties for customer ${infra.customer} | zone @{zone}">
                     <entry key="infra.zone.@{zone}.label" value="${var.zone.label}" />
                     <entry key="infra.zone.@{zone}.shortname" value="${var.zone.short}" />
@@ -398,8 +408,9 @@
                 </propertyfile>
 
                 <!-- create environment properties -->
-                <echo message="Step 4.2: Loop over all environments (${infra.environments}) and define environment properties" />
                 <var name="idx.loop.envs" value="0" />
+                <echo message="Step 4.${idx.loop.zones}.${idx.loop.envs}: Loop over all environments (${infra.environments}) and define environment properties" />
+
                 <for list="${infra.environments}" param="env">
                     <sequential>
                         <mkdir dir="${infra.project-dir}/config/zones/@{zone}/envs/@{env}" />
@@ -414,10 +425,15 @@
                         <property name="var.env.short" value="@{env}" />
                         <property name="var.env.device-set" value="@{env}" />
                         <property name="var.env.isprod" value="false" />
+                        
+                        <propertycopy property="var.env.label" from="infra.zone.@{zone}.env.@{env}.label" override="true" silent="true" />
+                        <propertycopy property="var.env.short" from="infra.zone.@{zone}.env.@{env}.shortname" override="true" silent="true" />
+                        <propertycopy property="var.env.isprod" from="infra.zone.@{zone}.env.@{env}.isprod" override="true" silent="true" />
+                        <propertycopy property="var.env.device-set" from="infra.zone.@{zone}.env.@{env}.device-set" override="true" silent="true" />
 
                         <math result="idx.loop.envs" operand1="${idx.loop.envs}" operation="+" operand2="1" datatype="int" />
 
-                        <echo message="Step 4.2.${idx.loop.envs}: Define @{env} environment configuration properties" />
+                        <echo message="Step 4.${idx.loop.zones}.${idx.loop.envs}: Define @{env} environment configuration properties" />
                         <antform title="Swat4DP - create environment properties for @{env}"
                             stylesheet="${swat.styles.dir}/style.properties" icon="${swat.styles.dir}/favicon.png">
                             <label>Specify environment specific properties.</label>
@@ -425,7 +441,7 @@
                             <textProperty label="Environment short name : " property="var.env.short" tooltip="short name" />
                             <booleanProperty label="Is production environment?" property="var.env.isprod"
                                 tooltip="if checked this environment will be treated as a production environment" />
-                            <textProperty label="Related device set : " property="var.env.device-set" tooltip="device-set name" />
+                            <selectionProperty label="Related device set : " property="var.env.device-set" values="${infra.device-sets}" tooltip="device-set name" />
                             <separator />
                             <controlbar>
                                 <button label="Create" type="ok" />
@@ -433,11 +449,12 @@
                         </antform>
 
                         <!-- write properties -->
-                        <propertyfile file="infra-bootstrap.properties"
+                        <propertyfile file="${infra.properties.file}"
                             comment="swat4dp infrastructure properties for customer ${infra.customer} | zone @{zone} | env @{env}">
                             <entry key="infra.zone.@{zone}.env.@{env}.label" value="${var.env.label}" />
                             <entry key="infra.zone.@{zone}.env.@{env}.shortname" value="${var.env.short}" />
                             <entry key="infra.zone.@{zone}.env.@{env}.isprod" value="${var.env.isprod}" />
+                            <entry key="infra.zone.@{zone}.env.@{env}.device-set" value="${var.env.device-set}" />
                         </propertyfile>
 
                         <!-- create environment properties file -->
@@ -471,36 +488,102 @@
                         </if>
                     </sequential>
                 </for>
+            </sequential>
+        </for>
+        
+        <!-- create device set properties -->
+        <echo message="Step 5: Loop over all device sets (${infra.device-sets}) and define device set properties" />
+        <var name="idx.loop.device-sets" value="0" />
+        <for list="${infra.device-sets}" param="device-set">
+            <sequential>
+                <var name="var.device-set.label" unset="true" />
+                <var name="var.device-set.short" unset="true" />
+                <var name="var.device-set.list" unset="true" />
+                <var name="var.device-set.master" unset="true" />
 
-                <!-- create device set properties -->
-                <echo message="Step 4.3: Loop over all device sets (${infra.device-sets}) and define device set properties" />
-                <var name="idx.loop.device-sets" value="0" />
-                <for list="${infra.device-sets}" param="device-set">
+                <property name="var.device-set.label" value="@{device-set} devices" />
+                <property name="var.device-set.short" value="@{device-set}" />
+                <property name="var.device-set.list" value="@{device-set}1,@{device-set}2" />
+                <property name="var.device-set.master" value="@{device-set}1" />
+                
+                <propertycopy property="var.device-set.label" from="devices.set.@{device-set}.label" override="true" silent="true" />
+                <propertycopy property="var.device-set.short" from="devices.set.@{device-set}.short" override="true" silent="true" />
+                <propertycopy property="var.device-set.list" from="devices.set.@{device-set}.list" override="true" silent="true" />
+                <propertycopy property="var.device-set.master" from="devices.set.@{device-set}.master" override="true" silent="true" />
+
+                <math result="idx.loop.device-sets" operand1="${idx.loop.device-sets}" operation="+" operand2="1" datatype="int" />
+
+                <echo message="Step 5.${idx.loop.device-sets}: Define @{device-set} device set configuration properties" />
+                <antform title="Swat4DP - create device-set properties for @{device-set}"
+                    stylesheet="${swat.styles.dir}/style.properties" icon="${swat.styles.dir}/favicon.png">
+                    <label>Specify environment specific properties.</label>
+                    <textProperty label="Device set label : " property="var.device-set.label" tooltip="description" />
+                    <textProperty label="Device set short name : " property="var.device-set.short" tooltip="short name" />
+                    <textProperty label="Device set list : " property="var.device-set.list"
+                        tooltip="comma separated list of devices within this set (all device names need to be unique)" />
+                    <textProperty label="Master device : " property="var.device-set.master"
+                        tooltip="Master device within this set (usually the first in the list)" />
+                    <separator />
+                    <controlbar>
+                        <button label="Create" type="ok" />
+                    </controlbar>
+                </antform>
+
+                <!-- write properties -->
+                <propertyfile file="${infra.properties.file}"
+                    comment="swat4dp infrastructure properties for customer ${infra.customer} | device-set @{device-set}">
+                    <entry key="devices.set.@{device-set}.label" value="${var.device-set.label}" />
+                    <entry key="devices.set.@{device-set}.short" value="${var.device-set.short}" />
+                    <entry key="devices.set.@{device-set}.list" value="${var.device-set.list}" />
+                    <entry key="devices.set.@{device-set}.master" value="${var.device-set.master}" />
+                </propertyfile>
+
+                <!-- create environment properties file -->
+                <propertyfile file="${infra.project-dir}/config/device-sets/@{device-set}.properties"
+                    comment="device-set-specific properties for '@{device-set}'">
+                    <entry key="swat.device-set.name" value="@{device-set}" />
+                    <entry key="swat.device-set.label" value="${var.device-set.label}" />
+                    <entry key="swat.device-set.short" value="${var.device-set.short}" />
+                    <entry key="swat.device.list" value="${var.device-set.list}" />
+                    <entry key="swat.device.master" value="${var.device-set.master}" />
+                </propertyfile>
+
+                <var name="idx.loop.device-set.list" value="0" />
+                <for list="${var.device-set.list}" param="device">
                     <sequential>
 
-                        <var name="var.device-set.label" unset="true" />
-                        <var name="var.device-set.short" unset="true" />
-                        <var name="var.device-set.list" unset="true" />
-                        <var name="var.device-set.master" unset="true" />
+                        <var name="var.device.label" unset="true" />
+                        <var name="var.device.emphasis" unset="true" />
+                        <var name="var.mgmt.prot" value="https" />
+                        <var name="var.mgmt.port" unset="true" />
 
-                        <property name="var.device-set.label" value="@{device-set} devices in the @{zone} zone" />
-                        <property name="var.device-set.short" value="@{device-set}" />
-                        <property name="var.device-set.list" value="@{device-set}1,@{device-set}2" />
-                        <property name="var.device-set.master" value="@{device-set}1" />
+                        <property name="var.device.label" value="@{device}" />
+                        <property name="var.device.emphasis" value="to be replaced" />
+                        <property name="var.device.mgmt.prot" value="https" />
+                        <!-- property name="var.device.mgmt.host" value="FQDN or IP" / -->
+                        <property name="var.device.mgmt.port" value="5550" />
 
-                        <math result="idx.loop.device-sets" operand1="${idx.loop.device-sets}" operation="+" operand2="1"
-                            datatype="int" />
+                        <propertycopy property="var.device.label" from="devices.set.@{device-set}.device.@{device}.label" override="true" silent="true" />
+                        <propertycopy property="var.device.emphasis" from="devices.set.@{device-set}.device.@{device}.emphasis" override="true" silent="true" />
+                        <propertycopy property="var.device.mgmt.prot" from="devices.set.@{device-set}.device.@{device}.xmlmgmt.protocol" override="true" silent="true" />
+                        <propertycopy property="var.device.mgmt.host" from="devices.set.@{device-set}.device.@{device}.xmlmgmt.address" override="true" silent="true" />
+                        <propertycopy property="var.device.mgmt.port" from="devices.set.@{device-set}.device.@{device}.xmlmgmt.port" override="true" silent="true" />
 
-                        <echo message="Step 4.3.${idx.loop.device-sets}: Define @{device-set} device set configuration properties" />
-                        <antform title="Swat4DP - create device-set properties for @{device-set}"
+                        <math result="idx.loop.device-set.list" operand1="${idx.loop.device-set.list}" operation="+" operand2="1" datatype="int" />
+
+                        <echo message="Step 5.${idx.loop.device-sets}.${idx.loop.device-set.list}: Define @{device} device configuration properties" />
+                        <antform title="Swat4DP - create device properties for @{device}"
                             stylesheet="${swat.styles.dir}/style.properties" icon="${swat.styles.dir}/favicon.png">
                             <label>Specify environment specific properties.</label>
-                            <textProperty label="Device set label : " property="var.device-set.label" tooltip="description" />
-                            <textProperty label="Device set short name : " property="var.device-set.short" tooltip="short name" />
-                            <textProperty label="Device set list : " property="var.device-set.list"
-                                tooltip="comma separated list of devices within this set (all device names need to be unique)" />
-                            <textProperty label="Master device : " property="var.device-set.master"
-                                tooltip="Master device within this set (usually the first in the list)" />
+                            <textProperty label="Device label : " property="var.device.label" tooltip="Device label" />
+                            <textProperty label="Device emphasis : " property="var.device.emphasis"
+                                tooltip="addtional device qualifier" />
+                            <textProperty label="SOMA protocol : " property="var.device.mgmt.prot"
+                                tooltip="protocal to access the XML Mamangement Interface" />
+                            <textProperty label="SOMA hostname : " property="var.device.mgmt.host"
+                                tooltip="FQDN or IP address of the XML Mamangement Interface" />
+                            <textProperty label="SOMA port : " property="var.device.mgmt.port"
+                                tooltip="Port of the XML Mamangement Interface" />
                             <separator />
                             <controlbar>
                                 <button label="Create" type="ok" />
@@ -508,108 +591,52 @@
                         </antform>
 
                         <!-- write properties -->
-                        <propertyfile file="infra-bootstrap.properties"
-                            comment="swat4dp infrastructure properties for customer ${infra.customer} | zone @{zone} | device-set @{device-set}">
-                            <entry key="infra.zone.@{zone}.device-set.@{device-set}.label" value="${var.device-set.label}" />
-                            <entry key="infra.zone.@{zone}.device-set.@{device-set}.short" value="${var.device-set.short}" />
-                            <entry key="infra.zone.@{zone}.device-set.@{device-set}.devices" value="${var.device-set.list}" />
+                        <propertyfile file="${infra.properties.file}"
+                            comment="swat4dp infrastructure properties for customer ${infra.customer} | device set @{device-set} | device @{device}">
+                            <entry key="devices.set.@{device-set}.device.@{device}.label"
+                                value="${var.device.label}" />
+                            <entry key="devices.set.@{device-set}.device.@{device}.emphasis"
+                                value="${var.device.emphasis}" />
+                            <entry key="devices.set.@{device-set}.device.@{device}.xmlmgmt.protocol"
+                                value="${var.device.mgmt.prot}" />
+                            <entry key="devices.set.@{device-set}.device.@{device}.xmlmgmt.address"
+                                value="${var.device.mgmt.host}" />
+                            <entry key="devices.set.@{device-set}.device.@{device}.xmlmgmt.port"
+                                value="${var.device.mgmt.port}" />
                         </propertyfile>
 
-                        <!-- create environment properties file -->
-                        <propertyfile file="${infra.project-dir}/config/device-sets/@{device-set}.properties"
-                            comment="device-set-specific properties for '@{device-set}'">
-                            <entry key="swat.device-set.name" value="@{device-set}" />
-                            <entry key="swat.device-set.label" value="${var.device-set.label}" />
-                            <entry key="swat.device-set.short" value="${var.device-set.short}" />
-                            <entry key="swat.device.list" value="${var.device-set.list}" />
-                            <entry key="swat.device.master" value="${var.device-set.master}" />
+                        <!-- create device properties file -->
+                        <propertyfile file="${devices.project-dir}/config/@{device}.properties"
+                            comment="device-specific properties for '@{device}'">
+                            <entry key="device.label" value="${var.device.label}" />
+                            <entry key="device.organisation" value="${infra.customer}" />
+                            <entry key="device.name" value="@{device}" />
+                            <entry key="device.emphasis" value="${var.device.emphasis}" />
+                            <entry key="device.location" value="#TBD#" />
+                            <entry key="device.entitlement" value="#TBD#" />
+
+                            <entry key="ui.banner.header" value="&lt;strong>@device.emphasis@ - @device.label@&lt;/strong>" />
+                            <entry key="ui.banner.footer"
+                                value="@device.organisation@ - DataPower @device.name@ - &lt;strong>@device.emphasis@&lt;/strong> - (s/n @device.entitlement@)" />
+                            <entry key="ui.banner.prelogin"
+                                value="@device.organisation@, @device.location@ - &lt;strong>@device.emphasis@&lt;/strong> environment" />
+
+                            <entry key="ui.banner.color.foreground" value="yellow" />
+                            <entry key="ui.banner.color.background" value="blue" />
+                            <entry key="ui.banner.prelogin.color" value="orange" />
+
+                            <entry key="text.banner.system" value="@device.label@ - @device.emphasis@" />
+                            <entry key="text.banner.prelogin"
+                                value="@device.organisation@, @device.location@ - @device.emphasis@ environment" />
+                            <entry key="text.banner.postlogin"
+                                value="Be cautious while working on @device.organisation@'s Security Gateway!" />
+
+                            <entry key="mgmt.prot" value="${var.device.mgmt.prot}" />
+                            <entry key="mgmt.host" value="${var.device.mgmt.host}" />
+                            <entry key="mgmt.port" value="${var.device.mgmt.port}" />
                         </propertyfile>
-
-                        <for list="${var.device-set.list}" param="device">
-                            <sequential>
-
-                                <var name="var.device.label" unset="true" />
-                                <var name="var.device.emphasis" unset="true" />
-                                <var name="var.mgmt.prot" value="https" />
-                                <var name="var.mgmt.port" unset="true" />
-
-                                <property name="var.device.label" value="@{device}" />
-                                <property name="var.device.emphasis" value="to be replaced" />
-                                <property name="var.mgmt.prot" value="https" />
-                                <!-- property name="var.mgmt.host" value="FQDN or IP" / -->
-                                <property name="var.mgmt.port" value="5550" />
-
-
-                                <antform title="Swat4DP - create device properties for @{device}"
-                                    stylesheet="${swat.styles.dir}/style.properties" icon="${swat.styles.dir}/favicon.png">
-                                    <label>Specify environment specific properties.</label>
-                                    <textProperty label="Device label : " property="var.device.label" tooltip="Device label" />
-                                    <textProperty label="Device emphasis : " property="var.device.emphasis"
-                                        tooltip="addtional device qualifier" />
-                                    <textProperty label="SOMA protocol : " property="var.mgmt.prot"
-                                        tooltip="protocal to access the XML Mamangement Interface" />
-                                    <textProperty label="SOMA hostname : " property="var.mgmt.host"
-                                        tooltip="FQDN or IP address of the XML Mamangement Interface" />
-                                    <textProperty label="SOMA port : " property="var.mgmt.port"
-                                        tooltip="Port of the XML Mamangement Interface" />
-                                    <separator />
-                                    <controlbar>
-                                        <button label="Create" type="ok" />
-                                    </controlbar>
-                                </antform>
-
-                                <!-- write properties -->
-                                <propertyfile file="infra-bootstrap.properties"
-                                    comment="swat4dp infrastructure properties for customer ${infra.customer} | zone @{zone} | device set @{device-set} | device @{device}">
-                                    <entry key="infra.zone.@{zone}.device-set.@{device-set}.device.@{device}.label"
-                                        value="${var.device.label}" />
-                                    <entry key="infra.zone.@{zone}.device-set.@{device-set}.device.@{device}.emphasis"
-                                        value="${var.device.emphasis}" />
-                                    <entry key="infra.zone.@{zone}.device-set.@{device-set}.device.@{device}.xmlmgmt.protocol"
-                                        value="${var.mgmt.prot}" />
-                                    <entry key="infra.zone.@{zone}.device-set.@{device-set}.device.@{device}.xmlmgmt.address"
-                                        value="${var.mgmt.host}" />
-                                    <entry key="infra.zone.@{zone}.device-set.@{device-set}.device.@{device}.xmlmgmt.port"
-                                        value="${var.mgmt.port}" />
-                                </propertyfile>
-
-
-                                <!-- create device properties file -->
-                                <propertyfile file="${devices.project-dir}/config/@{device}.properties"
-                                    comment="device-specific properties for '@{device}'">
-                                    <entry key="device.label" value="${var.device.label}" />
-                                    <entry key="device.organisation" value="${infra.customer}" />
-                                    <entry key="device.name" value="@{device}" />
-                                    <entry key="device.emphasis" value="${var.device.emphasis}" />
-                                    <entry key="device.location" value="#TBD#" />
-                                    <entry key="device.entitlement" value="#TBD#" />
-
-                                    <entry key="ui.banner.header" value="&lt;strong>@device.emphasis@ - @device.label@&lt;/strong>" />
-                                    <entry key="ui.banner.footer"
-                                        value="@device.organisation@ - DataPower @device.name@ - &lt;strong>@device.emphasis@&lt;/strong> - (s/n @device.entitlement@)" />
-                                    <entry key="ui.banner.prelogin"
-                                        value="@device.organisation@, @device.location@ - &lt;strong>@device.emphasis@&lt;/strong> environment" />
-
-                                    <entry key="ui.banner.color.foreground" value="yellow" />
-                                    <entry key="ui.banner.color.background" value="blue" />
-                                    <entry key="ui.banner.prelogin.color" value="orange" />
-
-                                    <entry key="text.banner.system" value="@device.label@ - @device.emphasis@" />
-                                    <entry key="text.banner.prelogin"
-                                        value="@device.organisation@, @device.location@ - @device.emphasis@ environment" />
-                                    <entry key="text.banner.postlogin"
-                                        value="Be cautious while working on @device.organisation@'s Security Gateway!" />
-
-                                    <entry key="mgmt.prot" value="${var.mgmt.prot}" />
-                                    <entry key="mgmt.host" value="${var.mgmt.host}" />
-                                    <entry key="mgmt.port" value="${var.mgmt.port}" />
-                                </propertyfile>
-                            </sequential>
-                        </for>
                     </sequential>
                 </for>
-
-
             </sequential>
         </for>
 
