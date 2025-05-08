@@ -94,6 +94,26 @@
             <!-- change carriage return/line feed -->
             <property name="src-dir" value="dist/export/@{device}-@{domain}/xcfg/common" />
             <fixcrlf srcdir="${src-dir}" includes="**/*.xcfg" fixlast="false" />
+            
+            <!-- combine properties -->
+            <concat destfile="dist/tokenized2/@{device}-@{domain}.properties">
+                <fileset dir="dist/tokenized2/@{device}-@{domain}-properties">
+                    <include name="*.properties"/>
+                </fileset>
+                <filterchain>
+                    <linecontainsregexp>
+                        <regexp pattern="="/>
+                    </linecontainsregexp>
+                    <linecontains negate="true" matchAny="true">
+                      <contains value="service.object.name"/>
+                      <contains value="service.summary"/>
+                    </linecontains>
+                    <replacetokens>
+                        <token key="debug.mode" value="info"/>
+                        <token key="debug.history" value="25"/>
+                    </replacetokens>
+                </filterchain>
+            </concat>
         </sequential>
     </macrodef>
 
