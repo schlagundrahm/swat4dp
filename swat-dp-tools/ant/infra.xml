@@ -38,13 +38,107 @@
             <soma-prepare-request-macro soma.request="infra-export-domain-list" content.exists="false" tmp.dir="download" />
 
             <!-- Run the soma-request device-export -->
-            <soma-run-single-request-on-single-device-macro device="@{device}"
-                                                            soma.request="infra-export-domain-list"
-                                                            tmp.dir="download"
-                                                            check.response="true" />
+            <soma-run-single-request-on-single-device-macro device="@{device}" soma.request="infra-export-domain-list" tmp.dir="download" check.response="true" />
 
             <!-- Extract the objects from the downloaded soma-response -->
             <extract-zip-file-macro soma.request="infra-export-domain-list" tmp.dir="download" />
         </sequential>
     </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: infra-create-service-project          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="infra-create-service-project">
+        <attribute name="service" />
+        <attribute name="domain" />
+        <attribute name="prefix.pattern" default="${swat.settings.project.services.prefix.pattern}" />
+        <attribute name="object" default="${var.service.object.name}" />
+        <attribute name="class" default="${var.service.object.class}" />
+        <sequential>
+
+            <!-- service project -->
+            <echo message="using service prefix pattern: @{prefix.pattern}" />
+            <propertyregex property="service.project.prefix" input="@{prefix.pattern}" regexp="(.*)@zone@(.*)" replace="\1${swat.zone.name}\2" casesensitive="false" override="true" />
+            <propertyregex property="service.project.prefix" input="${service.project.prefix}" regexp="(.*)@domain@(.*)" replace="\1@{domain}\2" casesensitive="false" override="true" defaultvalue="${service.project.prefix}" />
+            <local name="service.project-dir" />
+            <property name="service.project-dir" value="${basedir}/../${service.project.prefix}-@{service}" />
+            <echo message="Create service project ${service.project-dir}" />
+            <mkdir dir="${service.project-dir}/config" />
+            <mkdir dir="${service.project-dir}/master/common/local" />
+            <mkdir dir="${service.project-dir}/xcfg/common" />
+
+            <touch file="${service.project-dir}/README.md" />
+            <echo file="${service.project-dir}/README.md" append="false" message="# ${service.project.prefix}-@{service}${line.separator}" />
+            <echo file="${service.project-dir}/README.md" append="true" message="customer: ${swat.customer}${line.separator}" />
+            <echo file="${service.project-dir}/README.md" append="true" message="zone: ${swat.zone.label}${line.separator}" />
+            <echo file="${service.project-dir}/README.md" append="true" message="domain: ${var.domain.description}${line.separator}" />
+            <echo file="${service.project-dir}/README.md" append="true" message="service name: ${var.service.object.name}${line.separator}" />
+            <echo file="${service.project-dir}/README.md" append="true" message="service type: ${var.service.object.class}${line.separator}" />
+
+            <filterset id="service.filter" onmissingfiltersfile="ignore">
+                <filter token="customer" value="${swat.customer}" />
+                <filter token="year" value="${YEAR}" />
+                <filter token="domain" value="@{domain}" />
+                <filter token="swat.dp.tools" value="${swat.dp.tools}" />
+                <filter token="service.name" value="@{service}" />
+                <filter token="service.summary" value="[@version@ (@build.number@)]" />
+                <filter token="service.object.name" value="@{object}" />
+                <filter token="service.object.class" value="@{class}" />
+                <filter token="service.dir" value="${var.service.dir}" />
+                <filter token="project.name" value="${service.project.prefix}-@{service}" />
+            </filterset>
+
+            <echo message="Copying service templates ..." />
+            <copy todir="${service.project-dir}" filtering="true" verbose="true" overwrite="true">
+                <fileset dir="${swat.dp.tools}/templates" defaultexcludes="false">
+                    <include name="service_*" />
+                </fileset>
+                <filterset refid="service.filter" />
+                <firstmatchmapper>
+                    <regexpmapper from="service_eclipse_(.*)\.xml" to="\.\1" />
+                    <regexpmapper from="service_(.*)" to="\1" />
+                </firstmatchmapper>
+            </copy>
+
+            <copy todir="${service.project-dir}/config/export" filtering="false" verbose="true" overwrite="true">
+                <fileset dir="${swat.dp.tools}/templates" defaultexcludes="false">
+                    <include name="service-export-object-list.xml" />
+                </fileset>
+            </copy>
+
+            <echo message="check whether the parent pom project (${service.project-dir}/../${swat-customer}-swat-dp-pom) exists ..." />
+            <if>
+                <resourceexists>
+                    <file file="${service.project-dir}/../${swat.customer}-swat-dp-pom/pom.xml" />
+                </resourceexists>
+                <then>
+                    <echo message="Copying service pom.xml ..." />
+                    <xmlproperty file="${service.project-dir}/../${swat.customer}-swat-dp-pom/pom.xml" />
+                    <copy todir="${service.project-dir}" filtering="true" verbose="true" overwrite="true">
+                        <fileset dir="${swat.dp.tools}/templates/maven" defaultexcludes="false">
+                            <include name="service_pom.xml" />
+                        </fileset>
+                        <filterset refid="service.filter" />
+                        <filterset>
+                            <filter token="pom.groupid" value="${project.groupId}" />
+                            <filter token="pom.parentid" value="${project.artifactId}" />
+                        </filterset>
+                        <firstmatchmapper>
+                            <regexpmapper from="service_(.*)" to="\1" />
+                        </firstmatchmapper>
+                    </copy>
+                </then>
+            </if>
+
+            <!-- add initial environment properties -->
+            <for list="${swat.env.list}" param="env">
+                <sequential>
+                    <propertyfile file="${service.project-dir}/config/@{env}.properties">
+                        <entry key="env.name" value="@{env}" />
+                    </propertyfile>
+                </sequential>
+            </for>
+        </sequential>
+    </macrodef>
+
 </project>
