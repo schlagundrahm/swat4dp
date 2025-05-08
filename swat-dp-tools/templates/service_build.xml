@@ -9,9 +9,16 @@
 <!-- ====================================================================== -->
 <!-- Ant build file (http://ant.apache.org/) for Ant 1.10.0 or above. -->
 <!-- ====================================================================== -->
-<project name="@customer@-dp-@domain@-@service.name@" default="info" basedir=".">
+<project name="@project.name@" default="info" basedir=".">
     <!-- The build.properties file defines the path to local jar files -->
-    <property file="build.properties" />
+    <loadproperties srcFile="build.properties">
+        <filterchain>
+            <replacetokens>
+                <token key="version" value="${project.version}" />
+                <token key="build.number" value="${buildNumber}" />
+            </replacetokens>
+        </filterchain>
+    </loadproperties>
 
     <property file="${swat.dp.infra}/build.properties" />
     <property file="${swat.dp.infra}/settings/${user.name}.properties" />

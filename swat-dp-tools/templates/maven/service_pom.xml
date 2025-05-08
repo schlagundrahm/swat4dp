@@ -1,0 +1,50 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>@pom.groupid@</groupId>
+        <artifactId>@pom.parentid@</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>@pom.groupid@</groupId>
+    <artifactId>@project.name@</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>@domain@ @service.name@</name>
+    <description>Swat4DP service configuration</description>
+
+    <properties>
+        <swat.service.object.name>@service.object.name@</swat.service.object.name>
+        <swat.service.object.class>@service.object.class@</swat.service.object.class>
+    </properties>
+
+    <build>
+        <plugins>
+            <!-- defined in parent's pluginManagement section - download swat4dp tooling -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+
+            <!-- defined in parent's pluginManagement section - build service for all environments -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+            </plugin>
+
+            <!-- defined in parent's pluginManagement section - create service artifacts for all environments -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+            </plugin>
+
+            <!-- defined in parent's pluginManagement section - validate XML files in master and xcfg -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

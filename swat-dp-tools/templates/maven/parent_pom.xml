@@ -17,7 +17,7 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>@customer@-swat-dp-service-pom</name>
+    <name>@customer@-swat4dp-parent-pom</name>
     <description>Parent POM for all @customer@ IBM DataPower Gateway service projects</description>
 
     <inceptionYear>@inception.year@</inceptionYear>
@@ -37,8 +37,8 @@
     <!-- FIXME: provide the missing SCM information -->
     <scm>
         <url>https://${git.baseurl}</url>
-        <connection>scm:git:git://${git.baseurl}.git</connection>
-        <developerConnection>scm:git:https://${git.baseurl}.git</developerConnection>
+        <connection>scm:git:https://${git.baseurl}.git</connection>
+        <developerConnection>scm:git:ssh://git@${git.baseurl}.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
@@ -48,6 +48,15 @@
         <system>#TBD#</system>
         <url>#TBD#</url>
     </issueManagement>
+    -->
+    
+    <!-- 
+    <distributionManagement>
+        <site>
+            <id>website</id>
+            <url>${site.urlbase}/${dist.mgmt.folder}/${project.artifactId}/${project.version}</url>
+        </site>
+    </distributionManagement>
     -->
 
     <build>
@@ -127,9 +136,9 @@
                                     <property name="swat.dp.home" value="${project.build.directory}" />
                                     <property name="swat.dp.tools.home" value="${project.build.directory}" />
                                     <!-- FIXME: change/add the environments -->
-                                    <!-- add one ant element per environment with the appropriate value for mgr.target.env.name -->
+                                    <!-- add one ant element per environment (@environments@) with the appropriate value for mgr.target.env.name -->
                                     <ant antfile="${basedir}/build.xml">
-                                        <property name="mgr.target.env.name" value="dev" />
+                                        <property name="mgr.target.env.name" value="#TBD#" />
                                         <target name="service-build" />
                                     </ant>
                                 </target>
