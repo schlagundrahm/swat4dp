@@ -678,29 +678,6 @@
     </target>
 
     <!-- ================================= 
-          target: 72-infra-create-service-projects
-         ================================= -->
-    <target name="72-infra-create-service-projects" depends="init,choose-env,load-domain-props" description="Create swat4dp domain service projects.">
-        <echo message="Basedir: ${basedir}" />
-        <ant antfile="${swat.dp.infra}/build.xml"
-             target="72-infra-create-service-projects"
-             inheritrefs="true"
-             useNativeBasedir="true" />
-        <echo message="Basedir: ${basedir}" />
-    </target>
-
-    <!-- ================================= 
-          target: 73-infra-export-domain-list
-         ================================= -->
-    <target name="73-infra-export-domain-list" depends="init,choose-env,choose-device" description="Export the configuration of the application domains.">
-        <echo message="Basedir: ${basedir}" />
-        <ant antfile="${swat.dp.infra}/build.xml"
-             target="73-infra-export-domain-list"
-             inheritrefs="true"
-             useNativeBasedir="true" />
-    </target>
-
-    <!-- ================================= 
           target: 59-ops-sanitize-error-report 
          ================================= -->
     <target name="59-ops-sanitize-error-report"
