@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <import-objects domain="@domain.name@">
    <object type="LogTarget" name="@service.object.name@"/>
+   <!-- samples for common objects 
+   <object type="LogTarget" name="debug-log"/>
+   <object type="LogTarget" name="error-log"/>
+   <object type="Matching" name="MatchAll"/>
+   <object type="Matching" name="MatchFavicon"/>
+   <object type="Matching" name="MatchNever"/>
+   <object type="CryptoCertificate" name="server"/>
+   <object type="CryptoKey" name="server"/>
+   <object type="CryptoSSKey" name="local"/>
+   <object type="SSLServerProfile" name="localhost"/>
+   <object type="ConfigDeploymentPolicy" name="SkipCommonCryptoObjects"/>
+   <object type="ConfigDeploymentPolicy" name="SkipCommonObjects"/>
+   <object type="ConfigDeploymentPolicy" name="SkipAllCryptoObjects"/>
+   <object type="ConfigDeploymentPolicy" name="SkipAllObjects"/>
+   -->
 </import-objects>
