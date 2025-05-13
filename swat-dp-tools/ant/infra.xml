@@ -54,6 +54,7 @@
         <attribute name="prefix.pattern" default="${swat.settings.project.services.prefix.pattern}" />
         <attribute name="object" default="${var.service.object.name}" />
         <attribute name="class" default="${var.service.object.class}" />
+        <attribute name="service.dir" default="${var.service.dir}" />
         <sequential>
 
             <!-- service project -->
@@ -84,7 +85,7 @@
                 <filter token="service.summary" value="[@version@ (@build.number@)]" />
                 <filter token="service.object.name" value="@{object}" />
                 <filter token="service.object.class" value="@{class}" />
-                <filter token="service.dir" value="${var.service.dir}" />
+                <filter token="service.dir" value="@{service.dir}" />
                 <filter token="project.name" value="${service.project.prefix}-@{service}" />
             </filterset>
 
@@ -102,6 +103,7 @@
 
             <copy todir="${service.project-dir}/config/export" filtering="false" verbose="true" overwrite="true">
                 <fileset dir="${swat.dp.tools}/templates" defaultexcludes="false">
+                    <include name="service-export-file-list.xml" />
                     <include name="service-export-object-list.xml" />
                 </fileset>
             </copy>
@@ -127,6 +129,30 @@
                             <regexpmapper from="service_(.*)" to="\1" />
                         </firstmatchmapper>
                     </copy>
+                    <echo message="Copying service Maven assembly templates..." />
+                    <copy todir="${service.project-dir}/src/assembly" filtering="true" verbose="true" overwrite="true">
+                        <fileset dir="${swat.dp.tools}/templates/maven" defaultexcludes="false">
+                            <include name="service_assembly_filter.properties" />
+                        </fileset>
+                        <firstmatchmapper>
+                            <regexpmapper from="service_assembly_(.*)" to="\1" />
+                        </firstmatchmapper>
+                    </copy>
+                    <for list="${swat.env.list}" param="env">
+                        <sequential>
+                            <copy todir="${service.project-dir}/src/assembly" filtering="true" verbose="true" overwrite="true">
+                                <fileset dir="${swat.dp.tools}/templates/maven" defaultexcludes="false">
+                                    <include name="service_assembly_build-env.xml" />
+                                </fileset>
+                                <filterset>
+                                    <filter token="env" value="@{env}" />
+                                </filterset>
+                                <firstmatchmapper>
+                                    <regexpmapper from="service_assembly_([\w]+)-env" to="\1-@{env}" />
+                                </firstmatchmapper>
+                            </copy>
+                        </sequential>
+                    </for>
                 </then>
             </if>
 

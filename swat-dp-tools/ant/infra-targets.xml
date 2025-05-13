@@ -639,7 +639,7 @@
                 <get-status-macro device="${mgr.target.device.name}" domain="@{domain}" status="ServicesStatus" />
                 <!-- extract service names -->
                 <xmltask source="dist/status/${mgr.target.device.name}/@{domain}/status-get-response.xml">
-                    <copy path="//ServiceName/text()" property="var.domain.service-list" append="true" propertySeparator="," />
+                    <copy path="//ServicesStatus[not(preceding-sibling::*) or ./ServiceName/text() != preceding-sibling::*[1]/ServiceName/text()]/ServiceName/text()" property="var.domain.service-list" append="true" propertySeparator="," />
                 </xmltask>
                 <echo message="configured services in domain @{domain}: ${var.domain.service-list}" />
 
@@ -669,6 +669,9 @@
                         <propertyfile file="${swat.dp.infra}/config/zones/${swat.zone.name}/envs/${mgr.target.env.name}/${mgr.target.env.name}.properties">
                             <entry key="swat.domain.list" value="${domains}" />
                         </propertyfile>
+                        
+                        <!-- using swat4dp naming convention: service names for projects, especially short names, are lowercase -->
+                        <stringmod property="service-list.lowercase" input="${var.domain.service-list}" action="lowercase" />
 
                         <!-- create domain properties file -->
                         <echo message="create ${var.domain.short}.properties file" />
@@ -676,13 +679,13 @@
                             <entry key="swat.domain.name" value="@{domain}" />
                             <entry key="swat.domain.description" value="${var.domain.description}" />
                             <entry key="swat.domain.short" value="${var.domain.short}" />
-                            <entry key="swat.service.list" value="common,${var.domain.service-list}" />
+                            <entry key="swat.service.list" value="common,${service-list.lowercase}" />
                             <entry key="swat.settings.splitting.policy.useIndexInRuleName" value="${var.domain.rule.index}" />
                         </propertyfile>
 
                         <!-- create the service project -->
                         <echo message="create common project for domain @{domain} ..." />
-                        <infra-create-service-project service="common" object="n/a" class="MultiProtocolGateway" domain="${var.domain.short}" />
+                        <infra-create-service-project service="common" object="n/a" class="MultiProtocolGateway" domain="${var.domain.short}" service.dir="local:///common" />
                         
                         <echo message="entering the service loop ..." />
                         <for list="${var.domain.service-list}" param="service">
