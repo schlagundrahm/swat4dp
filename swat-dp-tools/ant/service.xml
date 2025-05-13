@@ -105,11 +105,11 @@
                         <regexp pattern="="/>
                     </linecontainsregexp>
                     <linecontains negate="true" matchAny="true">
-                      <contains value="service.object.name"/>
-                      <contains value="service.summary"/>
+                      <contains value="service.object.name="/>
+                      <contains value="service.summary="/>
                     </linecontains>
                     <replacetokens>
-                        <token key="debug.mode" value="info"/>
+                        <token key="debug.mode" value="off"/>
                         <token key="debug.history" value="25"/>
                     </replacetokens>
                 </filterchain>

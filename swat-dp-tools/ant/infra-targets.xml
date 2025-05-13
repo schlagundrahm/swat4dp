@@ -671,7 +671,7 @@
                         </propertyfile>
                         
                         <!-- using swat4dp naming convention: service names for projects, especially short names, are lowercase -->
-                        <stringmod property="service-list.lowercase" input="${var.domain.service-list}" action="lowercase" />
+                        <stringmod property="service-list.lowercase" input="${var.domain.service-list}" action="lowercase" override="true"/>
 
                         <!-- create domain properties file -->
                         <echo message="create ${var.domain.short}.properties file" />
