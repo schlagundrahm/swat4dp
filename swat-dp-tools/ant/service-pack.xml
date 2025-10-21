@@ -155,6 +155,8 @@
 			    <filter token="artifactId" value="${pom.artifactId}"/>
 			    <filter token="groupId" value="${group-id}"/>
 			    <filter token="description" value="${pom.description}"/>
+                <filter token="target.zone" value="${mgr.target.zone.name}"/>
+                <filter token="target.env" value="${mgr.target.env.name}"/>
 			</filterset>
 
 			<!-- Copy and filter the local files (common and env-specific) -->
