@@ -488,13 +488,29 @@
           target: 90-swat-clean-all-projects 
          ================================= -->
     <target name="90-swat-clean-all-projects" depends="init" description="--> clean all dist folders">
+        <propertyregex property="project.dir.name"
+              input="${swat.settings.project.services.prefix.pattern}"
+              regexp="(@[^@]+@)"
+              replace="*"
+              casesensitive="false" 
+              global="true"/>
+        <echo message="cleanup ${swat.dp.tools.home}" />
         <delete verbose="true" includeemptydirs="true">
-            <fileset dir="${basedir}/../">
+            <fileset dir="${swat.dp.tools.home}">
                 <include name="Swat4DP/dist/**" />
+            </fileset>
+        </delete>
+        <echo message="cleanup ${swat.dp.customer.home} ..." />
+        <delete verbose="true" includeemptydirs="true">
+            <fileset dir="${swat.dp.customer.home}">
                 <include name="${swat.customer}-swat-dp-devices/dist/**" />
+                <include name="${swat.customer}-swat-dp-devices/target/**" />
                 <include name="${swat.customer}-swat-dp-services-*/dist/**" />
+                <include name="${swat.customer}-swat-dp-services-*/target/**" />
                 <include name="${swat.settings.project.services.prefix}-*/dist/**" />
                 <include name="${swat.settings.project.services.prefix}-*/target/**" />
+                <include name="${project.dir.name}-*/dist/**" />
+                <include name="${project.dir.name}-*/target/**" />
             </fileset>
         </delete>
     </target>
