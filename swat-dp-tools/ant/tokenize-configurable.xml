@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- ================================================================================================= -->
+<!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
+<!-- Copyright © 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- ================================================================================================= -->
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.8.2 or above. -->
+<!-- CONFIGURABLE TOKENIZATION - Rules-based tokenization from properties file -->
+<!-- ====================================================================== -->
+<project name="swat-dp-tools.tokenize-configurable" default="info" basedir=".">
+
+    <dirname file="${ant.file.swat-dp-tools.tokenize-configurable}" property="ant_tokenize_configurable.dir" />
+    <import file="${ant_tokenize_configurable.dir}/taskdefs.xml" />
+
+    <target name="info">
+        <echo message="Configurable tokenization macro for swat-dp-tools (rules-based from properties file)" />
+    </target>
+    
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: tokenize-service-java-macro
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="tokenize-service-java-macro">
+        <attribute name="src-dir" />
+        <attribute name="dst-dir" />
+        <attribute name="properties-dir" />
+        <attribute name="rules-file" default="${swat.dp.tools}/config/tokenization-rules.properties" />
+        
+        <sequential>
+            <echo message="Tokenizing service configurations (Java) from: @{src-dir}" />
+            
+            <!-- Use custom tokenizeservice task (DOM-based, XPath-aware) -->
+            <tokenizeservice
+                srcDir="@{src-dir}"
+                dstDir="@{dst-dir}"
+                propertiesDir="@{properties-dir}"
+                rulesFile="@{rules-file}"
+            />
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: tokenize-service-config-configurable-macro          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="tokenize-service-config-configurable-macro">
+        <attribute name="src-dir" />
+        <attribute name="dst-dir" default="@{src-dir}/../tokenized" />
+        <attribute name="properties-dir" default="@{dst-dir}-properties" />
+        <attribute name="rules-file" default="${swat.dp.tools}/config/tokenization-rules.properties" />
+        <attribute name="file-extension" default=".xcfg" />
+        <sequential>
+            <echo message="Configurable tokenization: Using rules from @{rules-file}" />
+            <echo message="  Source: @{src-dir}" />
+            <echo message="  Output: @{dst-dir}" />
+            
+            <!-- Verify rules file exists -->
+            <fail message="Tokenization rules file not found: @{rules-file}">
+                <condition>
+                    <not>
+                        <available file="@{rules-file}" type="file" />
+                    </not>
+                </condition>
+            </fail>
+            
+            <delete dir="@{dst-dir}" failonerror="false" />
+            <delete dir="@{properties-dir}" failonerror="false" />
+            <mkdir dir="@{dst-dir}" />
+            <mkdir dir="@{properties-dir}" />
+            
+            <!-- Process each xcfg file -->
+            <for param="file">
+                <path>
+                    <fileset dir="@{src-dir}">
+                        <include name="*@{file-extension}" />
+                        <exclude name="temp-*@{file-extension}" />
+                        <exclude name="*-intrinsic@{file-extension}" />
+                    </fileset>
+                </path>
+                <sequential>
+                    <local name="filename" />
+                    <local name="basename" />
+                    <basename property="filename" file="@{file}" />
+                    <basename property="basename" file="@{file}" suffix="@{file-extension}" />
+                    
+                    <echo message="Processing: ${filename}" />
+                    
+                    <!-- Single XSLT transformation with configurable rules -->
+                    <xslt processor="trax"
+                          in="@{file}"
+                          out="@{dst-dir}/${filename}"
+                          style="${swat.dp.tools}/soma/xsl/tokenize-service-configurable.xsl"
+                          classpathref="swat.dp.tools.classpath">
+                        <factory name="net.sf.saxon.TransformerFactoryImpl" />
+                        <param name="properties-output-file" expression="@{properties-dir}/${basename}.properties" />
+                        <param name="rules-file" expression="@{rules-file}" />
+                    </xslt>
+                </sequential>
+            </for>
+            
+            <echo message="Configurable tokenization complete:" />
+            <echo message="  - Tokenized configs: @{dst-dir}" />
+            <echo message="  - Properties files:  @{properties-dir}" />
+            <echo message="  - Rules applied from: @{rules-file}" />
+        </sequential>
+    </macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          target: validate-rules          
+         = = = = = = = = = = = = = = = = = -->
+    <target name="validate-rules" description="Validate tokenization rules file syntax">
+        <property name="rules.file" value="${swat.dp.tools}/config/tokenization-rules.properties" />
+        <echo message="Validating tokenization rules: ${rules.file}" />
+        
+        <loadfile property="rules.content" srcFile="${rules.file}" />
+        
+        <!-- Count rules (non-comment, non-empty lines with =) -->
+        <resourcecount property="rules.count">
+            <tokens>
+                <concat>
+                    <filterchain>
+                        <linecontains>
+                            <contains value="=" />
+                        </linecontains>
+                        <linecontainsregexp negate="true">
+                            <regexp pattern="^\s*#" />
+                        </linecontainsregexp>
+                    </filterchain>
+                    <string value="${rules.content}" />
+                </concat>
+            </tokens>
+        </resourcecount>
+        
+        <echo message="Found ${rules.count} tokenization rules" />
+        <echo message="Rules file is valid" />
+    </target>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          target: list-rules          
+         = = = = = = = = = = = = = = = = = -->
+    <target name="list-rules" description="List all tokenization rules">
+        <property name="rules.file" value="${swat.dp.tools}/config/tokenization-rules.properties" />
+        <echo message="Tokenization Rules from: ${rules.file}" />
+        <echo message="========================================" />
+        <loadfile property="rules.content" srcFile="${rules.file}">
+            <filterchain>
+                <linecontains>
+                    <contains value="=" />
+                </linecontains>
+                <linecontainsregexp negate="true">
+                    <regexp pattern="^\s*#" />
+                </linecontainsregexp>
+            </filterchain>
+        </loadfile>
+        <echo message="${rules.content}" />
+    </target>
+
+</project>
+
+<!-- Made with Bob -->

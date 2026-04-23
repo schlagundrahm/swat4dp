@@ -156,56 +156,6 @@
                         pattern="${service.object.name}(.*)"
                         replace="@service.object.name@$1" />
 
-                <replace path="//configuration/${service.object.class}/DebugMode/text()" withText="@debug.mode@" />
-                <replace path="//configuration/${service.object.class}/DebugHistory/text()"
-                         withText="@debug.history@" />
-                <replace path="//configuration/${service.object.class}/GeneratedPolicies/text()" withText="" />
-
-                <!-- WAF objects -->
-                <replace path="//configuration/WebAppFW/FrontSide/LocalAddress/text()"
-                         withText="@frontend.server.host@" />
-                <replace path="//configuration/WebAppFW/FrontSide/LocalPort/text()" withText="@frontend.server.port@" />
-                <replace path="//configuration/WebAppFW/RemoteAddress/text()" withText="@backend.server.host@" />
-                <replace path="//configuration/WebAppFW/RemotePort/text()" withText="@backend.server.port@" />
-                <replace path="//configuration/WebAppFW/FrontTimeout/text()" withText="@frontend.timeout@" />
-                <replace path="//configuration/WebAppFW/BackTimeout/text()" withText="@backend.timeout@" />
-                <replace path="//configuration/WebAppFW/FrontPersistentTimeout/text()"
-                         withText="@frontend.timeout.persistent@" />
-                <replace path="//configuration/WebAppFW/BackPersistentTimeout/text()"
-                         withText="@backend.timeout.persistent@" />
-
-                <!-- AAA -->
-                <replace path="//configuration/AAAPolicy/Authenticate/AULTPAKeyFile[text()!='']/text()"
-                         withText="@ltpa.key.file@" />
-                <replace path="//configuration/AAAPolicy/Authenticate/AULTPAKeyFilePassword[text()!='']/text()"
-                         withText="@ltpa.was7.key.pw@" />
-                <replace path="//configuration/AAAPolicy/Authenticate/AUMapURL[text()!='']/text()"
-                         withText="@aaa.au.file@" />
-                <replace path="//configuration/AAAPolicy/Authenticate/AUCacheAllow/text()"
-                         withText="@aaa.au.cache.allow@" />
-                <replace path="//configuration/AAAPolicy/Authenticate/AUCacheTTL/text()"
-                         withText="@aaa.au.cache.ttl@" />
-
-                <replace path="//configuration/AAAPolicy/MapResource/MRMapURL[text()!='']/text()"
-                         withText="@aaa.mr.file@" />
-
-                <replace path="//configuration/AAAPolicy/Authorize/AZMapURL[text()!='']/text()"
-                         withText="@aaa.az.file@" />
-                <replace path="//configuration/AAAPolicy/Authorize/AZCacheAllow/text()"
-                         withText="@aaa.az.cache.allow@" />
-                <replace path="//configuration/AAAPolicy/Authorize/AZCacheTTL/text()" withText="@aaa.az.cache.ttl@" />
-                <replace path="//configuration/AAAPolicy/Authorize/AZLDAPBindPassword/text()"
-                         if="ldap.dmz.bind.pw.lbl"
-                         withText="@ldap.dmz.bind.pw@" />
-
-                <replace path="//configuration/AAAPolicy/PostProcess/PPLTPAKeyFile[text()!='']/text()"
-                         withText="@ltpa.key.file@" />
-                <replace path="//configuration/AAAPolicy/PostProcess/PPLTPAKeyFilePassword[text()!='']/text()"
-                         withText="@ltpa.was7.key.pw@" />
-                <replace path="//configuration/AAAPolicy/PostProcess/PPLTPAExpiry/text()"
-                         if="ltpa.expiry"
-                         withText="@ltpa.expiry@" />
-
 
                 <!-- Log Targets -->
                 <replace path="//configuration/LogTarget[@name = '${service.object.name}']/@name"
@@ -216,8 +166,6 @@
                          withText="@log.level.general@" />
                 <replace path="//configuration/LogTarget/LogEvents[Class='ws-proxy' or Class='mpgw']/Priority/text()"
                          withText="@log.level.service@" />
-                <replace path="//configuration/LogTarget/Size/text()" withText="@log.file.size@" />
-                <replace path="//configuration/LogTarget/Rotate/text()" withText="@log.file.rotations@" />
                 <replace path="//configuration/LogTarget/LogObjects[Class='${service.object.class}']/Class/text()"
                          withText="@service.object.class@" />
                 <replace path="//configuration/LogTarget/LogObjects[Class='@service.object.class@']/FollowReferences/text()"
