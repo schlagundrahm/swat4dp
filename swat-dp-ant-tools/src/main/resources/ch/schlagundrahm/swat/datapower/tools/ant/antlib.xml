@@ -4,7 +4,9 @@
    <taskdef name="compareconfig" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.CompareConfig" onerror="ignore" />
    <taskdef name="createfilesconfig" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.CreateFilesConfig" onerror="ignore" />
    <taskdef name="crypto" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.Crypto" onerror="ignore" />
+   <taskdef name="mergeproperties" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.MergeProperties" onerror="ignore" />
    <taskdef name="showfile" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.ShowFile" onerror="ignore" />
-   <taskdef name="validatecertificate" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.ValidateCertificate" onerror="ignore" />
    <taskdef name="stringmod" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.StringMod" onerror="ignore" />
+   <taskdef name="tokenizeservice" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.TokenizeService" onerror="ignore" />
+   <taskdef name="validatecertificate" classname="ch.schlagundrahm.swat.datapower.tools.ant.taskdefs.ValidateCertificate" onerror="ignore" />
 </antlib>
