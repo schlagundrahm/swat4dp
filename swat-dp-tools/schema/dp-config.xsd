@@ -41,6 +41,7 @@
             <xsd:documentation>derived from xml-mgmt.xsd type AnyConfigElement</xsd:documentation>
         </xsd:annotation>
         <xsd:choice maxOccurs="unbounded">
+            <xsd:element name="AMQPBroker" type="ConfigElement" />
             <xsd:element name="AAAPolicy" type="ConfigElement" />
             <xsd:element name="Domain" type="ConfigElement" />
             <xsd:element name="LDAPSearchParameters" type="ConfigElement" />
@@ -196,6 +197,7 @@
             <xsd:element name="XSLCoprocService" type="ConfigElement" />
             <xsd:element name="ShellAlias" type="ConfigElement" />
             <xsd:element name="SimpleCountMonitor" type="ConfigElement" />
+            <xsd:element name="AMQPSourceProtocolHandler" type="ConfigElement" />
             <xsd:element name="SLMAction" type="ConfigElement" />
             <xsd:element name="SLMCredClass" type="ConfigElement" />
             <xsd:element name="SLMPolicy" type="ConfigElement" />
