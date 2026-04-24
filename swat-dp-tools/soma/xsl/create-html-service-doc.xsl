@@ -5,7 +5,7 @@
 <!-- Run this against a service export.xml to produce a HTML report -->
 <!-- -->
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xalan="http://xml.apache.org/xslt"
-   xmlns:dp="http://www.datapower.com/extensions" extension-element-prefixes="dp">
+   xmlns:dp="http://www.datapower.com/extensions" extension-element-prefixes="dp xalan">
 
    <xsl:param name="project" />
    <xsl:param name="service" />
@@ -14,8 +14,8 @@
 
    <xsl:output method="html" doctype-public="html" indent="yes" xalan:indent-amount="4" encoding="UTF-8" omit-xml-declaration="yes" />
 
-   <xsl:variable name="timestamp" select="current-dateTime()"/>
-   
+   <xsl:variable name="timestamp" select="current-dateTime()" />
+
    <xsl:variable name="vMainDoc" select="/" />
 
    <xsl:variable name="LF" select="'&#x0D;'" />
@@ -60,6 +60,8 @@
    <xsl:template match="/">
       <html>
          <head>
+            <meta name="keywords" content="IBM, DataPower, swat4dp, service, documentation" />
+            <meta name="description" content="swat4dp technical service documentation" />
             <h1 align="center">
                <xsl:value-of select="string('*** Swat4DP - Technical Service Documentation ***')" />
             </h1>
@@ -95,11 +97,11 @@
             <xsl:apply-templates select="//configuration/WSStylePolicy" />
             <xsl:apply-templates select="//configuration/XPathRoutingMap" />
             <xsl:apply-templates select="//configuration/TCPProxyService" />
-            <hr/>
-            <p/>
+            <hr />
+            <p />
             <xsl:apply-templates select="//configuration/AppSecurityPolicy" />
             <xsl:apply-templates select="//configuration/WSEndpointRewritePolicy" />
-            <hr/>
+            <hr />
             <p align="center">Serivce Files</p>
             <xsl:apply-templates select="//files" />
          </body>
@@ -108,7 +110,7 @@
 
    <!-- Service Diagrams -->
    <!-- **************** -->
-   
+
    <!-- TCP Proxy -->
    <xsl:template match="TCPProxyService">
 
@@ -208,7 +210,7 @@
       </svg>
 
    </xsl:template>
-   
+
    <!-- HTTP Service -->
    <xsl:template match="HTTPService">
 
@@ -275,7 +277,7 @@
       </svg>
 
    </xsl:template>
-   
+
    <!-- MPGW / WSP -->
    <xsl:template match="MultiProtocolGateway|WSGateway">
       <xsl:variable name="vPolicyName" select="./StylePolicy[@class='StylePolicy']" />
@@ -397,7 +399,7 @@
       </svg>
 
    </xsl:template>
-   
+
    <!-- WAF -->
    <xsl:template match="WebAppFW">
       <xsl:variable name="vPolicyName" select="./StylePolicy[@class='StylePolicy']" />
@@ -586,7 +588,7 @@
       </xsl:if>
 
    </xsl:template>
-   
+
    <!-- HTTP(S) WAF Front Side Handlers -->
    <xsl:template match="FrontSide">
       <xsl:variable name="offsetFY">
@@ -608,7 +610,7 @@
       <xsl:variable name="conY" select="$shapeFY + $shapeFH div 2" />
       <xsl:variable name="conY2" select="$startY + $offsetFY + ($countF * $shapeFH + ($countF - 1) * $deltaFY) div 2" />
 
-      <!--  xsl:variable name="fshname" select="./prceding-sibling  text()" / -->
+      <xsl:variable name="fshname" select="./preceding-sibling::FrontProtocol/text()" />
       <xsl:variable name="fshtype" select="@class" />
       <xsl:variable name="fshnode" select="$vMainDoc//*[name() = $fshtype and @name = $fshname]" />
 
@@ -646,10 +648,6 @@
       </switch>
 
       <xsl:if test="$fshtype = 'HTTPSSourceProtocolHandler'">
-         <xsl:apply-templates select="$vMainDoc//SSLProxyProfile[@name = $fshnode/SSLProxy]">
-            <xsl:with-param name="startposX" select="$shapeFX" />
-            <xsl:with-param name="color" select="$colorFrontside" />
-         </xsl:apply-templates>
          <xsl:apply-templates select="$vMainDoc//SSLServerProfile[@name = $fshnode/SSLServer]">
             <xsl:with-param name="startposX" select="$shapeFX" />
             <xsl:with-param name="color" select="$colorFrontside" />
@@ -661,8 +659,9 @@
       </xsl:if>
 
    </xsl:template>
-
-   <xsl:template match="SSLProxyProfile">
+   
+   <!-- SSL Server Profile -->
+   <xsl:template match="SSLServerProfile">
       <xsl:param name="color" />
       <xsl:param name="startposX" />
 
@@ -673,7 +672,7 @@
       <xsl:variable name="shapePW" select="250" />
       <xsl:variable name="shapePH" select="200" />
       <xsl:variable name="shapePX" select="$startposX" />
-      <xsl:variable name="shapePY" select="$startY + $countF * $shapeFH + ($countF - 1) * $deltaFY + 50" />
+      <xsl:variable name="shapePY" select="$startY + max(($shapeSH, $countF * $shapeFH + ($countF - 1) * $deltaFY)) + 50" />
 
       <xsl:variable name="shapeIY" select="10" />
 
@@ -695,18 +694,12 @@
       <xsl:variable name="shapeCredW" select="$shapeCPW - 2 * $deltaX" />
 
       <xsl:variable name="sslname" select="@name" />
-      <xsl:variable name="ssldirection" select="./Direction" />
-      <xsl:variable name="sslreverse" select="./ReverseCryptoProfile" />
-      <xsl:variable name="sslforward" select="./ForwardCryptoProfile" />
 
-      <xsl:variable name="cryptoreverse" select="$vMainDoc//CryptoProfile[@name = $sslreverse]" />
-      <xsl:variable name="cryptoforward" select="$vMainDoc//CryptoProfile[@name = $sslforward]" />
-
-      <!-- SSL Proxy Profile -->
+      <!-- SSL Server Profile -->
       <rect x="{$shapePX}" y="{$shapePY}" width="{$shapePW}" height="{$shapePH}" style="stroke: #000000; fill: {$color};" />
-      <text x="{$shapePX + $shapeIX}" y="{$shapePY + $shapeIY}" style="font-family: Arial; font-size: 10;">
+      <text x="{$shapePX + $shapeIX}" y="{$shapePY + $shapeIY}" class="svgsslprofile">
          <tspan x="{$shapePX + $shapeIX}">
-            <xsl:value-of select="concat(position(), ' SSL Profile: ', $sslname)" />
+            <xsl:value-of select="concat(position(), ' SSL Server Profile: ', $sslname)" />
          </tspan>
          <tspan x="{$shapePX + $shapeIX}" dy="10">
             <xsl:value-of select="concat('ClientAuth optional: ', ./ClientAuthOptional)" />
@@ -718,42 +711,92 @@
       </text>
 
       <!-- Server/Reverse Crypto Profile -->
+      <!-- 
       <rect x="{$shapeCPX}" y="{$shapeSCPY}" width="{$shapeCPW}" height="{$shapeCPH}" style="stroke: #000000; fill: #00ffaa;" />
-      <text x="{$shapeCPX + $shapeIX}" y="{$shapeSCPY + $shapeIY}" style="font-family: Arial; font-size: 10;">
+      <text x="{$shapeCPX + $shapeIX}" y="{$shapeSCPY + $shapeIY}" class="svgcryptoprofile">
          <xsl:value-of select="concat('Server Profile: ', $sslreverse/text())" />
       </text>
+      -->
       <!-- Identification Credentials -->
       <rect x="{$shapeCredX}" y="{$shapeSCPY + 2 * $deltaCredY}" width="{$shapeCredW}" height="{$shapeCredH}" style="stroke: #000000; fill: #00ffaa;" />
-      <text x="{$shapeCredX + $shapeIX}" y="{$shapeSCPY + 2 * $deltaCredY + $shapeIY}" style="font-family: Arial; font-size: 10;">
-         <xsl:value-of select="concat('IdCred: ', $cryptoreverse/IdentCredential)" />
+      <text x="{$shapeCredX + $shapeIX}" y="{$shapeSCPY + 2 * $deltaCredY + $shapeIY}" class="svgcryptocredentials">
+         <xsl:value-of select="concat('IdCred: ', ./IdentCredential)" />
       </text>
 
       <!-- Validation Credentials -->
       <rect x="{$shapeCredX}" y="{$shapeSCPY + 3 * $deltaCredY + $shapeCredH}" width="{$shapeCredW}" height="{$shapeCredH}"
          style="stroke: #000000; fill: #00ffaa;" />
-      <text x="{$shapeCredX + $shapeIX}" y="{$shapeSCPY + 3 * $deltaCredY + $shapeCredH + $shapeIY}" style="font-family: Arial; font-size: 10;">
-         <xsl:value-of select="concat('ValCred: ', $cryptoreverse/ValCredential)" />
+      <text x="{$shapeCredX + $shapeIX}" y="{$shapeSCPY + 3 * $deltaCredY + $shapeCredH + $shapeIY}" class="svgcryptocredentials">
+         <xsl:value-of select="concat('ValCred: ', ./ValCredential)" />
       </text>
 
+   </xsl:template>
+   
+   
+   
+   <xsl:template match="SSLClientProfile">
+      <xsl:param name="color" />
+      <xsl:param name="startposX" />
 
-      <!-- Client/Forward Crypto Profile -->
-      <rect x="{$shapeCPX}" y="{$shapeCCPY}" width="{$shapeCPW}" height="{$shapeCPH}" style="stroke: #000000; fill: #00ffaa;" />
-      <text x="{$shapeCPX + $shapeIX}" y="{$shapeCCPY + $shapeIY}" style="font-family: Arial; font-size: 10;">
-         <xsl:value-of select="concat('Client Profile: ', $sslforward/text())" />
+      <!-- <xsl:variable name="ypos"> <xsl:number value="330 + (position() - 1) * 60" format="1" /> </xsl:variable> <xsl:variable name="shapePX"> 
+         <xsl:number value="50 + (position() - 1) * 400" format="1" /> </xsl:variable> -->
+
+      <!-- SSL Profile -->
+      <xsl:variable name="shapePW" select="250" />
+      <xsl:variable name="shapePH" select="200" />
+      <xsl:variable name="shapePX" select="$startposX" />
+      <xsl:variable name="shapePY" select="$startY + max(($shapeSH, $countF * $shapeFH + ($countF - 1) * $deltaFY)) + 50" />
+
+      <xsl:variable name="shapeIY" select="10" />
+
+      <xsl:variable name="deltaX" select="3" />
+      <xsl:variable name="deltaY" select="10" />
+      <xsl:variable name="deltaCredY" select="10" />
+
+      <!-- Server Crypto Profile -->
+      <xsl:variable name="shapeCPX" select="$shapePX + $deltaX" />
+      <xsl:variable name="shapeCPH" select="($shapePH - 6 * $deltaY) div 2" />
+      <xsl:variable name="shapeCPW" select="$shapePW - $deltaX * 2" />
+
+      <xsl:variable name="shapeSCPY" select="$shapePY + 4 * $deltaY" />
+      <xsl:variable name="shapeCCPY" select="$shapePY + 5 * $deltaY + $shapeCPH" />
+
+
+      <xsl:variable name="shapeCredX" select="$shapeCPX + $deltaX" />
+      <xsl:variable name="shapeCredH" select="($shapeCPH - 4 * $deltaCredY) div 2" />
+      <xsl:variable name="shapeCredW" select="$shapeCPW - 2 * $deltaX" />
+
+      <xsl:variable name="sslname" select="@name" />
+
+      <!-- SSL Client Profile -->
+      <rect x="{$shapePX}" y="{$shapePY}" width="{$shapePW}" height="{$shapePH}" style="stroke: #000000; fill: {$color};" />
+      <text x="{$shapePX + $shapeIX}" y="{$shapePY + $shapeIY}" class="svgsslprofile">
+         <tspan x="{$shapePX + $shapeIX}">
+            <xsl:value-of select="concat(position(), ' SSL Client Profile: ', $sslname)" />
+         </tspan>
+         <tspan x="{$shapePX + $shapeIX}" dy="10">
+            <xsl:value-of select="concat('Protocols: ', ./Protocols)" />
+         </tspan>
+         <tspan x="{$shapePX + $shapeIX}" dy="10">
+            <xsl:value-of select="concat(' TLSv1d2: ', ./Protocols/TLSv1d2)" />
+         </tspan>
+         <tspan x="{$shapePX + $shapeIX}" dy="10">
+            <xsl:value-of select="concat(' TLSv1d3: ', ./Protocols/TLSv1d3)" />
+         </tspan>
       </text>
+
       <!-- Credentials -->
-
       <!-- Identification Credentials -->
       <rect x="{$shapeCredX}" y="{$shapeCCPY + 2 * $deltaCredY}" width="{$shapeCredW}" height="{$shapeCredH}" style="stroke: #000000; fill: #00ffaa;" />
-      <text x="{$shapeCredX + $shapeIX}" y="{$shapeCCPY + 2 * $deltaCredY + $shapeIY}" style="font-family: Arial; font-size: 10;">
-         <xsl:value-of select="concat('IdCred: ', $cryptoforward/IdentCredential)" />
+      <text x="{$shapeCredX + $shapeIX}" y="{$shapeCCPY + 2 * $deltaCredY + $shapeIY}" class="svgcryptocredentials">
+         <xsl:value-of select="concat('IdCred: ', ./Idcred)" />
       </text>
 
       <!-- Validation Credentials -->
       <rect x="{$shapeCredX}" y="{$shapeCCPY + 3 * $deltaCredY + $shapeCredH}" width="{$shapeCredW}" height="{$shapeCredH}"
          style="stroke: #000000; fill: #00ffaa;" />
-      <text x="{$shapeCredX + $shapeIX}" y="{$shapeCCPY + 3 * $deltaCredY + $shapeCredH + $shapeIY}" style="font-family: Arial; font-size: 10;">
-         <xsl:value-of select="concat('ValCred: ', $cryptoforward/ValCredential)" />
+      <text x="{$shapeCredX + $shapeIX}" y="{$shapeCCPY + 3 * $deltaCredY + $shapeCredH + $shapeIY}" class="svgcryptocredentials">
+         <xsl:value-of select="concat('ValCred: ', ./Valcred)" />
       </text>
 
    </xsl:template>
@@ -819,7 +862,7 @@
          </td>
       </tr>
    </xsl:template>
-   
+
    <!-- WAF Request Maps -->
    <xsl:template match="RequestMaps">
       <xsl:variable name="Match" select="Match/text()" />
@@ -910,10 +953,10 @@
          </td>
       </tr>
    </xsl:template>
-   
-   
-   
-   
+
+
+
+
    <!-- WAF Error Maps -->
    <xsl:template match="ErrorMaps">
       <xsl:variable name="Match" select="Match/text()" />
@@ -987,6 +1030,9 @@
       <xsl:variable name="Output" select="Output/text()" />
       <xsl:variable name="artifcat">
          <xsl:choose>
+            <xsl:when test="$Type='aaa'">
+               <xsl:value-of select="AAA" />
+            </xsl:when>
             <xsl:when test="$Type='xform'">
                <xsl:value-of select="Transform" />
             </xsl:when>
@@ -1000,8 +1046,12 @@
                   </xsl:otherwise>
                </xsl:choose>
             </xsl:when>
+            <xsl:when test="$Type='gatewayscript'">
+               <xsl:value-of select="GatewayScriptLocation" />
+            </xsl:when>
             <xsl:when test="$Type='validate'">
                <xsl:value-of select="SchemaURL" />
+               <xsl:value-of select="JSONSchemaURL" />
             </xsl:when>
             <xsl:when test="$Type='on-error'">
                <xsl:value-of select="Rule" />
@@ -1044,6 +1094,11 @@
             </xsl:when>
             <xsl:when test="$Type='fetch'">
                <xsl:value-of select="Destination" />
+            </xsl:when>
+            <xsl:when test="$Type='setvar'">
+               <xsl:value-of select="Variable" />
+               <xsl:text> = </xsl:text>
+               <xsl:value-of select="Value" />
             </xsl:when>
          </xsl:choose>
       </xsl:variable>
@@ -1285,9 +1340,9 @@
          </td>
       </tr>
    </xsl:template>
-   
-   
-   
+
+
+
    <!-- Files Section -->
    <xsl:template match="files">
       <table border="2" align="center" width="80%" style="font-family: sans-serif; background-color: #dedfff;">
@@ -1306,7 +1361,7 @@
          </tbody>
       </table>
    </xsl:template>
-   
+
    <xsl:template match="file">
       <xsl:variable name="location" select="./@location" />
       <xsl:variable name="filename" select="@name" />
@@ -1323,14 +1378,14 @@
          </td>
       </tr>
    </xsl:template>
-   
-   <!--  Named Templates -->
+
+   <!-- Named Templates -->
    <xsl:template name="list-properties">
       <xsl:param name="level"></xsl:param>
       <div class="prop-list" xml:space="default">
          <xsl:choose>
             <xsl:when test="count(./*) > 0">
-               <xsl:value-of select="concat(./name(), ': ')"/>
+               <xsl:value-of select="concat(./name(), ': ')" />
                <xsl:for-each select="*">
                   <xsl:choose>
                      <xsl:when test="./text() = ''">
@@ -1341,7 +1396,7 @@
                      </xsl:when>
                      <xsl:otherwise>
                         <div class="prop-sub-list" xml:space="default">
-                           <xsl:value-of select="concat(./name(), ' = ', ./text())"/>
+                           <xsl:value-of select="concat(./name(), ' = ', ./text())" />
                         </div>
                      </xsl:otherwise>
                   </xsl:choose>
@@ -1354,7 +1409,7 @@
                <!-- do not print empty elements -->
             </xsl:when>
             <xsl:otherwise>
-               <xsl:value-of select="concat(./name(), ' = ', ./text())"/>
+               <xsl:value-of select="concat(./name(), ' = ', ./text())" />
             </xsl:otherwise>
          </xsl:choose>
       </div>
