@@ -248,4 +248,82 @@
 
         </sequential>
     </macrodef>
+    
+    
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: domain-hsm-key-import-macro         
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="domain-hsm-key-import-macro">
+        <attribute name="crypto.prefix" />
+        <sequential>
+            <!-- Load device-set settings based on the chosen enviroment -->
+            <load-device-set-props-macro device-set="${swat.device-set.name}" />
+
+            <!-- Adjust properties for the crypto prefix -->
+            <!-- propertycopy name="local.crypto.cn" from="@{crypto.prefix}.cn" / -->
+
+            <!-- Propagate cert to devices in set -->
+            <!-- property name="current.crypto.prefix" value="@{crypto.prefix}" />
+            <property name="current.file.name" value="${local.crypto.cn}.pem" / -->
+            <foreach target="import-hsm-key"
+                     list="${swat.device.list}"
+                     delimiter=","
+                     param="current.device"
+                     inheritall="true"
+                     inheritrefs="true" />
+        </sequential>
+    </macrodef>
+    
+    
+    <!-- ================================= 
+          target: import-hsm-key              
+         ================================= -->
+    <target name="import-hsm-key">
+        <echo message="Device is ${current.device} in env ${swat.env.name}." />
+        <import-hsm-key-macro device="${current.device}"
+                              crypto.prefix="${current.crypto.prefix}" />
+    </target>
+    
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: import-hsm-key-macro          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="import-hsm-key-macro">
+        <attribute name="device" />
+        <attribute name="domain" />
+        <attribute name="crypto.prefix" />
+        <attribute name="file.name" />
+        <sequential>
+            <!-- prepare soma-request setfile -->
+            <soma-prepare-request-macro soma.request="setfile"
+                                        env="${swat.env.name}"
+                                        domain="@{domain}"
+                                        content.exists="true"
+                                        content.dir="dist/crypto"
+                                        content.file="@{file.name}"
+                                        tmp.dir="crypto"
+                                        dp.file.name="temporary:///@{file.name}" />
+
+            <!-- run soma-request setfile -->
+            <soma-run-single-request-on-single-device-macro soma.request="setfile"
+                                                            device="@{device}"
+                                                            tmp.dir="crypto"
+                                                            check.response="true" />
+
+            <!-- prepare soma-request crypto-import -->
+            <soma-prepare-request-macro soma.request="crypto-hsm-import"
+                                        domain="@{domain}"
+                                        env="${swat.env.name}"
+                                        tmp.dir="crypto"
+                                        dp.file.name="temporary:///@{file.name}"
+                                        crypto.prefix="@{crypto.prefix}" />
+
+
+            <!-- run soma-request crypto-import -->
+            <soma-run-single-request-on-single-device-macro soma.request="crypto-hsm-import"
+                                                            device="@{device}"
+                                                            tmp.dir="crypto"
+                                                            check.response="true" />
+        </sequential>
+    </macrodef>
+    
 </project>

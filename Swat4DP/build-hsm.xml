@@ -31,5 +31,26 @@
 		description="put the two selected devices into the same HSM domain">
 		<exchange-hsm-kwk-macro source-device="${source.device.name}" destination-device="${destination.device.name}" />
 	</target>
+	
+	<target name="93-replace-hsm-key" depends="declare,load-domain-props"
+        description="replace an existing hsm key">
+        <replace-hsm-key-macro key-name="${source.device.name}" destination-device="${destination.device.name}" />
+    </target>
+    
+    <!-- ================================= 
+          target: 37-domain-hsm-key-import 
+         ================================= -->
+    <target name="93-domain-hsm-key-import"
+            depends="init,load-domain-props"
+            description="import HSM key into a domain">
+        <ant antfile="${swat.current.service.home}/build.xml"
+             target="37-service-cert-distribute"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+        <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
+             target="25-domain-checkpoints"
+             inheritrefs="true"
+             useNativeBasedir="false" />
+    </target>
 
 </project>
