@@ -171,12 +171,28 @@
                     
                     <!-- Process text content -->
                     <xsl:choose>
-                        <xsl:when test="$text-rule">
-                            <!-- Tokenize the text value -->
+                        <xsl:when test="$text-rule and text()[normalize-space()]">
+                            <!-- Tokenize the text value (only if element has actual text content) -->
                             <xsl:variable name="final-token-name">
                                 <xsl:choose>
                                     <xsl:when test="contains($text-rule/token, '{index}')">
-                                        <xsl:value-of select="replace($text-rule/token, '\{index\}', string(swat:get-grouped-index(.)))" />
+                                        <!-- Determine which index to use (same logic as properties mode) -->
+                                        <xsl:variable name="is-top-level" select="exists(parent::*[local-name() = 'configuration'])" />
+                                        <xsl:variable name="has-siblings-with-same-name"
+                                                      select="count(preceding-sibling::*[name() = current()/name()]) + count(following-sibling::*[name() = current()/name()]) > 0" />
+                                        <xsl:variable name="index-to-use">
+                                            <xsl:choose>
+                                                <xsl:when test="$is-top-level or $has-siblings-with-same-name">
+                                                    <!-- Use element's own index -->
+                                                    <xsl:value-of select="swat:get-grouped-index(.)" />
+                                                </xsl:when>
+                                                <xsl:otherwise>
+                                                    <!-- Use parent's index -->
+                                                    <xsl:value-of select="swat:get-grouped-index(..)" />
+                                                </xsl:otherwise>
+                                            </xsl:choose>
+                                        </xsl:variable>
+                                        <xsl:value-of select="replace($text-rule/token, '\{index\}', string($index-to-use))" />
                                     </xsl:when>
                                     <xsl:otherwise>
                                         <xsl:value-of select="$text-rule/token" />
@@ -186,7 +202,7 @@
                             <xsl:value-of select="concat('@', $final-token-name, '@')" />
                         </xsl:when>
                         <xsl:otherwise>
-                            <!-- No text rule, process child nodes normally -->
+                            <!-- No text rule or empty element, process child nodes normally -->
                             <xsl:apply-templates select="node()" />
                         </xsl:otherwise>
                     </xsl:choose>
@@ -279,15 +295,14 @@
     <!-- Function to build element path -->
     <xsl:function name="swat:get-element-path" as="xs:string">
         <xsl:param name="element" as="element()" />
-        <xsl:variable name="ancestors" select="$element/ancestor::*[parent::configuration]" />
-        <xsl:choose>
-            <xsl:when test="$ancestors">
-                <xsl:value-of select="string-join(($ancestors/name(), $element/name()), '.')" />
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="$element/name()" />
-            </xsl:otherwise>
-        </xsl:choose>
+        <!-- Build path by walking up from element to configuration, then reversing -->
+        <xsl:variable name="path-parts" as="xs:string*">
+            <xsl:for-each select="$element/ancestor-or-self::*[ancestor-or-self::configuration and not(self::configuration)]">
+                <xsl:sort select="count(ancestor::*)" order="ascending" />
+                <xsl:sequence select="name()" />
+            </xsl:for-each>
+        </xsl:variable>
+        <xsl:value-of select="string-join($path-parts, '.')" />
     </xsl:function>
 
     <!-- Function to build attribute path -->
@@ -359,7 +374,8 @@
                                         <xsl:value-of select="swat:get-grouped-index(..)" />
                                     </xsl:when>
                                     <xsl:otherwise>
-                                        <!-- Single child element - use parent's parent index -->
+                                        <!-- Single child element - use parent's index
+                                             Note: .. refers to the element (attribute's parent), so ../.. is the element's parent -->
                                         <xsl:value-of select="swat:get-grouped-index(../..)" />
                                     </xsl:otherwise>
                                 </xsl:choose>
