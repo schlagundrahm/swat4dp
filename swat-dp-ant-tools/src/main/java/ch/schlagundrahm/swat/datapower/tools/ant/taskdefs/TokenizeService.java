@@ -29,6 +29,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -103,7 +104,43 @@ public class TokenizeService extends Task {
      */
     @Override
     public void execute() throws BuildException {
-        // Validate parameters
+        validateParameters();
+        
+        try {
+            initializeTokenization();
+            
+            List<File> xcfgFiles = findXcfgFiles(srcDir);
+            if (xcfgFiles.isEmpty()) {
+                log("Warning: No .xcfg files found in " + srcDir);
+                return;
+            }
+            
+            log("Found " + xcfgFiles.size() + " .xcfg file(s) to process");
+            ensureDirectoriesExist();
+            
+            List<ProcessingResult> results = new ArrayList<>();
+            for (File srcFile : xcfgFiles) {
+                try {
+                    results.add(processFile(srcFile));
+                } catch (Exception e) {
+                    log("Error processing " + srcFile.getName() + ": " + e.getMessage());
+                    throw new BuildException("Failed to process " + srcFile.getName(), e);
+                }
+            }
+            
+            logSummary(results);
+            
+        } catch (BuildException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BuildException("Error tokenizing services: " + e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Validate required parameters.
+     */
+    private void validateParameters() throws BuildException {
         if (srcDir == null) {
             throw new BuildException("srcDir attribute is required");
         }
@@ -122,77 +159,72 @@ public class TokenizeService extends Task {
         if (!rulesFile.exists()) {
             throw new BuildException("Rules file does not exist: " + rulesFile);
         }
-
-        try {
-            log("Tokenizing service configurations from: " + srcDir.getAbsolutePath());
-            log("Using rules from: " + rulesFile.getName());
-            
-            // Load tokenization rules
-            loadRules();
-            log("Loaded " + rules.size() + " tokenization rules");
-            
-            // Load index groups (optional)
-            if (indexGroupsFile != null && indexGroupsFile.exists()) {
-                loadIndexGroups();
-                log("Loaded " + groupToObjectTypes.size() + " index group(s)");
-            }
-            
-            // Find all .xcfg files
-            List<File> xcfgFiles = findXcfgFiles(srcDir);
-            if (xcfgFiles.isEmpty()) {
-                log("Warning: No .xcfg files found in " + srcDir);
-                return;
-            }
-            
-            log("Found " + xcfgFiles.size() + " .xcfg file(s) to process");
-            
-            // Create destination directories
-            if (!dstDir.exists()) {
-                dstDir.mkdirs();
-            }
-            if (!propertiesDir.exists()) {
-                propertiesDir.mkdirs();
-            }
-            
-            // Process each file
-            int processedCount = 0;
-            int totalTokens = 0;
-            for (File srcFile : xcfgFiles) {
-                try {
-                    log("Processing: " + srcFile.getName());
-                    
-                    // Create new token map for this file
-                    Map<String, String> tokens = new LinkedHashMap<>();
-                    
-                    // Parse XML document
-                    Document doc = parseXmlFile(srcFile);
-                    
-                    // Process document and tokenize
-                    processDocument(doc, tokens);
-                    
-                    // Write tokenized XML to destination
-                    File dstFile = new File(dstDir, srcFile.getName());
-                    writeXmlFile(doc, dstFile);
-                    
-                    // Write properties file for this xcfg
-                    String propertiesFileName = srcFile.getName().replace(".xcfg", ".properties");
-                    File propertiesFile = new File(propertiesDir, propertiesFileName);
-                    writePropertiesFile(propertiesFile, srcFile.getName(), tokens);
-                    
-                    log("  Extracted " + tokens.size() + " tokens -> " + propertiesFileName);
-                    totalTokens += tokens.size();
-                    processedCount++;
-                } catch (Exception e) {
-                    log("Error processing " + srcFile.getName() + ": " + e.getMessage());
-                    throw new BuildException("Failed to process " + srcFile.getName(), e);
-                }
-            }
-            
-            log("Successfully tokenized " + processedCount + " file(s)");
-            log("Total tokens extracted: " + totalTokens);
-            
-        } catch (Exception e) {
-            throw new BuildException("Error tokenizing services: " + e.getMessage(), e);
+    }
+    
+    /**
+     * Initialize tokenization by loading rules and index groups.
+     */
+    private void initializeTokenization() throws IOException {
+        log("Tokenizing service configurations from: " + srcDir.getAbsolutePath());
+        log("Using rules from: " + rulesFile.getName());
+        
+        loadRules();
+        log("Loaded " + rules.size() + " tokenization rules");
+        
+        if (indexGroupsFile != null && indexGroupsFile.exists()) {
+            loadIndexGroups();
+            log("Loaded " + groupToObjectTypes.size() + " index group(s)");
+        }
+    }
+    
+    /**
+     * Ensure destination directories exist.
+     */
+    private void ensureDirectoriesExist() throws IOException {
+        Files.createDirectories(dstDir.toPath());
+        Files.createDirectories(propertiesDir.toPath());
+    }
+    
+    /**
+     * Process a single .xcfg file.
+     */
+    private ProcessingResult processFile(File srcFile) throws Exception {
+        log("Processing: " + srcFile.getName());
+        
+        Map<String, String> tokens = new LinkedHashMap<>();
+        Document doc = parseXmlFile(srcFile);
+        processDocument(doc, tokens);
+        
+        File dstFile = new File(dstDir, srcFile.getName());
+        writeXmlFile(doc, dstFile);
+        
+        String propertiesFileName = srcFile.getName().replace(".xcfg", ".properties");
+        File propertiesFile = new File(propertiesDir, propertiesFileName);
+        writePropertiesFile(propertiesFile, srcFile.getName(), tokens);
+        
+        log("  Extracted " + tokens.size() + " tokens -> " + propertiesFileName);
+        return new ProcessingResult(srcFile.getName(), tokens.size());
+    }
+    
+    /**
+     * Log processing summary.
+     */
+    private void logSummary(List<ProcessingResult> results) {
+        int totalTokens = results.stream().mapToInt(r -> r.tokenCount).sum();
+        log("Successfully tokenized " + results.size() + " file(s)");
+        log("Total tokens extracted: " + totalTokens);
+    }
+    
+    /**
+     * Holds the result of processing a single file.
+     */
+    private static class ProcessingResult {
+        final String fileName;
+        final int tokenCount;
+        
+        ProcessingResult(String fileName, int tokenCount) {
+            this.fileName = fileName;
+            this.tokenCount = tokenCount;
         }
     }
     
