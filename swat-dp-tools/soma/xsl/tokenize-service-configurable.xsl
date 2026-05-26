@@ -212,7 +212,27 @@
                 <xsl:variable name="token-name">
                     <xsl:choose>
                         <xsl:when test="contains($matching-rule/token, '{index}')">
-                            <xsl:value-of select="replace($matching-rule/token, '\{index\}', string(swat:get-grouped-index(..)))" />
+                            <!-- Determine which index to use for attributes:
+                                 - Top-level elements: use own index
+                                 - Elements with siblings of same name: use own index
+                                 - Other child elements: use parent's index -->
+                            <xsl:variable name="element" select=".." />
+                            <xsl:variable name="is-top-level" select="exists($element/parent::*[local-name() = 'configuration'])" />
+                            <xsl:variable name="has-siblings-with-same-name"
+                                          select="count($element/preceding-sibling::*[name() = $element/name()]) + count($element/following-sibling::*[name() = $element/name()]) > 0" />
+                            <xsl:variable name="index-to-use">
+                                <xsl:choose>
+                                    <xsl:when test="$is-top-level or $has-siblings-with-same-name">
+                                        <!-- Use element's own index -->
+                                        <xsl:value-of select="swat:get-grouped-index($element)" />
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <!-- Use parent's index -->
+                                        <xsl:value-of select="swat:get-grouped-index($element/..)" />
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:variable>
+                            <xsl:value-of select="replace($matching-rule/token, '\{index\}', string($index-to-use))" />
                         </xsl:when>
                         <xsl:otherwise>
                             <xsl:value-of select="$matching-rule/token" />
@@ -227,6 +247,11 @@
                 <xsl:copy />
             </xsl:otherwise>
         </xsl:choose>
+    </xsl:template>
+
+    <!-- Preserve comments -->
+    <xsl:template match="comment()">
+        <xsl:copy />
     </xsl:template>
 
     <!-- Template to tokenize an element -->
