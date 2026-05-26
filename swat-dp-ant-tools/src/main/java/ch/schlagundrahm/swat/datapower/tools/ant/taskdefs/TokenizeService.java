@@ -49,9 +49,16 @@ public class TokenizeService extends Task {
     private File dstDir;
     private File propertiesDir;
     private File rulesFile;
+    private File indexGroupsFile;
     
     // Tokenization rules loaded from properties file
     private Map<String, TokenRule> rules = new LinkedHashMap<>();
+    
+    // Index groups: maps object type to group name
+    private Map<String, String> objectTypeToGroup = new HashMap<>();
+    
+    // Index groups: maps group name to list of object types
+    private Map<String, List<String>> groupToObjectTypes = new HashMap<>();
     
     /**
      * Represents a tokenization rule
@@ -123,6 +130,12 @@ public class TokenizeService extends Task {
             // Load tokenization rules
             loadRules();
             log("Loaded " + rules.size() + " tokenization rules");
+            
+            // Load index groups (optional)
+            if (indexGroupsFile != null && indexGroupsFile.exists()) {
+                loadIndexGroups();
+                log("Loaded " + groupToObjectTypes.size() + " index group(s)");
+            }
             
             // Find all .xcfg files
             List<File> xcfgFiles = findXcfgFiles(srcDir);
@@ -213,6 +226,40 @@ public class TokenizeService extends Task {
     }
 
     /**
+     * Load index groups from properties file.
+     */
+    private void loadIndexGroups() throws IOException {
+        Properties props = new Properties();
+        try (InputStream in = new FileInputStream(indexGroupsFile)) {
+            props.load(in);
+        }
+        
+        for (String key : props.stringPropertyNames()) {
+            // Only process keys starting with "group."
+            if (key.startsWith("group.")) {
+                String groupName = key.substring(6); // Remove "group." prefix
+                String value = props.getProperty(key);
+                
+                // Split comma-separated object types
+                String[] objectTypes = value.split(",");
+                List<String> typeList = new ArrayList<>();
+                
+                for (String objectType : objectTypes) {
+                    String trimmedType = objectType.trim();
+                    if (!trimmedType.isEmpty()) {
+                        typeList.add(trimmedType);
+                        objectTypeToGroup.put(trimmedType, groupName);
+                    }
+                }
+                
+                if (!typeList.isEmpty()) {
+                    groupToObjectTypes.put(groupName, typeList);
+                }
+            }
+        }
+    }
+
+    /**
      * Parse XML file into DOM document.
      */
     private Document parseXmlFile(File file) throws ParserConfigurationException, SAXException, IOException {
@@ -244,17 +291,22 @@ public class TokenizeService extends Task {
                 }
             }
             
-            // Process child elements
-            processChildren(config, new ArrayList<>(), tokens);
+            // Process child elements (pass 0 as parent index since configuration has no index)
+            processChildren(config, new ArrayList<>(), 0, tokens);
         }
     }
 
     /**
      * Recursively process child elements.
+     * @param parent The parent element
+     * @param path The current path (list of element names)
+     * @param parentIndex The index of the parent element (used by children)
+     * @param tokens The map to store token name-value pairs
      */
-    private void processChildren(Element parent, List<String> path, Map<String, String> tokens) {
+    private void processChildren(Element parent, List<String> path, int parentIndex, Map<String, String> tokens) {
         NodeList children = parent.getChildNodes();
         Map<String, Integer> elementCounts = new HashMap<>();
+        Map<String, Integer> groupCounts = new HashMap<>();
         
         for (int i = 0; i < children.getLength(); i++) {
             Node node = children.item(i);
@@ -265,35 +317,69 @@ public class TokenizeService extends Task {
                     elementName = element.getNodeName();
                 }
                 
-                // Track element index for indexed rules
-                int index = elementCounts.getOrDefault(elementName, 0) + 1;
-                elementCounts.put(elementName, index);
+                // Calculate index using grouped indexing if applicable
+                int elementIndex;
+                String groupName = objectTypeToGroup.get(elementName);
+                
+                if (groupName != null) {
+                    // Element is part of a group - use group counter
+                    elementIndex = groupCounts.getOrDefault(groupName, 0) + 1;
+                    groupCounts.put(groupName, elementIndex);
+                } else {
+                    // Element is not part of a group - use element-specific counter
+                    elementIndex = elementCounts.getOrDefault(elementName, 0) + 1;
+                    elementCounts.put(elementName, elementIndex);
+                }
                 
                 // Build current path
                 List<String> currentPath = new ArrayList<>(path);
                 currentPath.add(elementName);
                 
-                // Check for matching rules
-                processElement(element, currentPath, index, tokens);
+                // Check for matching rules - use parentIndex for child elements, elementIndex for the element itself
+                processElement(element, currentPath, parentIndex, elementIndex, tokens);
                 
-                // Recurse into children
-                processChildren(element, currentPath, tokens);
+                // Recurse into children - pass elementIndex as the parent index for nested children
+                processChildren(element, currentPath, elementIndex, tokens);
             }
         }
     }
 
     /**
      * Process a single element against tokenization rules.
+     * @param element The element to process
+     * @param path The current path (list of element names)
+     * @param parentIndex The index of the parent element (used for child element rules)
+     * @param elementIndex The index of this element (used for this element's own rules)
+     * @param tokens The map to store token name-value pairs
      */
-    private void processElement(Element element, List<String> path, int index, Map<String, String> tokens) {
+    private void processElement(Element element, List<String> path, int parentIndex, int elementIndex, Map<String, String> tokens) {
         String pathStr = String.join(".", path);
+        String parentElementName = path.size() > 1 ? path.get(path.size() - 2) : null;
+        
+        // Determine which index to use:
+        // - Top-level elements: use elementIndex
+        // - Child elements with siblings of same name: use elementIndex
+        // - Other child elements: use parentIndex
+        boolean isTopLevelElement = (parentElementName == null || "configuration".equals(parentElementName));
+        boolean hasSiblingsWithSameName = hasSiblingsWithSameName(element);
         
         // Check for text content rule
         TokenRule textRule = rules.get(pathStr);
         if (textRule != null) {
             String textContent = getElementText(element);
             if (textContent != null && !textContent.trim().isEmpty()) {
-                String tokenName = textRule.getTokenName(index);
+                // Determine which index to use
+                int indexToUse;
+                if (isTopLevelElement) {
+                    indexToUse = elementIndex;
+                } else if (hasSiblingsWithSameName) {
+                    // Multiple siblings with same name - use own index
+                    indexToUse = elementIndex;
+                } else {
+                    // Single child element - use parent's index
+                    indexToUse = parentIndex;
+                }
+                String tokenName = textRule.getTokenName(indexToUse);
                 setElementText(element, "@" + tokenName + "@");
                 tokens.put(tokenName, textContent);
             }
@@ -304,7 +390,21 @@ public class TokenizeService extends Task {
             if (rule.isAttribute && matchesPath(rule.pathParts, path)) {
                 String attrValue = element.getAttribute(rule.attributeName);
                 if (attrValue != null && !attrValue.isEmpty()) {
-                    String tokenName = rule.getTokenName(index);
+                    // Attributes use same logic as element text:
+                    // - Top-level elements: use elementIndex
+                    // - Elements with siblings of same name: use elementIndex
+                    // - Other child elements: use parentIndex
+                    int indexToUse;
+                    if (isTopLevelElement) {
+                        indexToUse = elementIndex;
+                    } else if (hasSiblingsWithSameName) {
+                        // Multiple siblings with same name - use own index
+                        indexToUse = elementIndex;
+                    } else {
+                        // Single child element - use parent's index
+                        indexToUse = parentIndex;
+                    }
+                    String tokenName = rule.getTokenName(indexToUse);
                     element.setAttribute(rule.attributeName, "@" + tokenName + "@");
                     tokens.put(tokenName, attrValue);
                 }
@@ -325,6 +425,33 @@ public class TokenizeService extends Task {
             }
         }
         return true;
+    }
+
+    /**
+     * Check if element has siblings with the same name.
+     */
+    private boolean hasSiblingsWithSameName(Element element) {
+        String elementName = element.getNodeName();
+        Node parent = element.getParentNode();
+        if (parent == null) {
+            return false;
+        }
+        
+        NodeList siblings = parent.getChildNodes();
+        int count = 0;
+        for (int i = 0; i < siblings.getLength(); i++) {
+            Node sibling = siblings.item(i);
+            if (sibling.getNodeType() == Node.ELEMENT_NODE) {
+                Element siblingElement = (Element) sibling;
+                if (elementName.equals(siblingElement.getNodeName())) {
+                    count++;
+                    if (count > 1) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -425,6 +552,10 @@ public class TokenizeService extends Task {
 
     public void setRulesFile(File rulesFile) {
         this.rulesFile = rulesFile;
+    }
+
+    public void setIndexGroupsFile(File indexGroupsFile) {
+        this.indexGroupsFile = indexGroupsFile;
     }
 }
 

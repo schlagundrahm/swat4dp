@@ -26,9 +26,12 @@
         <attribute name="dst-dir" />
         <attribute name="properties-dir" />
         <attribute name="rules-file" default="${swat.dp.tools}/config/tokenization-rules.properties" />
+        <attribute name="index-groups-file" default="${swat.dp.tools}/config/tokenization-index-groups.properties" />
         
         <sequential>
             <echo message="Tokenizing service configurations (Java) from: @{src-dir}" />
+            <echo message="  Rules: @{rules-file}" />
+            <echo message="  Index groups: @{index-groups-file}" />
             
             <!-- Use custom tokenizeservice task (DOM-based, XPath-aware) -->
             <tokenizeservice
@@ -36,6 +39,7 @@
                 dstDir="@{dst-dir}"
                 propertiesDir="@{properties-dir}"
                 rulesFile="@{rules-file}"
+                indexGroupsFile="@{index-groups-file}"
             />
         </sequential>
     </macrodef>
@@ -48,9 +52,11 @@
         <attribute name="dst-dir" default="@{src-dir}/../tokenized" />
         <attribute name="properties-dir" default="@{dst-dir}-properties" />
         <attribute name="rules-file" default="${swat.dp.tools}/config/tokenization-rules.properties" />
+        <attribute name="index-groups-file" default="${swat.dp.tools}/config/tokenization-index-groups.properties" />
         <attribute name="file-extension" default=".xcfg" />
         <sequential>
             <echo message="Configurable tokenization: Using rules from @{rules-file}" />
+            <echo message="  Index groups: @{index-groups-file}" />
             <echo message="  Source: @{src-dir}" />
             <echo message="  Output: @{dst-dir}" />
             
@@ -94,6 +100,7 @@
                         <factory name="net.sf.saxon.TransformerFactoryImpl" />
                         <param name="properties-output-file" expression="@{properties-dir}/${basename}.properties" />
                         <param name="rules-file" expression="@{rules-file}" />
+                        <param name="index-groups-file" expression="@{index-groups-file}" />
                     </xslt>
                 </sequential>
             </for>
