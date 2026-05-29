@@ -374,8 +374,7 @@
                                         <xsl:value-of select="swat:get-grouped-index(..)" />
                                     </xsl:when>
                                     <xsl:otherwise>
-                                        <!-- Single child element - use parent's index
-                                             Note: .. refers to the element (attribute's parent), so ../.. is the element's parent -->
+                                        <!-- Single child element - use parent's index -->
                                         <xsl:value-of select="swat:get-grouped-index(../..)" />
                                     </xsl:otherwise>
                                 </xsl:choose>
