@@ -4,6 +4,7 @@
     <id>ant-bin</id>
     <formats>
         <format>zip</format>
+        <format>tar.gz</format>
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
@@ -14,6 +15,7 @@
         <fileSet>
             <directory>${project.basedir}/bin</directory>
             <outputDirectory>/bin</outputDirectory>
+            <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/cli</directory>
