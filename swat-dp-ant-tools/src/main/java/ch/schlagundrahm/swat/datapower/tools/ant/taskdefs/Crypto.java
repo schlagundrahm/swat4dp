@@ -53,6 +53,8 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  */
 public class Crypto extends Task {
 
+    private static final String DEFAULT_IV_SALT = "VivaSchlag&Rahm!";
+
     // task attributes
     /**
      * Input string to be encoded or decoded.
@@ -125,13 +127,15 @@ public class Crypto extends Task {
     private String symAlgorithm = "AES/CBC/PKCS5Padding";
 
     // internal variables
-    private SecureRandom sr = new SecureRandom();
+    private SecureRandom sr;
     private String output;
 
     /**
      * 
      */
-    public Crypto() {
+    public Crypto() throws NoSuchAlgorithmException {
+
+        sr = SecureRandom.getInstanceStrong();
 
         // add at runtime the Bouncy Castle Provider
         // the provider is available only for this application
@@ -421,7 +425,7 @@ public class Crypto extends Task {
      */
     private String encrypt(String toEncrypt, Key key, String algorithm) throws GeneralSecurityException {
 
-        log("toEncrypt: " + toEncrypt, Project.MSG_DEBUG);
+        log("Encrypting data using algorithm: " + algorithm, Project.MSG_DEBUG);
         byte[] encodedtext = null;
 
         try {
@@ -448,18 +452,16 @@ public class Crypto extends Task {
 
         byte[] result = cipher.doFinal(encodedtext);
         String encodedcipher = new String(Base64.encodeBase64(result));
-        log("cipher   : " + encodedcipher, Project.MSG_DEBUG);
+        log("Encryption completed successfully", Project.MSG_DEBUG);
         return encodedcipher;
 
     }
 
     private String decrypt(String toDecrypt, Key key, String algorithm) throws GeneralSecurityException {
 
-        log("toDecrypt: " + toDecrypt, Project.MSG_DEBUG);
+        log("Decrypting data using algorithm: " + algorithm, Project.MSG_DEBUG);
 
         toDecrypt = stripPrefix(toDecrypt);
-
-        log("toDecrypt (without prefix): " + toDecrypt, Project.MSG_DEBUG);
 
         byte[] raw = Base64.decodeBase64(toDecrypt);
 
@@ -484,7 +486,7 @@ public class Crypto extends Task {
             log("UTF8 encoding is not supported!", Project.MSG_ERR);
         }
 
-        log("cleartext: " + cleartext, Project.MSG_DEBUG);
+        log("Decryption completed successfully", Project.MSG_DEBUG);
         return cleartext;
     }
 
@@ -586,6 +588,8 @@ public class Crypto extends Task {
         SecretKeyFactory kf = null;
 
         if (algorithm.equalsIgnoreCase("DES")) {
+            log("Weak cryptographic algorithm DES is deprecated. Use AES-256 or stronger algorithms instead.",
+                    Project.MSG_WARN);
             try {
                 ks = new DESKeySpec(kb);
                 kf = SecretKeyFactory.getInstance("DES");
@@ -596,6 +600,8 @@ public class Crypto extends Task {
             }
 
         } else if (algorithm.equalsIgnoreCase("DESede")) {
+            log("Weak cryptographic algorithm DESede (3DES) is deprecated. Use AES-256 or stronger algorithms instead.",
+                    Project.MSG_WARN);
             try {
                 ks = new DESedeKeySpec(kb);
                 kf = SecretKeyFactory.getInstance("DESede");
@@ -785,7 +791,7 @@ public class Crypto extends Task {
     private AlgorithmParameterSpec generateIv(String salt) {
         // block size = 16
         if (salt == null || salt.isEmpty()) {
-            salt = "VivaSchlag&Rahm!";
+            salt = DEFAULT_IV_SALT;
         }
         byte[] ivBytes = null;
         try {
@@ -805,17 +811,6 @@ public class Crypto extends Task {
     }
 
     public void getProviderInfo() {
-        // try {
-        // Provider p[] = Security.getProviders();
-        // for (int i = 0; i < p.length; i++) {
-        // System.out.println(p[i]);
-        // for (Enumeration<Object> e = p[i].keys(); e.hasMoreElements();)
-        // System.out.println("\t" + e.nextElement());
-        // }
-        // } catch (Exception e) {
-        // System.out.println(e);
-        // }
-
         for (Provider provider : Security.getProviders()) {
             System.out.println(provider.getName());
             for (String key : provider.stringPropertyNames())
