@@ -297,6 +297,9 @@ public class TokenizeService extends Task {
     private Document parseXmlFile(File file) throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
+        // Prevent XXE attacks
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
         DocumentBuilder builder = factory.newDocumentBuilder();
         return builder.parse(file);
     }
