@@ -79,11 +79,11 @@ public class CompareConfig extends Task {
         this.nodeValueDiff = nodeValueDiff;
     }
 
-    static private String FILE_SEPARATOR = System.getProperty("file.separator");
-    static private String URL_SEPARATOR = "/";
-    static private String OUTPUT_SEPARATOR_1 = "-------------------------------------------------------------------------------";
-    static private String OUTPUT_SEPARATOR_2 = "===============================================================================";
-    static private String OUTPUT_SEPARATOR_3 = "_______________________________________________________________________________";
+    private static final String FILE_SEPARATOR = System.getProperty("file.separator");
+    private static final String URL_SEPARATOR = "/";
+    private static final String OUTPUT_SEPARATOR_1 = "-------------------------------------------------------------------------------";
+    private static final String OUTPUT_SEPARATOR_2 = "===============================================================================";
+    private static final String OUTPUT_SEPARATOR_3 = "_______________________________________________________________________________";
 
     /**
      * Common attributes of DataPower Configuration nodes. 
@@ -235,20 +235,20 @@ public class CompareConfig extends Task {
 
         try {
             ZipInputStream zis = new ZipInputStream(in);
-            ZipEntry ze = null;
+            ZipEntry zipEntry = null;
 
-            while ((ze = zis.getNextEntry()) != null) {
-                printContentInfo(ze, indent);
-                if (!includeDpAuxDir && ze.getName().contains("dp-aux")) {
+            while ((zipEntry = zis.getNextEntry()) != null) {
+                printContentInfo(zipEntry, indent);
+                if (!includeDpAuxDir && zipEntry.getName().contains("dp-aux")) {
                     // continue;
-                } else if (!includeConfigFolder && ze.getName().startsWith("config")) {
+                } else if (!includeConfigFolder && zipEntry.getName().startsWith("config")) {
                     // continue;
-                } else if (isZipEntry(ze)) {
-                    String newParent = ze.getName();
+                } else if (isZipEntry(zipEntry)) {
+                    String newParent = zipEntry.getName();
                     content.putAll(readContent(zis, newParent, indent + "-->"));
 
-                } else if (!ze.isDirectory()) {
-                    content.put(parent + URL_SEPARATOR + ze.getName(), Long.toString(ze.getCrc()));
+                } else if (!zipEntry.isDirectory()) {
+                    content.put(parent + URL_SEPARATOR + zipEntry.getName(), Long.toString(zipEntry.getCrc()));
                 }
 
                 zis.closeEntry();
@@ -276,17 +276,17 @@ public class CompareConfig extends Task {
     /**
      * Compare the files contained in the given two archive maps. Print identical and exclusive files. Files that exist
      * in both archives but are different will be compared content wise.
-     * 
-     * @param c1 file map of archive 1
-     * @param c2 file map of archive 2
+     *
+     * @param archiveContent1 file map of archive 1
+     * @param archiveContent2 file map of archive 2
      * @throws IOException when a file that should be compared content wise can not be read/extracted from the archive
      */
-    private void compareContent(Map<String, String> c1, Map<String, String> c2) {
+    private void compareContent(Map<String, String> archiveContent1, Map<String, String> archiveContent2) {
 
         log(OUTPUT_SEPARATOR_3, 1);
 
         // check for identical files
-        Collection<Entry<String, String>> same = CollectionUtils.intersection(c1.entrySet(), c2.entrySet());
+        Collection<Entry<String, String>> same = CollectionUtils.intersection(archiveContent1.entrySet(), archiveContent2.entrySet());
 
         if (same != null && !same.isEmpty()) {
             log("these files are identical", 0);
@@ -296,7 +296,7 @@ public class CompareConfig extends Task {
         }
 
         // check for files that exist in one archive only (exclusive)
-        final Collection<String> only1 = CollectionUtils.subtract(c1.keySet(), c2.keySet());
+        final Collection<String> only1 = CollectionUtils.subtract(archiveContent1.keySet(), archiveContent2.keySet());
 
         if (!only1.isEmpty()) {
             log("these files only exist in " + cfgFile1.getName(), 0);
@@ -305,7 +305,7 @@ public class CompareConfig extends Task {
             }
         }
 
-        Collection<String> only2 = CollectionUtils.subtract(c2.keySet(), c1.keySet());
+        Collection<String> only2 = CollectionUtils.subtract(archiveContent2.keySet(), archiveContent1.keySet());
 
         if (!only2.isEmpty()) {
             log("these files only exist in " + cfgFile2.getName(), 0);
@@ -316,7 +316,7 @@ public class CompareConfig extends Task {
 
         // check for files that exist in both archives but are different
         // content-wise
-        Collection<Entry<String, String>> difference1 = CollectionUtils.subtract(c1.entrySet(), c2.entrySet());
+        Collection<Entry<String, String>> difference1 = CollectionUtils.subtract(archiveContent1.entrySet(), archiveContent2.entrySet());
 
         @SuppressWarnings("unchecked")
         Collection<Entry<String, String>> difference = CollectionUtils.select(difference1, new Predicate<Object>() {
