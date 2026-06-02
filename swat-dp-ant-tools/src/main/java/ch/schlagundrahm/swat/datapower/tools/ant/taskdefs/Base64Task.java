@@ -119,6 +119,14 @@ public class Base64Task extends Task {
             binary = false;
         }
 
+        // Validate file paths to prevent path traversal attacks
+        if (infile != null) {
+            validateFilePath(infile, "infile");
+        }
+        if (outfile != null) {
+            validateFilePath(outfile, "outfile");
+        }
+
         // initialize local variables
         String textInput = null;
         byte[] binaryInput = null;
@@ -248,8 +256,7 @@ public class Base64Task extends Task {
         try {
             result = Files.readAllBytes(file.toPath());
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new BuildException("Failed to read file: " + file.getAbsolutePath(), e);
         }
         return result;
     }
@@ -319,6 +326,53 @@ public class Base64Task extends Task {
         } else {
             log("Identified file input as binary.", Project.MSG_INFO);
             return true;
+        }
+    }
+
+    /**
+     * Validates a file path to prevent path traversal attacks.
+     * Checks for path traversal sequences like '../' and ensures the canonical path
+     * is within expected boundaries.
+     *
+     * @param file The file to validate
+     * @param paramName The parameter name for error messages
+     * @throws BuildException if the file path is invalid or contains path traversal sequences
+     */
+    private void validateFilePath(File file, String paramName) throws BuildException {
+        try {
+            String path = file.getPath();
+            
+            // Check for path traversal sequences
+            if (path.contains("..")) {
+                throw new BuildException(
+                    "Invalid file path for '" + paramName + "': Path traversal sequences ('..') are not allowed. Path: " + path,
+                    getLocation());
+            }
+            
+            // Get canonical path to resolve any symbolic links or relative paths
+            File canonicalFile = file.getCanonicalFile();
+            String canonicalPath = canonicalFile.getPath();
+            
+            // Additional check: ensure canonical path doesn't contain traversal after resolution
+            if (canonicalPath.contains("..")) {
+                throw new BuildException(
+                    "Invalid file path for '" + paramName + "': Resolved path contains traversal sequences. Path: " + path,
+                    getLocation());
+            }
+            
+            // Validate that the file is within the project's base directory
+            File baseDir = getProject().getBaseDir();
+            if (!file.getCanonicalPath().startsWith(baseDir.getCanonicalPath())) {
+                throw new BuildException(
+                    "Invalid file path for '" + paramName + "': File is outside project directory. Path: " + path,
+                    getLocation());
+            }
+            
+        } catch (IOException e) {
+            throw new BuildException(
+                "Unable to validate file path for '" + paramName + "': " + e.getMessage(),
+                e,
+                getLocation());
         }
     }
 
