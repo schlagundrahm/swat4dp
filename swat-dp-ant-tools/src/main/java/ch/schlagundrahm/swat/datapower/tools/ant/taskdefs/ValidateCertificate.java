@@ -209,11 +209,11 @@ public class ValidateCertificate extends Task {
 
     /**
      * Check the validity of an X.509 certificate.
-     * 
-     * @param cert
-     * @param fail
-     * @param index
-     * @return
+     *
+     * @param cert the X.509 certificate to validate
+     * @param fail if true, throws a BuildException when the certificate is invalid
+     * @param index the index of the certificate in the certificate chain for logging purposes
+     * @return true if the certificate is valid, false otherwise
      */
     private boolean checkValidity(X509Certificate cert, boolean fail, int index) {
         boolean valid = true;
