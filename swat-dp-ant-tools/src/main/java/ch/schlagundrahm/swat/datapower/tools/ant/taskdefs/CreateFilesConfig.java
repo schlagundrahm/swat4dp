@@ -183,7 +183,15 @@ public class CreateFilesConfig extends Task {
 
         Document doc = null;
         try {
-            doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            // Disable external entity processing to prevent XXE attacks
+            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            dbf.setXIncludeAware(false);
+            dbf.setExpandEntityReferences(false);
+            doc = dbf.newDocumentBuilder().newDocument();
         } catch (ParserConfigurationException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -255,6 +263,18 @@ public class CreateFilesConfig extends Task {
                 log("file[" + j + "] = " + files[j]);
 
                 File f = new File(fs.getDir(getProject()), files[j]);
+                
+                // Validate file path to prevent path traversal attacks
+                try {
+                    File baseDir = fs.getDir(getProject());
+                    if (!f.getCanonicalPath().startsWith(baseDir.getCanonicalPath())) {
+                        throw new BuildException("Invalid file path: " + files[j] +
+                            " - path traversal detected");
+                    }
+                } catch (IOException e) {
+                    throw new BuildException("Error validating file path: " + files[j], e);
+                }
+                
                 String dpFileSrc = files[j].replace(systemFileSeparator, dpFileSeparator);
                 String dpFileName = dpFileSrc;
                 if (useBaseDir) {
@@ -317,7 +337,7 @@ public class CreateFilesConfig extends Task {
     /**
      * Calculates the sha1 hash of the given file.
      * @param file The input file
-     * @return
+     * @return The Base64-encoded SHA-1 hash of the file
      * @throws IOException
      */
     public String calculateFileHash(File file) throws IOException {
