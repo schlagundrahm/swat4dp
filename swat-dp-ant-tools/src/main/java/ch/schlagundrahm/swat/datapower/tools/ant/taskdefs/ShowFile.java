@@ -141,57 +141,37 @@ public class ShowFile extends Task {
      * @throws IOException in case the file can not be read
      */
     protected void doMatch(File f, int options, int counter) throws IOException {
-        FileReader r;
+        try (FileReader r = new FileReader(f);
+             BufferedReader br = new BufferedReader(r)) {
 
-        r = null;
-        r = new FileReader(f);
+            log("Searching for pattern '" + regex.getPattern(getProject()) + "' in '" + f.getPath() + "'"
+                    + (byline ? " by line" : "") + ((flags.length() <= 0) ? "" : (" with flags: '" + flags + "'")) + ".",
+                    3);
 
-        BufferedReader br = new BufferedReader(r);
+            if (byline) {
+                StringBuffer linebuf = new StringBuffer();
+                String line = null;
+                boolean hasCR = false;
+                int c;
 
-        log("Searching for pattern '" + regex.getPattern(getProject()) + "' in '" + f.getPath() + "'"
-                + (byline ? " by line" : "") + ((flags.length() <= 0) ? "" : (" with flags: '" + flags + "'")) + ".",
-                3);
+                do {
+                    c = br.read();
 
-        if (byline) {
-            StringBuffer linebuf = new StringBuffer();
-            String line = null;
-            boolean hasCR = false;
-            int c;
+                    if (c == 13) {
+                        if (hasCR) {
+                            line = linebuf.toString();
 
-            do {
-                c = br.read();
+                            if (doMatch(regex, line, options)) {
+                                log("#" + counter + " File: " + f.getPath(), logLevel - 1);
+                                log(line, logLevel);
+                                log(separator, logLevel);
+                            }
 
-                if (c == 13) {
-                    if (hasCR) {
-                        line = linebuf.toString();
-
-                        if (doMatch(regex, line, options)) {
-                            log("#" + counter + " File: " + f.getPath(), logLevel - 1);
-                            log(line, logLevel);
-                            log(separator, logLevel);
+                            linebuf.setLength(0);
+                        } else {
+                            hasCR = true;
                         }
-
-                        linebuf.setLength(0);
-                    } else {
-                        hasCR = true;
-                    }
-                } else if (c == 10) {
-                    line = linebuf.toString();
-
-                    if (doMatch(regex, line, options)) {
-                        log("#" + counter + " File: " + f.getPath(), logLevel - 1);
-                        log(line, logLevel);
-                        log(separator, logLevel);
-                    }
-
-                    if (hasCR) {
-                        hasCR = false;
-                    }
-
-                    // System.out.print('\n');
-                    linebuf.setLength(0);
-                } else {
-                    if (hasCR || (c < 0)) {
+                    } else if (c == 10) {
                         line = linebuf.toString();
 
                         if (doMatch(regex, line, options)) {
@@ -201,39 +181,53 @@ public class ShowFile extends Task {
                         }
 
                         if (hasCR) {
-                            // System.out.print('\r');
                             hasCR = false;
                         }
 
+                        // System.out.print('\n');
                         linebuf.setLength(0);
-                    }
+                    } else {
+                        if (hasCR || (c < 0)) {
+                            line = linebuf.toString();
 
-                    if (c >= 0) {
-                        linebuf.append((char) c);
+                            if (doMatch(regex, line, options)) {
+                                log("#" + counter + " File: " + f.getPath(), logLevel - 1);
+                                log(line, logLevel);
+                                log(separator, logLevel);
+                            }
+
+                            if (hasCR) {
+                                // System.out.print('\r');
+                                hasCR = false;
+                            }
+
+                            linebuf.setLength(0);
+                        }
+
+                        if (c >= 0) {
+                            linebuf.append((char) c);
+                        }
                     }
+                } while (c >= 0);
+            } else {
+                int flen = (int) f.length();
+                char[] tmpBuf = new char[flen];
+                int numread = 0;
+
+                for (int totread = 0; (numread != -1) && (totread < flen); totread += numread) {
+                    numread = br.read(tmpBuf, totread, flen);
                 }
-            } while (c >= 0);
-        } else {
-            int flen = (int) f.length();
-            char[] tmpBuf = new char[flen];
-            int numread = 0;
 
-            for (int totread = 0; (numread != -1) && (totread < flen); totread += numread) {
-                numread = br.read(tmpBuf, totread, flen);
-            }
+                String buf = new String(tmpBuf);
 
-            String buf = new String(tmpBuf);
-
-            if (doMatch(regex, buf, options)) {
-                log("#" + counter + " File: " + f.getPath(), logLevel - 1);
-                log("", logLevel);
-                log(buf, logLevel);
-                log(separator, logLevel);
+                if (doMatch(regex, buf, options)) {
+                    log("#" + counter + " File: " + f.getPath(), logLevel - 1);
+                    log("", logLevel);
+                    log(buf, logLevel);
+                    log(separator, logLevel);
+                }
             }
         }
-
-        r.close();
-        r = null;
     }
 
     /**
