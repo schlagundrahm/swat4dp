@@ -1,11 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ch.schlagundrahm.swat.datapower</groupId>
     <artifactId>swat-dp-pom</artifactId>
-    <version>1.1.6-SNAPSHOT</version>
+    <version>1.1.6</version>
     <packaging>pom</packaging>
 
     <name>swat-dp-pom</name>
@@ -31,7 +29,7 @@
         <url>https://github.com/schlagundrahm/swat4dp</url>
         <connection>scm:git:https://github.com/schlagundrahm/swat4dp.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/schlagundrahm/swat4dp.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>swat-dp-pom-1.1.6</tag>
     </scm>
 
     <issueManagement>
