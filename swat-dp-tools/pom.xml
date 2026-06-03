@@ -4,7 +4,7 @@
     <parent>
         <groupId>ch.schlagundrahm.swat.datapower</groupId>
         <artifactId>swat-dp-pom</artifactId>
-        <version>1.1.6-SNAPSHOT</version>
+        <version>1.1.6</version>
     </parent>
 
     <groupId>ch.schlagundrahm.swat.datapower</groupId>
@@ -26,7 +26,7 @@
         <dependency>
             <groupId>ch.schlagundrahm.swat.datapower.tools.ant</groupId>
             <artifactId>swat-dp-ant-tools</artifactId>
-            <version>1.2.1-SNAPSHOT</version>
+            <version>1.2.1</version>
         </dependency>
 
         <!-- ANT tools -->
