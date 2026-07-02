@@ -38,6 +38,9 @@
         <tstamp>
             <format property="FILESTAMP" pattern="yyyyMMdd_HHmmss" />
         </tstamp>
+        <tstamp>
+            <format property="BUILDDATE" pattern="yyyy-MM-dd" />
+        </tstamp>
 
         <!-- define the classpath for the additional tasks -->
         <path id="swat.dp.tools.classpath">

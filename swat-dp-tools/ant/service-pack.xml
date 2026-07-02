@@ -150,6 +150,7 @@
 			    <filter token="build.number" value="${buildNumber}" />
 			    <filter token="build.revision" value="${buildRevision}" />
 				<filter token="domain.name" value="${domain.name}"/>
+				<filter token="build.date" value="${BUILDDATE}"/>
 				<filter token="build.time" value="${FILESTAMP}"/>
 			    <filter token="build.user" value="${env.USERNAME}"/>
 			    <filter token="artifactId" value="${pom.artifactId}"/>
