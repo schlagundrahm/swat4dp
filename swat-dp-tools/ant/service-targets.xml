@@ -41,6 +41,8 @@
         <echo message="---------- predefined properties ----------" />
         <echoproperties prefix="swat" />
         <echoproperties regex="(mgr\.target\.[^pass]+|confirm|overwrite)" />
+        <echo message="---------- Maven properties ----------" />
+        <echoproperties prefix="project" />
     </target>
 
     <!-- ================================= 
