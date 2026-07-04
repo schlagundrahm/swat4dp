@@ -111,12 +111,6 @@
                              templateFile="${swat.dp.infra}/config/properties-template.properties"
                              sort="false"
                              excludePattern="^(service\.object\.name|service\.summary)" />
-
-            <mergeproperties srcDir="dist/tokenized3/@{device}-@{domain}-properties"
-                             dstFile="dist/tokenized3/@{device}-@{domain}.properties"
-                             templateFile="${swat.dp.infra}/config/properties-template.properties"
-                             sort="false"
-                             excludePattern="^(service\.object\.name|service\.summary)" />
         </sequential>
     </macrodef>
 
