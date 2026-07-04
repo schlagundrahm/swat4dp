@@ -82,14 +82,10 @@
                                                   service="${service.name}"
                                                   object="${export.service.object.name}"
                                                   class="${service.object.class}" />
-                                                            
-                    <tokenize-service-config-configurable-macro  src-dir="dist/tokenized/@{device}-@{domain}"
-                                                                 dst-dir="dist/tokenized2/@{device}-@{domain}"
-                                                                 properties-dir="../@{device}-@{domain}-properties" />
-                                                                 
+
                     <tokenize-service-java-macro src-dir="dist/tokenized/@{device}-@{domain}"
-                                                 dst-dir="dist/tokenized-java/@{device}-@{domain}"
-                                                 properties-dir="dist/tokenized3/@{device}-@{domain}-properties"
+                                                 dst-dir="dist/tokenized2/@{device}-@{domain}"
+                                                 properties-dir="dist/tokenized2/@{device}-@{domain}-properties"
                                                  rules-file="${swat.dp.tools}/config/tokenization-rules.properties"
                                                  custom-rules-file="${swat.dp.infra}/config/tokenization-rules-custom.properties"
                                                  custom-index-groups-file="${swat.dp.infra}/config/tokenization-index-groups-custom.properties"
@@ -99,7 +95,8 @@
                     <fixcrlf srcdir="dist/tokenized2/@{device}-@{domain}" includes="**/*.xcfg" fixlast="false" />
                     
                     <!-- reorder attributes for manual comparison -->
-                    <xcfg-reformat-macro src-dir="dist/tokenized-java/@{device}-@{domain}" dst-dir="dist/tokenized3/@{device}-@{domain}" conf-type="service" />
+                    <!-- TODO: it looks like this is not needed at all -->
+                    <xcfg-reformat-macro src-dir="dist/tokenized2/@{device}-@{domain}" dst-dir="dist/tokenized3/@{device}-@{domain}" conf-type="service" />
                     <fixcrlf srcdir="dist/tokenized3/@{device}-@{domain}" includes="**/*.xcfg" fixlast="false" />
                 </then>
             </if>
