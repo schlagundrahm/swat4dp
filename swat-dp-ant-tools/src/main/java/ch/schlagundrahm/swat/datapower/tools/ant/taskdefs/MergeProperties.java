@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -163,45 +164,147 @@ public class MergeProperties extends Task {
 
     /**
      * Order properties according to a template file.
+     *
+     * <p>Template keys may contain the literal {@code {index}} placeholder. Consecutive
+     * template lines that all contain {@code {index}} form an <em>indexed block</em>.
+     * A block is expanded index-first: all fields for index 1, then all fields for
+     * index 2, etc.  For example, the template block:
+     * <pre>
+     *   fsh.{index}.name=
+     *   fsh.{index}.host=
+     *   fsh.{index}.port=
+     * </pre>
+     * with three FSH instances produces:
+     * <pre>
+     *   fsh.1.name=...  fsh.1.host=...  fsh.1.port=...
+     *   fsh.2.name=...  fsh.2.host=...  fsh.2.port=...
+     *   fsh.3.name=...  fsh.3.host=...  fsh.3.port=...
+     * </pre>
      */
     private LinkedHashMap<String, String> orderByTemplate(
             LinkedHashMap<String, String> props, File template) throws IOException {
-        
+
         LinkedHashMap<String, String> ordered = new LinkedHashMap<>();
         Set<String> processedKeys = new HashSet<>();
-        
-        // Read template and process line by line
+
         List<String> templateLines = Files.readAllLines(template.toPath(), StandardCharsets.UTF_8);
-        
-        for (String line : templateLines) {
-            String trimmed = line.trim();
-            
-            // Skip comments and empty lines in ordering (we'll add them to output)
+        int i = 0;
+        while (i < templateLines.size()) {
+            String trimmed = templateLines.get(i).trim();
+
+            // Skip comments and blank lines
             if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+                i++;
                 continue;
             }
-            
-            // Extract key from template line
+
             int equalsIndex = trimmed.indexOf('=');
             if (equalsIndex > 0) {
                 String key = trimmed.substring(0, equalsIndex).trim();
-                
-                // If this key exists in merged properties, add it
-                if (props.containsKey(key)) {
-                    ordered.put(key, props.get(key));
-                    processedKeys.add(key);
+
+                if (key.contains("{index}")) {
+                    // Collect the full run of consecutive {index} lines starting at i
+                    List<String> blockKeys = new ArrayList<>();
+                    int j = i;
+                    while (j < templateLines.size()) {
+                        String bt = templateLines.get(j).trim();
+                        // A blank line or comment breaks the block
+                        if (bt.isEmpty() || bt.startsWith("#")) {
+                            break;
+                        }
+                        int eq = bt.indexOf('=');
+                        if (eq <= 0) {
+                            break;
+                        }
+                        String bk = bt.substring(0, eq).trim();
+                        if (!bk.contains("{index}")) {
+                            break;
+                        }
+                        blockKeys.add(bk);
+                        j++;
+                    }
+
+                    // Determine the union of all index values present across the block
+                    SortedSet<Integer> allIndices = new TreeSet<>();
+                    for (String bk : blockKeys) {
+                        for (Map.Entry<Integer, String> e : findIndexedEntries(props, bk)) {
+                            allIndices.add(e.getKey());
+                        }
+                    }
+
+                    // Emit: for each index, emit all fields that exist
+                    for (int idx : allIndices) {
+                        for (String bk : blockKeys) {
+                            String concrete = bk.replace("{index}", String.valueOf(idx));
+                            if (props.containsKey(concrete)) {
+                                ordered.put(concrete, props.get(concrete));
+                                processedKeys.add(concrete);
+                            }
+                        }
+                    }
+
+                    i = j; // skip past all consumed block lines
+                } else {
+                    // Exact match — non-indexed key
+                    if (props.containsKey(key)) {
+                        ordered.put(key, props.get(key));
+                        processedKeys.add(key);
+                    }
+                    i++;
                 }
+            } else {
+                i++;
             }
         }
-        
-        // Add any properties not in template at the end
+
+        // Append properties not covered by the template
         for (Map.Entry<String, String> entry : props.entrySet()) {
             if (!processedKeys.contains(entry.getKey())) {
                 ordered.put(entry.getKey(), entry.getValue());
             }
         }
-        
+
         return ordered;
+    }
+
+    /**
+     * Find all (index, key) pairs in {@code props} that match a template key containing
+     * {@code {index}}, sorted in ascending numeric index order.
+     *
+     * @param props       the merged properties map
+     * @param templateKey the template key, e.g. {@code fsh.{index}.host}
+     * @return list of (numericIndex, concreteKey) entries in ascending index order
+     */
+    private List<Map.Entry<Integer, String>> findIndexedEntries(
+            LinkedHashMap<String, String> props, String templateKey) {
+        // Pattern.quote wraps in \Q...\E; splice (\d+) capture group in place of {index}
+        String escapedTemplate = Pattern.quote(templateKey).replace("{index}", "\\E(\\d+)\\Q");
+        Pattern indexPattern = Pattern.compile(escapedTemplate);
+
+        List<Map.Entry<Integer, String>> matches = new ArrayList<>();
+        for (String key : props.keySet()) {
+            Matcher m = indexPattern.matcher(key);
+            if (m.matches()) {
+                matches.add(new AbstractMap.SimpleEntry<>(Integer.parseInt(m.group(1)), key));
+            }
+        }
+        matches.sort(Map.Entry.comparingByKey());
+        return matches;
+    }
+
+    /**
+     * Convenience wrapper: returns only the concrete keys, in ascending index order.
+     *
+     * @param props       the merged properties map
+     * @param templateKey the template key, e.g. {@code fsh.{index}.host}
+     * @return concrete keys in ascending numeric index order
+     */
+    private List<String> findIndexedKeys(LinkedHashMap<String, String> props, String templateKey) {
+        List<String> result = new ArrayList<>();
+        for (Map.Entry<Integer, String> e : findIndexedEntries(props, templateKey)) {
+            result.add(e.getValue());
+        }
+        return result;
     }
 
     /**
@@ -241,43 +344,99 @@ public class MergeProperties extends Task {
 
     /**
      * Write properties with section headers from template.
+     *
+     * <p>Consecutive template lines that all contain {@code {index}} form an indexed block
+     * that is expanded index-first (all fields for index&nbsp;1, then index&nbsp;2, …).
+     * Comment and blank lines that precede or follow a block are written as-is; they do
+     * not break a block that has already started, but they do end a block before it starts.
      */
     private void writeWithTemplateSections(
             LinkedHashMap<String, String> props, File template, BufferedWriter writer) throws IOException {
-        
+
         List<String> templateLines = Files.readAllLines(template.toPath(), StandardCharsets.UTF_8);
         Set<String> writtenKeys = new HashSet<>();
-        
-        for (String line : templateLines) {
+
+        int i = 0;
+        while (i < templateLines.size()) {
+            String line = templateLines.get(i);
             String trimmed = line.trim();
-            
-            // Write comment lines as-is
+
+            // Pass through comment and blank lines
             if (trimmed.isEmpty() || trimmed.startsWith("#")) {
                 writer.write(line + "\n");
+                i++;
                 continue;
             }
-            
-            // Extract key and write property if it exists
+
             int equalsIndex = trimmed.indexOf('=');
-            if (equalsIndex > 0) {
-                String key = trimmed.substring(0, equalsIndex).trim();
-                
+            if (equalsIndex <= 0) {
+                writer.write(line + "\n");
+                i++;
+                continue;
+            }
+
+            String key = trimmed.substring(0, equalsIndex).trim();
+
+            if (key.contains("{index}")) {
+                // Collect the full run of consecutive {index} lines (blank/comment lines break it)
+                List<String> blockKeys = new ArrayList<>();
+                int j = i;
+                while (j < templateLines.size()) {
+                    String bt = templateLines.get(j).trim();
+                    if (bt.isEmpty() || bt.startsWith("#")) {
+                        break;
+                    }
+                    int eq = bt.indexOf('=');
+                    if (eq <= 0) {
+                        break;
+                    }
+                    String bk = bt.substring(0, eq).trim();
+                    if (!bk.contains("{index}")) {
+                        break;
+                    }
+                    blockKeys.add(bk);
+                    j++;
+                }
+
+                // Union of all index values present for any field in the block
+                SortedSet<Integer> allIndices = new TreeSet<>();
+                for (String bk : blockKeys) {
+                    for (Map.Entry<Integer, String> e : findIndexedEntries(props, bk)) {
+                        allIndices.add(e.getKey());
+                    }
+                }
+
+                // Emit: for each index, write all fields that are present
+                for (int idx : allIndices) {
+                    for (String bk : blockKeys) {
+                        String concrete = bk.replace("{index}", String.valueOf(idx));
+                        if (props.containsKey(concrete)) {
+                            writer.write(concrete + "=" + props.get(concrete) + "\n");
+                            writtenKeys.add(concrete);
+                        }
+                    }
+                }
+
+                i = j; // skip past all consumed block lines
+            } else {
+                // Non-indexed key
                 if (props.containsKey(key)) {
                     writer.write(key + "=" + props.get(key) + "\n");
                     writtenKeys.add(key);
                 }
+                i++;
             }
         }
-        
-        // Write any remaining properties not in template
+
+        // Write any remaining properties not covered by the template
         List<String> remainingKeys = props.keySet().stream()
-            .filter(key -> !writtenKeys.contains(key))
+            .filter(k -> !writtenKeys.contains(k))
             .collect(Collectors.toList());
-        
+
         if (!remainingKeys.isEmpty()) {
             writer.write("\n# Additional properties not in template\n");
-            for (String key : remainingKeys) {
-                writer.write(key + "=" + props.get(key) + "\n");
+            for (String k : remainingKeys) {
+                writer.write(k + "=" + props.get(k) + "\n");
             }
         }
     }
