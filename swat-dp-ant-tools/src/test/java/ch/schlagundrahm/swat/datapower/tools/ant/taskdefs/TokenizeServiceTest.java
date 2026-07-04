@@ -444,6 +444,240 @@ class TokenizeServiceTest {
         assertTrue(hasSourceComment, "Should have 'Source:' comment");
         assertTrue(hasRulesComment, "Should have 'Rules:' comment");
     }
+
+    @Test
+    @DisplayName("Custom rules file overrides base rules")
+    void testCustomRulesFileOverridesBase(TestInfo info) throws IOException {
+        System.out.println("TEST [" + info.getDisplayName() + "]");
+
+        // Base rules file: maps TestValue to 'base.value'
+        createRulesFile("TestObject.TestValue=base.value");
+
+        // Custom rules file: overrides the same XPath with a different token name
+        File customRulesFile = new File(tempDir, "custom-rules.properties");
+        try (FileWriter writer = new FileWriter(customRulesFile)) {
+            writer.write("TestObject.TestValue=custom.value\n");
+        }
+
+        createXcfgFile("test.xcfg", createSimpleXcfg("domain", "obj", "val"));
+
+        TokenizeService task = new TokenizeService();
+        task.setProject(project);
+        task.setSrcDir(srcDir);
+        task.setDstDir(dstDir);
+        task.setPropertiesDir(propertiesDir);
+        task.setRulesFile(rulesFile);
+        task.setCustomRulesFile(customRulesFile);
+        task.execute();
+
+        File propsFile = new File(propertiesDir, "test.properties");
+        Properties props = new Properties();
+        props.load(Files.newInputStream(propsFile.toPath()));
+
+        // Custom rule should win: token name is 'custom.value', not 'base.value'
+        assertEquals("val", props.getProperty("custom.value"), "Custom rule should override base rule");
+        assertEquals(null, props.getProperty("base.value"), "Base rule should be replaced by custom rule");
+    }
+
+    @Test
+    @DisplayName("Custom rules file adds new rules alongside base rules")
+    void testCustomRulesFileAddsNewRules(TestInfo info) throws IOException {
+        System.out.println("TEST [" + info.getDisplayName() + "]");
+
+        // Base rules: maps TestValue only
+        createRulesFile("TestObject.TestValue=base.value");
+
+        // Custom rules: adds a rule for a second element not covered by base
+        File customRulesFile = new File(tempDir, "custom-rules.properties");
+        try (FileWriter writer = new FileWriter(customRulesFile)) {
+            writer.write("ExtraObject.ExtraValue=extra.value\n");
+        }
+
+        String xcfgContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<datapower-configuration version=\"3\">\n" +
+                "  <configuration domain=\"test\">\n" +
+                "    <TestObject name=\"obj1\">\n" +
+                "      <TestValue>val1</TestValue>\n" +
+                "    </TestObject>\n" +
+                "    <ExtraObject name=\"extra1\">\n" +
+                "      <ExtraValue>extra1</ExtraValue>\n" +
+                "    </ExtraObject>\n" +
+                "  </configuration>\n" +
+                "</datapower-configuration>";
+
+        createXcfgFile("test.xcfg", xcfgContent);
+
+        TokenizeService task = new TokenizeService();
+        task.setProject(project);
+        task.setSrcDir(srcDir);
+        task.setDstDir(dstDir);
+        task.setPropertiesDir(propertiesDir);
+        task.setRulesFile(rulesFile);
+        task.setCustomRulesFile(customRulesFile);
+        task.execute();
+
+        File propsFile = new File(propertiesDir, "test.properties");
+        Properties props = new Properties();
+        props.load(Files.newInputStream(propsFile.toPath()));
+
+        assertEquals("val1", props.getProperty("base.value"), "Base rule should still produce its token");
+        assertEquals("extra1", props.getProperty("extra.value"), "Custom rule should add new token");
+    }
+
+    @Test
+    @DisplayName("Custom rules file is silently ignored when it does not exist")
+    void testMissingCustomRulesFileIsIgnored(TestInfo info) throws IOException {
+        System.out.println("TEST [" + info.getDisplayName() + "]");
+
+        createRulesFile("TestObject.TestValue=base.value");
+        createXcfgFile("test.xcfg", createSimpleXcfg("domain", "obj", "val"));
+
+        File nonExistentCustomRules = new File(tempDir, "nonexistent-custom-rules.properties");
+
+        TokenizeService task = new TokenizeService();
+        task.setProject(project);
+        task.setSrcDir(srcDir);
+        task.setDstDir(dstDir);
+        task.setPropertiesDir(propertiesDir);
+        task.setRulesFile(rulesFile);
+        task.setCustomRulesFile(nonExistentCustomRules);
+        task.execute();
+
+        // Should complete without error using only the base rules
+        File propsFile = new File(propertiesDir, "test.properties");
+        Properties props = new Properties();
+        props.load(Files.newInputStream(propsFile.toPath()));
+        assertEquals("val", props.getProperty("base.value"), "Base rule should still work");
+    }
+
+    @Test
+    @DisplayName("Custom index groups file extends base index groups")
+    void testCustomIndexGroupsFileExtension(TestInfo info) throws IOException {
+        System.out.println("TEST [" + info.getDisplayName() + "]");
+
+        // Base rules: all three types map to the same token pattern
+        createRulesFile(
+                "ObjectA.@name=obj.{index}.name",
+                "ObjectB.@name=obj.{index}.name",
+                "ObjectC.@name=obj.{index}.name");
+
+        // Base index groups: only A and B grouped
+        File baseIndexGroups = new File(tempDir, "base-index-groups.properties");
+        try (FileWriter writer = new FileWriter(baseIndexGroups)) {
+            writer.write("group.objects=ObjectA,ObjectB\n");
+        }
+
+        // Custom index groups: extend the group to include C as well
+        File customIndexGroups = new File(tempDir, "custom-index-groups.properties");
+        try (FileWriter writer = new FileWriter(customIndexGroups)) {
+            writer.write("group.objects=ObjectA,ObjectB,ObjectC\n");
+        }
+
+        String xcfgContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<datapower-configuration version=\"3\">\n" +
+                "  <configuration domain=\"test\">\n" +
+                "    <ObjectA name=\"a1\"/>\n" +
+                "    <ObjectB name=\"b1\"/>\n" +
+                "    <ObjectC name=\"c1\"/>\n" +
+                "  </configuration>\n" +
+                "</datapower-configuration>";
+
+        createXcfgFile("test.xcfg", xcfgContent);
+
+        TokenizeService task = new TokenizeService();
+        task.setProject(project);
+        task.setSrcDir(srcDir);
+        task.setDstDir(dstDir);
+        task.setPropertiesDir(propertiesDir);
+        task.setRulesFile(rulesFile);
+        task.setIndexGroupsFile(baseIndexGroups);
+        task.setCustomIndexGroupsFile(customIndexGroups);
+        task.execute();
+
+        File propsFile = new File(propertiesDir, "test.properties");
+        Properties props = new Properties();
+        props.load(Files.newInputStream(propsFile.toPath()));
+
+        // All three should share one continuous index sequence
+        assertEquals("a1", props.getProperty("obj.1.name"), "ObjectA should be index 1");
+        assertEquals("b1", props.getProperty("obj.2.name"), "ObjectB should be index 2");
+        assertEquals("c1", props.getProperty("obj.3.name"), "ObjectC should be index 3 (added by custom group)");
+    }
+
+    @Test
+    @DisplayName("Unused namespace declarations are stripped from tokenized output")
+    void testUnusedNamespacesAreStripped(TestInfo info) throws IOException {
+        System.out.println("TEST [" + info.getDisplayName() + "]");
+
+        createRulesFile("MPGateway.LocalAddress=local.address");
+
+        // xcfg with xmlns:env and xmlns:dp on a service-object element — neither prefix
+        // is used by any element or attribute in the subtree (mimics a real DataPower split export)
+        String xcfgContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<datapower-configuration version=\"3\">\n" +
+                "  <configuration domain=\"test\">\n" +
+                "    <MPGateway name=\"my-service\"\n" +
+                "               xmlns:env=\"http://www.w3.org/2003/05/soap-envelope\"\n" +
+                "               xmlns:dp=\"http://www.datapower.com/schemas/management\">\n" +
+                "      <LocalAddress>1.2.3.4</LocalAddress>\n" +
+                "    </MPGateway>\n" +
+                "  </configuration>\n" +
+                "</datapower-configuration>";
+
+        createXcfgFile("test.xcfg", xcfgContent);
+
+        TokenizeService task = new TokenizeService();
+        task.setProject(project);
+        task.setSrcDir(srcDir);
+        task.setDstDir(dstDir);
+        task.setPropertiesDir(propertiesDir);
+        task.setRulesFile(rulesFile);
+        task.execute();
+
+        String tokenized = new String(Files.readAllBytes(new File(dstDir, "test.xcfg").toPath()));
+
+        // The unused namespace declarations must be absent from the output
+        assertTrue(!tokenized.contains("xmlns:env="), "xmlns:env should be stripped (unused)");
+        assertTrue(!tokenized.contains("xmlns:dp="),  "xmlns:dp should be stripped (unused)");
+
+        // The tokenized value must still be present — stripping namespaces must not affect content
+        assertTrue(tokenized.contains("@local.address@"), "Token placeholder must still be present");
+    }
+
+    @Test
+    @DisplayName("Used namespace declarations are preserved in tokenized output")
+    void testUsedNamespacesArePreserved(TestInfo info) throws IOException {
+        System.out.println("TEST [" + info.getDisplayName() + "]");
+
+        createRulesFile("Envelope.Body.value=body.value");
+
+        // xcfg where xmlns:env IS used — the element itself is env:prefixed
+        String xcfgContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<datapower-configuration version=\"3\">\n" +
+                "  <configuration domain=\"test\">\n" +
+                "    <Envelope xmlns:env=\"http://www.w3.org/2003/05/soap-envelope\">\n" +
+                "      <env:Body>\n" +
+                "        <value>hello</value>\n" +
+                "      </env:Body>\n" +
+                "    </Envelope>\n" +
+                "  </configuration>\n" +
+                "</datapower-configuration>";
+
+        createXcfgFile("test.xcfg", xcfgContent);
+
+        TokenizeService task = new TokenizeService();
+        task.setProject(project);
+        task.setSrcDir(srcDir);
+        task.setDstDir(dstDir);
+        task.setPropertiesDir(propertiesDir);
+        task.setRulesFile(rulesFile);
+        task.execute();
+
+        String tokenized = new String(Files.readAllBytes(new File(dstDir, "test.xcfg").toPath()));
+
+        // xmlns:env must be kept because env:Body uses it
+        assertTrue(tokenized.contains("xmlns:env="), "xmlns:env must be preserved when the prefix is used");
+    }
 }
 
 // Made with Bob

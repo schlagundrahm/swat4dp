@@ -51,6 +51,10 @@ public class TokenizeService extends Task {
     private File propertiesDir;
     private File rulesFile;
     private File indexGroupsFile;
+    /** Optional client-supplied rules that are merged on top of the base rulesFile. */
+    private File customRulesFile;
+    /** Optional client-supplied index groups that are merged on top of the base indexGroupsFile. */
+    private File customIndexGroupsFile;
     
     // Tokenization rules loaded from properties file
     private Map<String, TokenRule> rules = new LinkedHashMap<>();
@@ -163,17 +167,28 @@ public class TokenizeService extends Task {
     
     /**
      * Initialize tokenization by loading rules and index groups.
+     * Custom override files (if provided) are merged on top of the base files so that
+     * client-supplied entries win on key collision.
      */
     private void initializeTokenization() throws IOException {
         log("Tokenizing service configurations from: " + srcDir.getAbsolutePath());
         log("Using rules from: " + rulesFile.getName());
         
         loadRules();
+        if (customRulesFile != null && customRulesFile.exists()) {
+            log("Applying custom rules overlay from: " + customRulesFile.getName());
+            loadCustomRules();
+        }
         log("Loaded " + rules.size() + " tokenization rules");
         
         if (indexGroupsFile != null && indexGroupsFile.exists()) {
             loadIndexGroups();
             log("Loaded " + groupToObjectTypes.size() + " index group(s)");
+        }
+        if (customIndexGroupsFile != null && customIndexGroupsFile.exists()) {
+            log("Applying custom index groups overlay from: " + customIndexGroupsFile.getName());
+            loadCustomIndexGroups();
+            log("Index groups after custom overlay: " + groupToObjectTypes.size());
         }
     }
     
@@ -194,6 +209,7 @@ public class TokenizeService extends Task {
         Map<String, String> tokens = new LinkedHashMap<>();
         Document doc = parseXmlFile(srcFile);
         processDocument(doc, tokens);
+        stripUnneededNamespaces(doc);
         
         File dstFile = new File(dstDir, srcFile.getName());
         writeXmlFile(doc, dstFile);
@@ -245,8 +261,23 @@ public class TokenizeService extends Task {
      * Load tokenization rules from properties file.
      */
     private void loadRules() throws IOException {
+        loadRulesFromFile(rulesFile);
+    }
+
+    /**
+     * Load custom rules overlay — merged on top of base rules; custom entries win on collision.
+     */
+    private void loadCustomRules() throws IOException {
+        loadRulesFromFile(customRulesFile);
+    }
+
+    /**
+     * Shared helper: parse a rules file and populate the rules map.
+     * Entries in later calls override entries from earlier calls (overlay semantics).
+     */
+    private void loadRulesFromFile(File file) throws IOException {
         Properties props = new Properties();
-        try (InputStream in = new FileInputStream(rulesFile)) {
+        try (InputStream in = new FileInputStream(file)) {
             props.load(in);
         }
         
@@ -261,8 +292,23 @@ public class TokenizeService extends Task {
      * Load index groups from properties file.
      */
     private void loadIndexGroups() throws IOException {
+        loadIndexGroupsFromFile(indexGroupsFile);
+    }
+
+    /**
+     * Load custom index groups overlay — merged on top of any previously loaded groups.
+     */
+    private void loadCustomIndexGroups() throws IOException {
+        loadIndexGroupsFromFile(customIndexGroupsFile);
+    }
+
+    /**
+     * Shared helper: parse a groups file and populate the group maps.
+     * Entries in later calls win over earlier ones (overlay semantics).
+     */
+    private void loadIndexGroupsFromFile(File file) throws IOException {
         Properties props = new Properties();
-        try (InputStream in = new FileInputStream(indexGroupsFile)) {
+        try (InputStream in = new FileInputStream(file)) {
             props.load(in);
         }
         
@@ -529,6 +575,87 @@ public class TokenizeService extends Task {
     }
 
     /**
+     * Remove namespace declarations that are not actually used by any element name or
+     * attribute name anywhere in the subtree rooted at the element that carries them.
+     *
+     * <p>DataPower xcfg files split from a SOMA export carry {@code xmlns:env} and
+     * {@code xmlns:dp} declarations on the top-level service-object elements even though
+     * none of the child elements or attributes use those prefixes — the prefixes belong to
+     * the outer SOMA envelope that was stripped during the split step.  These "dangling"
+     * declarations cause the DOM serialiser to re-emit them in a different position and
+     * order than the original file, producing noisy diffs.
+     *
+     * <p>The method is fully general: it detects and removes any {@code xmlns:prefix}
+     * declaration where the {@code prefix:} is not found on any tag or attribute name in
+     * the element's subtree.  Unprefixed namespace declarations ({@code xmlns=""}) are
+     * never removed.
+     *
+     * <p>The DOM API exposes namespace declarations as {@link Attr} nodes in the
+     * {@code http://www.w3.org/2000/xmlns/} namespace.  We collect candidates first to
+     * avoid index shifts while iterating the attribute map.
+     */
+    private void stripUnneededNamespaces(Document doc) {
+        NodeList allElements = doc.getElementsByTagName("*");
+        for (int i = 0; i < allElements.getLength(); i++) {
+            Element el = (Element) allElements.item(i);
+            NamedNodeMap attrs = el.getAttributes();
+
+            // Collect xmlns:prefix declarations on this element
+            List<Attr> candidates = new ArrayList<>();
+            for (int j = 0; j < attrs.getLength(); j++) {
+                Node a = attrs.item(j);
+                if ("http://www.w3.org/2000/xmlns/".equals(a.getNamespaceURI())) {
+                    String localName = a.getLocalName();
+                    // Skip the default namespace declaration (xmlns="")
+                    if (localName != null && !localName.equals("xmlns")) {
+                        candidates.add((Attr) a);
+                    }
+                }
+            }
+
+            // Remove the declaration if the prefix is unused in the subtree
+            for (Attr decl : candidates) {
+                String prefix = decl.getLocalName() + ":";
+                if (!isPrefixUsedInSubtree(el, prefix)) {
+                    el.removeAttributeNode(decl);
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns {@code true} if {@code prefix} (e.g. {@code "dp:"}) appears as the
+     * leading segment of any element name or attribute name at or below {@code root}.
+     */
+    private boolean isPrefixUsedInSubtree(Element root, String prefix) {
+        if (root.getNodeName().startsWith(prefix)) {
+            return true;
+        }
+        NamedNodeMap attrs = root.getAttributes();
+        for (int i = 0; i < attrs.getLength(); i++) {
+            Node a = attrs.item(i);
+            // Skip namespace declarations themselves (xmlns:* nodes)
+            if ("http://www.w3.org/2000/xmlns/".equals(a.getNamespaceURI())) {
+                continue;
+            }
+            if (a.getNodeName().startsWith(prefix)) {
+                return true;
+            }
+        }
+        // Recurse into child elements
+        NodeList children = root.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node child = children.item(i);
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
+                if (isPrefixUsedInSubtree((Element) child, prefix)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Write XML document to file.
      */
     private void writeXmlFile(Document doc, File file) throws TransformerException, IOException {
@@ -591,6 +718,14 @@ public class TokenizeService extends Task {
 
     public void setIndexGroupsFile(File indexGroupsFile) {
         this.indexGroupsFile = indexGroupsFile;
+    }
+
+    public void setCustomRulesFile(File customRulesFile) {
+        this.customRulesFile = customRulesFile;
+    }
+
+    public void setCustomIndexGroupsFile(File customIndexGroupsFile) {
+        this.customIndexGroupsFile = customIndexGroupsFile;
     }
 }
 

@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
 <!-- Licensed Materials - Property of schlag&rahm -->
-<!-- Copyright © 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Copyright Â© 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
 <!-- Licensed Materials - Property of IBM -->
 <!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
 <!-- US Government Users Restricted Rights - Use, duplication or disclosure -->
@@ -91,6 +91,8 @@
                                                  dst-dir="dist/tokenized-java/@{device}-@{domain}"
                                                  properties-dir="dist/tokenized3/@{device}-@{domain}-properties"
                                                  rules-file="${swat.dp.tools}/config/tokenization-rules.properties"
+                                                 custom-rules-file="${swat.dp.infra}/config/tokenization-rules-custom.properties"
+                                                 custom-index-groups-file="${swat.dp.infra}/config/tokenization-index-groups-custom.properties"
 />
 
                     <fixcrlf srcdir="dist/tokenized/@{device}-@{domain}" includes="**/*.xcfg" fixlast="true" />
