@@ -3,7 +3,7 @@
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
 <!-- Licensed Materials - Property of schlag&rahm -->
-<!-- Copyright © 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Copyright ï¿½ 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
 <!-- Licensed Materials - Property of IBM -->
 <!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
 <!-- US Government Users Restricted Rights - Use, duplication or disclosure -->
@@ -483,21 +483,22 @@
         </sequential>
     </macrodef>
 
-    <!-- ================================= 
-          macrodef: xcfg-reformat-macro 
+    <!-- =================================
+          macrodef: xcfg-reformat-macro
          ================================= -->
     <macrodef name="xcfg-reformat-macro">
         <attribute name="src-dir" />
         <attribute name="dst-dir" />
-        <attribute name="conf-type" />
+        <!-- conf-type is accepted but ignored â€” kept for call-site compatibility -->
+        <attribute name="conf-type" default="" />
         <sequential>
-            <!-- reorder attributes for manual comparison -->
-            <echo message="Reformat xml and re-add namespaces to the xcfg files in dir @{src-dir}..." />
+            <!-- Sort attributes alphabetically and re-indent for stable diffs -->
+            <echo message="Reformat xcfg files in @{src-dir}..." />
             <delete dir="@{dst-dir}" failonerror="false" />
             <mkdir dir="@{dst-dir}" />
             <xslt processor="trax"
                   basedir="@{src-dir}"
-                  style="${swat.dp.tools}/soma/xsl/add-namespaces-after-tokenization-@{conf-type}.xsl"
+                  style="${swat.dp.tools}/soma/xsl/reformat-xcfg.xsl"
                   destdir="@{dst-dir}"
                   extension=".xcfg"
                   classpathref="swat.dp.tools.classpath">
