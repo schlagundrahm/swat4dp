@@ -489,7 +489,7 @@
     <macrodef name="xcfg-reformat-macro">
         <attribute name="src-dir" />
         <attribute name="dst-dir" />
-        <!-- conf-type is accepted but ignored â€” kept for call-site compatibility -->
+        <!-- conf-type is accepted but ignored and€” kept for call-site compatibility -->
         <attribute name="conf-type" default="" />
         <sequential>
             <!-- Sort attributes alphabetically and re-indent for stable diffs -->
