@@ -763,70 +763,31 @@
         <attribute name="domain" />
         <sequential>
             <!-- set project name according to the general swat settings defined by the swat-dp-infra project -->
-            <fail message="One of swat.settings.project.services.prefix or swat.settings.project.services.prefix.pattern has to be defined in ${swat.customer}-swat-dp-infra/ build.proerties">
+            <fail message="The swat.settings.project.services.prefix.pattern has to be defined in ${swat.customer}-swat-dp-infra/ build.proerties">
                 <condition>
                     <and>
                         <not>
                             <isset property="swat.settings.project.services.prefix.pattern" />
                         </not>
-                        <not>
-                            <isset property="swat.settings.project.services.prefix" />
-                        </not>
                     </and>
                 </condition>
             </fail>
-            <if>
-                <isset property="swat.settings.project.services.prefix.pattern" />
-                <then>
-                    <echo message="using pattern: ${swat.settings.project.services.prefix.pattern}" />
-                    <property name="pzone" value="@{zone}" />
-                    <propertyregex property="service.project.prefix"
-                                   input="${swat.settings.project.services.prefix.pattern}"
-                                   regexp="(.*)@zone@(.*)"
-                                   replace="\1@{zone}\2"
-                                   casesensitive="false" />
-                    <propertyregex property="service.project.prefix"
-                                   input="${service.project.prefix}"
-                                   regexp="(.*)@domain@(.*)"
-                                   replace="\1@{domain}\2"
-                                   casesensitive="false"
-                                   override="true"
-                                   defaultvalue="${service.project.prefix}" />
-                </then>
-                <elseif>
-                    <and>
-                        <istrue value="${swat.settings.infra.domain-as-env}" />
-                        <istrue value="${swat.settings.infra.projectname-without-zone}" />
-                    </and>
-                    <then>
-                        <property name="service.project.prefix" value="${swat.settings.project.services.prefix}" />
-                    </then>
-                </elseif>
-                <elseif>
-                    <and>
-                        <istrue value="${swat.settings.infra.domain-as-env}" />
-                        <isfalse value="${swat.settings.infra.projectname-without-zone}" />
-                    </and>
-                    <then>
-                        <property name="service.project.prefix"
-                                  value="${swat.settings.project.services.prefix}-@{zone}" />
-                    </then>
-                </elseif>
-                <elseif>
-                    <and>
-                        <isfalse value="${swat.settings.infra.domain-as-env}" />
-                        <istrue value="${swat.settings.infra.projectname-without-zone}" />
-                    </and>
-                    <then>
-                        <property name="service.project.prefix"
-                                  value="${swat.settings.project.services.prefix}-@{domain}" />
-                    </then>
-                </elseif>
-                <else>
-                    <property name="service.project.prefix"
-                              value="${swat.settings.project.services.prefix}-@{zone}-@{domain}" />
-                </else>
-            </if>
+
+            <echo message="using pattern: ${swat.settings.project.services.prefix.pattern}" />
+            <property name="pzone" value="@{zone}" />
+            <propertyregex property="service.project.prefix"
+                           input="${swat.settings.project.services.prefix.pattern}"
+                           regexp="(.*)@zone@(.*)"
+                           replace="\1@{zone}\2"
+                           casesensitive="false" />
+            <propertyregex property="service.project.prefix"
+                           input="${service.project.prefix}"
+                           regexp="(.*)@domain@(.*)"
+                           replace="\1@{domain}\2"
+                           casesensitive="false"
+                           override="true"
+                           defaultvalue="${service.project.prefix}" />
+
             <if>
                 <isset property="swat.domain.mvn.aggregator" />
                 <then>
