@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
 <!-- Licensed Materials - Property of schlag&rahm -->
-<!-- Copyright ï¿½ 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Copyright Â© 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
 <!-- Licensed Materials - Property of IBM -->
 <!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
 <!-- US Government Users Restricted Rights - Use, duplication or disclosure -->
@@ -489,7 +489,7 @@
     <macrodef name="xcfg-reformat-macro">
         <attribute name="src-dir" />
         <attribute name="dst-dir" />
-        <!-- conf-type is accepted but ignored and€” kept for call-site compatibility -->
+        <!-- conf-type is accepted but ignored andï¿½ï¿½ kept for call-site compatibility -->
         <attribute name="conf-type" default="" />
         <sequential>
             <!-- Sort attributes alphabetically and re-indent for stable diffs -->
