@@ -779,7 +779,9 @@
                            input="${swat.settings.project.services.prefix.pattern}"
                            regexp="(.*)@zone@(.*)"
                            replace="\1@{zone}\2"
-                           casesensitive="false" />
+                           casesensitive="false"
+                           global="true"
+                           defaultValue="${swat.settings.project.services.prefix.pattern}" />
             <propertyregex property="service.project.prefix"
                            input="${service.project.prefix}"
                            regexp="(.*)@domain@(.*)"
