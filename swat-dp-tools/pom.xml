@@ -17,10 +17,10 @@
 
     <scm>
         <url>https://github.com/schlagundrahm/swat4dp</url>
-        <connection>scm:git:git://github.com/schlagundrahm/swat4dp.git</connection>
-        <developerConnection>scm:git:https://github.com/schlagundrahm/swat4dp.git</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+        <connection>scm:git:https://github.com/schlagundrahm/swat4dp.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/schlagundrahm/swat4dp.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 
     <dependencies>
         <!--  SWAT libraries -->
