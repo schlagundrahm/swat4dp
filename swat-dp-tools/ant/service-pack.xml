@@ -59,7 +59,7 @@
 
 			<!-- Pack all files into the structure needed for deplyoment -->
 			<service-pack2compare-macro env="@{env}" />
-			    
+
 			<!-- verify that all tokens within the files have been replaced -->
 			<verify-token-replacement-macro src-dir="${files-dir}" />
 
@@ -80,7 +80,7 @@
 
 			<!-- validating public keys i.e certificates if there are any -->
 			<validate-certs-macro source-dir="${files-dir}" />
-			
+
 			<!-- run schema validation on xcfg files -->
 			<validate-config-macro source-dir="${relative-import-dir}/xcfg/common" />
 
@@ -127,10 +127,10 @@
 			<!-- Initialize passwords needed -> results in swat.pws.filter.file -->
 			<init-env-passwords-macro env="@{env}" />
 
-		    <!-- Load Maven POM properties -->
-		    <xmlproperty file="pom.xml" keepRoot="false" prefix="pom" />
+			<!-- Load Maven POM properties -->
+			<xmlproperty file="pom.xml" keepRoot="false" prefix="pom" />
 
-		    <if>
+			<if>
 				<isset property="${pom.groupId}" />
 				<then>
 					<property name="group-id" value="${pom.groupId}" />
@@ -140,23 +140,46 @@
 				</else>
 			</if>
 
+			<if>
+				<isset property="${pom.properties.webservice.classifier}" />
+				<then>
+					<property name="webservice-classifier" value="${pom.properties.webservice.classifier}" />
+				</then>
+				<else>
+					<property name="webservice-classifier" value="${pom.properties.webservice.1.classifier}" />
+				</else>
+			</if>
+
+			<if>
+				<isset property="${pom.properties.webservice.version}" />
+				<then>
+					<property name="webservice-version" value="$${pom.properties.webservice.version}" />
+				</then>
+				<else>
+					<property name="webservice-version" value="${pom.properties.webservice.1.version}" />
+				</else>
+			</if>
+
 			<!-- Define content filterset -->
 			<filterset id="content.filter" onmissingfiltersfile="ignore">
 				<filtersfile file="build.properties" />
 				<filtersfile file="config/@{env}.properties" />
 				<filtersfile file="${swat.dp.infra}/build.properties" />
 				<filtersfile file="${swat.pws.filter.file}" />
-			    <filter token="version" value="${project.version}" />
-			    <filter token="build.number" value="${buildNumber}" />
-			    <filter token="build.revision" value="${buildRevision}" />
-				<filter token="domain.name" value="${domain.name}"/>
-				<filter token="build.time" value="${FILESTAMP}"/>
-			    <filter token="build.user" value="${env.USERNAME}"/>
-			    <filter token="artifactId" value="${pom.artifactId}"/>
-			    <filter token="groupId" value="${group-id}"/>
-			    <filter token="description" value="${pom.description}"/>
-                <filter token="target.zone" value="${mgr.target.zone.name}"/>
-                <filter token="target.env" value="${mgr.target.env.name}"/>
+				<filter token="version" value="${project.version}" />
+				<filter token="build.number" value="${buildNumber}" />
+				<filter token="build.revision" value="${buildRevision}" />
+				<filter token="domain.name" value="${domain.name}" />
+				<filter token="build.date" value="${BUILDDATE}" />
+				<filter token="build.time" value="${FILESTAMP}" />
+				<filter token="build.user" value="${env.USERNAME}" />
+				<filter token="artifactId" value="${pom.artifactId}" />
+				<filter token="groupId" value="${group-id}" />
+				<filter token="description" value="${pom.description}" />
+				<filter token="target.zone" value="${mgr.target.zone.name}" />
+				<filter token="target.env" value="${mgr.target.env.name}" />
+				<filter token="webservice.classifier" value="${webservice-classifier}" />
+				<filter token="webservice.version" value="${webservice-version}" />
 			</filterset>
 
 			<!-- Copy and filter the local files (common and env-specific) -->
@@ -199,13 +222,13 @@
 
 			<!-- Remove temporarily needed swat.pws.filter.file -->
 			<delete file="${swat.pws.filter.file}" />
-			
+
 			<!-- Remove empty elements -->
 			<remove-empty-elements-macro src-dir="${xcfg-dir}" />
-			
+
 			<!-- run schema validation on xcfg files -->
 			<validate-config-macro source-dir="${xcfg-dir}" />
-			
+
 			<!-- fix end of line encoding for all all XCFG files -->
 			<fixcrlf srcdir="${xcfg-dir}" includes="**/*.xcfg" fixlast="false" />
 

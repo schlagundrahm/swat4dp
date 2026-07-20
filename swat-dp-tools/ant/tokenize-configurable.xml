@@ -27,6 +27,9 @@
         <attribute name="properties-dir" />
         <attribute name="rules-file" default="${swat.dp.tools}/config/tokenization-rules.properties" />
         <attribute name="index-groups-file" default="${swat.dp.tools}/config/tokenization-index-groups.properties" />
+        <!-- Optional client-supplied overlay files placed in the infra project config directory -->
+        <attribute name="custom-rules-file" default="${swat.dp.infra}/config/tokenization-rules-custom.properties" />
+        <attribute name="custom-index-groups-file" default="${swat.dp.infra}/config/tokenization-index-groups-custom.properties" />
         
         <sequential>
             <echo message="Tokenizing service configurations (Java) from: @{src-dir}" />
@@ -40,6 +43,8 @@
                 propertiesDir="@{properties-dir}"
                 rulesFile="@{rules-file}"
                 indexGroupsFile="@{index-groups-file}"
+                customRulesFile="@{custom-rules-file}"
+                customIndexGroupsFile="@{custom-index-groups-file}"
             />
         </sequential>
     </macrodef>
@@ -53,6 +58,9 @@
         <attribute name="properties-dir" default="@{dst-dir}-properties" />
         <attribute name="rules-file" default="${swat.dp.tools}/config/tokenization-rules.properties" />
         <attribute name="index-groups-file" default="${swat.dp.tools}/config/tokenization-index-groups.properties" />
+        <!-- Optional client-supplied overlay files placed in the infra project config directory -->
+        <attribute name="custom-rules-file" default="${swat.dp.infra}/config/tokenization-rules-custom.properties" />
+        <attribute name="custom-index-groups-file" default="${swat.dp.infra}/config/tokenization-index-groups-custom.properties" />
         <attribute name="file-extension" default=".xcfg" />
         <sequential>
             <echo message="Configurable tokenization: Using rules from @{rules-file}" />
@@ -101,6 +109,8 @@
                         <param name="properties-output-file" expression="@{properties-dir}/${basename}.properties" />
                         <param name="rules-file" expression="@{rules-file}" />
                         <param name="index-groups-file" expression="@{index-groups-file}" />
+                        <param name="custom-rules-file" expression="@{custom-rules-file}" />
+                        <param name="custom-index-groups-file" expression="@{custom-index-groups-file}" />
                     </xslt>
                 </sequential>
             </for>
@@ -109,6 +119,7 @@
             <echo message="  - Tokenized configs: @{dst-dir}" />
             <echo message="  - Properties files:  @{properties-dir}" />
             <echo message="  - Rules applied from: @{rules-file}" />
+            <echo message="  - Custom rules overlay: @{custom-rules-file}" />
         </sequential>
     </macrodef>
 

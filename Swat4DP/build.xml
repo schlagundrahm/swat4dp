@@ -507,8 +507,6 @@
                 <include name="${swat.customer}-swat-dp-devices/target/**" />
                 <include name="${swat.customer}-swat-dp-services-*/dist/**" />
                 <include name="${swat.customer}-swat-dp-services-*/target/**" />
-                <include name="${swat.settings.project.services.prefix}-*/dist/**" />
-                <include name="${swat.settings.project.services.prefix}-*/target/**" />
                 <include name="${project.dir.name}-*/dist/**" />
                 <include name="${project.dir.name}-*/target/**" />
             </fileset>
@@ -516,9 +514,9 @@
     </target>
 
     <!-- ================================= 
-          target: 93-swat-show-user-pw-properties              
+          target: 95-swat-show-user-pw-properties              
          ================================= -->
-    <target name="93-swat-show-user-pw-properties"
+    <target name="95-swat-show-user-pw-properties"
             depends="init"
             description="show all configured user specific password properties [pw|password|auth]">
         <echo message="searching user settings in ${swat.dp.infra} ..." />
@@ -530,6 +528,9 @@
         </showfile>
     </target>
 
+    <!-- ================================= 
+          target: 93-swat-show-device-serial              
+         ================================= -->
     <target name="93-swat-show-device-serial" depends="init" description="show all serial and entitlement numbers">
         <echo message="searching serials in ${swat.dp.devices}} ..." />
         <showfile byline="true">
@@ -573,19 +574,26 @@
          ================================= -->
     <target name="94-swat-show-env-properties" depends="init,load-env-props" description="show environment settings">
         <echo message="searching '${mgr.target.env.name}' properties in ${swat.dp.customer.home} ..." />
-        <echo message=" " />
+        <echo message="" />
+        <propertyregex property="service.project.prefix"
+                       input="${swat.settings.project.services.prefix.pattern}"
+                       regexp="([^@]+)@.*@"
+                       replace="\1*"
+                       casesensitive="false"
+                       global="true" />
+        <echo message="${service.project.prefix}" />
         <showfile byline="true">
-            <regexp pattern="^[^#]*(wsdl).location*=" />
+            <regexp pattern="^[^#=]*=" />
             <fileset dir="${swat.dp.customer.home}">
-                <include name="/${swat.settings.project.services.prefix}*/config/${mgr.target.env.name}.properties" />
+                <include name="/${service.project.prefix}*/config/${mgr.target.env.name}.properties" />
             </fileset>
         </showfile>
     </target>
 
     <!-- ================================= 
-          target: 94-swat-encrypt-user-settings              
+          target: 98-swat-encrypt-user-settings              
          ================================= -->
-    <target name="94-swat-encrypt-user-settings"
+    <target name="98-swat-encrypt-user-settings"
             depends="init"
             description="Encrypt all passwords in the user settings file.">
         <if>
@@ -628,9 +636,9 @@
     </target>
 
     <!-- ================================= 
-          target: 95-swat-decrypt-user-settings              
+          target: 99-swat-decrypt-user-settings              
          ================================= -->
-    <target name="95-swat-decrypt-user-settings"
+    <target name="99-swat-decrypt-user-settings"
             depends="init"
             description="Decrypt all passwords in the user settings file.">
         <if>

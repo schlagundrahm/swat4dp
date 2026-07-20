@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <!-- ================================================================================================= -->
 <!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
 <!-- Licensed Materials - Property of schlag&rahm -->
-<!-- Copyright © 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Copyright Â© 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
 <!-- Licensed Materials - Property of IBM -->
 <!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
 <!-- US Government Users Restricted Rights - Use, duplication or disclosure -->
@@ -82,22 +82,21 @@
                                                   service="${service.name}"
                                                   object="${export.service.object.name}"
                                                   class="${service.object.class}" />
-                                                            
-                    <tokenize-service-config-configurable-macro  src-dir="dist/tokenized/@{device}-@{domain}"
-                                                                 dst-dir="dist/tokenized2/@{device}-@{domain}"
-                                                                 properties-dir="../@{device}-@{domain}-properties" />
-                                                                 
+
                     <tokenize-service-java-macro src-dir="dist/tokenized/@{device}-@{domain}"
-                                                 dst-dir="dist/tokenized-java/@{device}-@{domain}"
-                                                 properties-dir="dist/tokenized3/@{device}-@{domain}-properties"
+                                                 dst-dir="dist/tokenized2/@{device}-@{domain}"
+                                                 properties-dir="dist/tokenized2/@{device}-@{domain}-properties"
                                                  rules-file="${swat.dp.tools}/config/tokenization-rules.properties"
+                                                 custom-rules-file="${swat.dp.infra}/config/tokenization-rules-custom.properties"
+                                                 custom-index-groups-file="${swat.dp.infra}/config/tokenization-index-groups-custom.properties"
 />
 
                     <fixcrlf srcdir="dist/tokenized/@{device}-@{domain}" includes="**/*.xcfg" fixlast="true" />
                     <fixcrlf srcdir="dist/tokenized2/@{device}-@{domain}" includes="**/*.xcfg" fixlast="false" />
                     
                     <!-- reorder attributes for manual comparison -->
-                    <xcfg-reformat-macro src-dir="dist/tokenized-java/@{device}-@{domain}" dst-dir="dist/tokenized3/@{device}-@{domain}" conf-type="service" />
+                    <!-- TODO: it looks like this is not needed at all -->
+                    <xcfg-reformat-macro src-dir="dist/tokenized2/@{device}-@{domain}" dst-dir="dist/tokenized3/@{device}-@{domain}" conf-type="service" />
                     <fixcrlf srcdir="dist/tokenized3/@{device}-@{domain}" includes="**/*.xcfg" fixlast="false" />
                 </then>
             </if>
@@ -109,12 +108,6 @@
             <!-- combine properties -->
             <mergeproperties srcDir="dist/tokenized2/@{device}-@{domain}-properties"
                              dstFile="dist/tokenized2/@{device}-@{domain}.properties"
-                             templateFile="${swat.dp.infra}/config/properties-template.properties"
-                             sort="false"
-                             excludePattern="^(service\.object\.name|service\.summary)" />
-
-            <mergeproperties srcDir="dist/tokenized3/@{device}-@{domain}-properties"
-                             dstFile="dist/tokenized3/@{device}-@{domain}.properties"
                              templateFile="${swat.dp.infra}/config/properties-template.properties"
                              sort="false"
                              excludePattern="^(service\.object\.name|service\.summary)" />
@@ -770,70 +763,33 @@
         <attribute name="domain" />
         <sequential>
             <!-- set project name according to the general swat settings defined by the swat-dp-infra project -->
-            <fail message="One of swat.settings.project.services.prefix or swat.settings.project.services.prefix.pattern has to be defined in ${swat.customer}-swat-dp-infra/ build.proerties">
+            <fail message="The swat.settings.project.services.prefix.pattern has to be defined in ${swat.customer}-swat-dp-infra/ build.proerties">
                 <condition>
                     <and>
                         <not>
                             <isset property="swat.settings.project.services.prefix.pattern" />
                         </not>
-                        <not>
-                            <isset property="swat.settings.project.services.prefix" />
-                        </not>
                     </and>
                 </condition>
             </fail>
-            <if>
-                <isset property="swat.settings.project.services.prefix.pattern" />
-                <then>
-                    <echo message="using pattern: ${swat.settings.project.services.prefix.pattern}" />
-                    <property name="pzone" value="@{zone}" />
-                    <propertyregex property="service.project.prefix"
-                                   input="${swat.settings.project.services.prefix.pattern}"
-                                   regexp="(.*)@zone@(.*)"
-                                   replace="\1@{zone}\2"
-                                   casesensitive="false" />
-                    <propertyregex property="service.project.prefix"
-                                   input="${service.project.prefix}"
-                                   regexp="(.*)@domain@(.*)"
-                                   replace="\1@{domain}\2"
-                                   casesensitive="false"
-                                   override="true"
-                                   defaultvalue="${service.project.prefix}" />
-                </then>
-                <elseif>
-                    <and>
-                        <istrue value="${swat.settings.infra.domain-as-env}" />
-                        <istrue value="${swat.settings.infra.projectname-without-zone}" />
-                    </and>
-                    <then>
-                        <property name="service.project.prefix" value="${swat.settings.project.services.prefix}" />
-                    </then>
-                </elseif>
-                <elseif>
-                    <and>
-                        <istrue value="${swat.settings.infra.domain-as-env}" />
-                        <isfalse value="${swat.settings.infra.projectname-without-zone}" />
-                    </and>
-                    <then>
-                        <property name="service.project.prefix"
-                                  value="${swat.settings.project.services.prefix}-@{zone}" />
-                    </then>
-                </elseif>
-                <elseif>
-                    <and>
-                        <isfalse value="${swat.settings.infra.domain-as-env}" />
-                        <istrue value="${swat.settings.infra.projectname-without-zone}" />
-                    </and>
-                    <then>
-                        <property name="service.project.prefix"
-                                  value="${swat.settings.project.services.prefix}-@{domain}" />
-                    </then>
-                </elseif>
-                <else>
-                    <property name="service.project.prefix"
-                              value="${swat.settings.project.services.prefix}-@{zone}-@{domain}" />
-                </else>
-            </if>
+
+            <echo message="using pattern: ${swat.settings.project.services.prefix.pattern}" />
+            <property name="pzone" value="@{zone}" />
+            <propertyregex property="service.project.prefix"
+                           input="${swat.settings.project.services.prefix.pattern}"
+                           regexp="(.*)@zone@(.*)"
+                           replace="\1@{zone}\2"
+                           casesensitive="false"
+                           global="true"
+                           defaultValue="${swat.settings.project.services.prefix.pattern}" />
+            <propertyregex property="service.project.prefix"
+                           input="${service.project.prefix}"
+                           regexp="(.*)@domain@(.*)"
+                           replace="\1@{domain}\2"
+                           casesensitive="false"
+                           override="true"
+                           defaultvalue="${service.project.prefix}" />
+
             <if>
                 <isset property="swat.domain.mvn.aggregator" />
                 <then>

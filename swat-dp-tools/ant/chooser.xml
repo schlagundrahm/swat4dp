@@ -307,7 +307,10 @@
                       location="${swat.current.service.parent}/${service.project.prefix}-common" />
 
             <echo message="Setting property swat.current.service.home = ${swat.current.service.home}" />
-
+            
+            <!-- try to load the service specific pom.xml file -->
+            <echo message="Loading Maven POM ${swat.current.service.home}/pom.xml" />
+            <xmlproperty file="${swat.current.service.home}/pom.xml" />
 
             <if>
                 <isset property="project.version" />
