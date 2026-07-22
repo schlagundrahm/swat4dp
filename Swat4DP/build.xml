@@ -15,10 +15,6 @@
 <!-- ====================================================================== -->
 <project name="swat4dp" default="info" basedir=".">
 
-    <!-- Copyright (c) 2010, 2013 schlag&rahm AG, Switzerland. All Rights Reserved -->
-    <!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
-    <!-- The schlag&rahm WebSphere Administration Toolkit for DataPower - Swat4DP -->
-
     <description>The schlag&amp;rahm WebSphere Administration Toolkit for DataPower - Swat4DP</description>
 
     <!-- The build.properties file defines the path to local jar files -->
@@ -890,6 +886,21 @@
             <property name="deploy.policy" value="${mgr.target.deployment-policy.name}" />
         </ant>
 
+    </target>
+
+    <!-- ================================= 
+          target: hsm-exchange-kwk-on-device-set     
+         ================================= -->
+    <target name="hsm-exchange-kwk-on-device-set" depends="declare,choose-device-set" description="put the two devices of a device-set into the same HSM domain">
+        <exchange-hsm-kwk-on-device-set-macro device-set="${mgr.target.device-set.name}" />
+    </target>
+
+    <!-- ================================= 
+          target: hsm-exchange-kwk-between-two-devices     
+         ================================= -->
+
+    <target name="hsm-exchange-kwk-between-two-devices" depends="declare,choose-multi-device" description="put the two selected devices into the same HSM domain">
+        <exchange-hsm-kwk-macro source-device="${source.device.name}" destination-device="${destination.device.name}" />
     </target>
 
     <!-- - - - - - - - - - - - - - - - - - 
