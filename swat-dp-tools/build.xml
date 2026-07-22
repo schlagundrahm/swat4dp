@@ -1,0 +1,945 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ================================================================================================= -->
+<!-- schlag&rahm WebSphere Administration Toolkit for IBM WebSphere DataPower SOA appliances (Swat4DP) -->
+<!-- Copyright (c) 2010, 2013 schlag&rahm AG, Switzerland. All rights reserved. -->
+<!-- Licensed Materials - Property of IBM -->
+<!-- IBM WebSphere DataPower Appliances -->
+<!-- Copyright IBM Corporation 2013. All Rights Reserved. -->
+<!-- US Government Users Restricted Rights - Use, duplication or disclosure -->
+<!-- restricted by GSA ADP Schedule Contract with IBM Corp. -->
+<!-- ================================================================================================= -->
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.8.2 or above. -->
+<!-- ====================================================================== -->
+<project name="swat4dp" default="info" basedir=".">
+
+    <description>The schlag&amp;rahm WebSphere Administration Toolkit for DataPower - Swat4DP</description>
+
+    <!-- The build.properties file defines the path to local jar files -->
+    <property file="build.properties" />
+
+    <condition property="runningWithinEclipse" else="false">
+        <typefound name="eclipse.convertPath" />
+    </condition>
+
+    <echo message="are we running within eclipse? ${runningWithinEclipse}" />
+
+    <echo message="trying to load '${user.home}/swat4dp.properties' ..." />
+    <property file="${user.home}/swat4dp.properties" />
+    <property name="config.filename" value="${user.home}/.swat4dp/build.properties" />
+    <echo message="... or '${config.filename}'" />
+    <property file="${config.filename}" />
+
+    <!-- Import the common tasks to all dp-administration -->
+    <import file="${swat.dp.tools}/macros.xml" />
+
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: init                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="init" depends="declare">
+
+        <if>
+            <!-- 
+                 works only when executed from within eclipse 
+                 and only if the runtime JRE is set to "Run int the same JRE as the workspace"
+            -->
+            <typefound name="eclipse.convertPath" />
+            <then>
+                <eclipse.convertPath resourcePath="${swat.customer}-swat-dp-infra" property="swat.dp.infra" />
+                <echo message="running within Eclipse (${swat.dp.infra})" />
+            </then>
+            <!-- we're not running within eclipse therefore we assume that all mandatory properties are defined in the ~/.swat4dp/build.properies file -->
+            <elseif>
+                <isset property="swat.${swat.customer}.customer.home" />
+                <then>
+                    <propertycopy property="swat.dp.customer.home" from="swat.${swat.customer}.customer.home" />
+                    <property name="swat.dp.infra" value="${swat.dp.customer.home}/${swat.customer}-swat-dp-infra" />
+                    <echo message="setting swat.dp.infra to ${swat.dp.infra}" />
+                </then>
+            </elseif>
+            <elseif>
+                <isset property="swat.dp.customer.home" />
+                <then>
+                    <property name="swat.dp.infra" value="${swat.dp.customer.home}/${swat.customer}-swat-dp-infra" />
+                    <echo message="setting swat.dp.infra to ${swat.dp.infra}" />
+                </then>
+            </elseif>
+            <else>
+                <fail message="The property 'swat.dp.customer.home' has not been defined! Either you're not running within Eclipse or didn't specify the property in your ~/.swat4dp/build.properties file." />
+            </else>
+        </if>
+        <property file="${swat.dp.infra}/build.properties" />
+        <property file="${swat.dp.infra}/settings/${user.name}.properties" />
+    </target>
+
+
+    <!-- ================================= 
+          target: 10-device-deploy 
+         ================================= -->
+    <target name="10-device-deploy" depends="init,choose-device" description="running device default domain deployment">
+        <ant antfile="${swat.dp.devices}/build.xml"
+             target="10-device-deploy"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 11-device-export 
+         ================================= -->
+    <target name="11-device-export" depends="init,choose-device" description="running device default domain export">
+        <ant antfile="${swat.dp.devices}/build.xml"
+             target="11-device-export"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 12-device-pack2compare 
+         ================================= -->
+    <target name="12-device-pack2compare" depends="init,choose-device" description="running device default domain pack">
+        <ant antfile="${swat.dp.devices}/build.xml"
+             target="12-device-pack2compare"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 15-device-key-generate 
+         ================================= -->
+    <target name="15-device-key-generate"
+            depends="init,choose-device"
+            description="running device create of the device-id">
+        <ant antfile="${swat.dp.devices}/build.xml"
+             target="15-device-key-generate"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 18-device-xcfg-reformat 
+         ================================= -->
+    <target name="18-device-xcfg-reformat"
+            depends="init,choose-device"
+            description="reformatting xcfg of device project">
+        <ant antfile="${swat.dp.devices}/build.xml"
+             target="18-device-xcfg-reformat"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 19-device-project-clean 
+         ================================= -->
+    <target name="19-device-project-clean" depends="init" description="cleaning device project">
+        <ant antfile="${swat.dp.devices}/build.xml"
+             target="99-project-clean"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 20-domain-services-deploy 
+         ================================= -->
+    <target name="20-domain-services-deploy"
+            depends="init,load-domain-props"
+            description="running domain-services deployment">
+        <foreach target="30-service-deploy"
+                 list="${swat.service.list}"
+                 delimiter=","
+                 param="mgr.target.service.name"
+                 inheritall="true"
+                 inheritrefs="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 21-domain-services-export 
+         ================================= -->
+    <target name="21-domain-services-export"
+            depends="init,load-domain-props"
+            description="running domain-services export">
+        <foreach target="32-service-export"
+                 list="${swat.service.list}"
+                 delimiter=","
+                 param="mgr.target.service.name"
+                 inheritall="true"
+                 inheritrefs="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 22-domain-services-pack2compare 
+         ================================= -->
+    <target name="22-domain-services-pack2compare"
+            depends="init,load-domain-props"
+            description="running domain-services pack2compare">
+        <foreach target="33-service-pack2compare"
+                 list="${swat.service.list}"
+                 delimiter=","
+                 param="mgr.target.service.name"
+                 inheritall="true"
+                 inheritrefs="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 23-domain-common-create-object-list 
+         ================================= -->
+    <target name="23-domain-services-object-list-create"
+            depends="init,load-domain-props"
+            description="running to create the object list for domain-services">
+        <foreach target="34-service-object-list-create"
+                 list="${swat.service.list}"
+                 delimiter=","
+                 param="mgr.target.service.name"
+                 inheritall="true"
+                 inheritrefs="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 24-domain-cleanup 
+         ================================= -->
+    <target name="24-domain-cleanup" depends="init,load-domain-props" description="running domain-cleanup">
+        <!-- Load implicitly chosen device-set settings -->
+        <load-device-set-props-macro device-set="${swat.device-set.name}" />
+
+        <!-- Running domain cleanup on all devices, one by one -->
+        <echo message="Running domain cleanup on all devices, one by one in the ${swat.device-set.name}..." />
+        <foreach target="24-domain-cleanup-on-device"
+                 list="${swat.device.list}"
+                 delimiter=","
+                 param="foreach.device.name"
+                 inheritall="true"
+                 inheritrefs="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 25-domain-checkpoints 
+         ================================= -->
+    <target name="25-domain-checkpoints" depends="init,load-domain-props" description="get domain checkpoints">
+        <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
+             target="25-domain-checkpoints"
+             inheritrefs="true"
+             useNativeBasedir="false" />
+    </target>
+
+    <!-- ================================= 
+          target: 26-domain-password-alias 
+         ================================= -->
+    <target name="26-domain-password-alias"
+            depends="init,load-domain-props"
+            description="add or overwrite a PasswordAlias">
+        <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
+             target="26-domain-password-alias-deploy"
+             inheritrefs="true"
+             useNativeBasedir="false" />
+    </target>
+
+    <!-- ================================= 
+          target: 27-domain-artifact 
+         ================================= -->
+    <target name="27-domain-artifact"
+            depends="init,load-domain-props"
+            description="generate a deployment package for a domain containing all services in a sinlge zip archive">
+        <ant antfile="${swat.dp.tools}/ant/domain-targets.xml"
+             target="27-domain-artifact"
+             inheritrefs="true"
+             useNativeBasedir="false" />
+    </target>
+
+    <!-- ================================= 
+        target: 29-domain-documentation 
+       ================================= -->
+    <target name="29-domain-documentation" depends="init,load-domain-props" description="running domain-documentation">
+
+        <concat destfile="${basedir}/dist/docs/${mgr.target.zone.name}/${mgr.target.env.name}/${mgr.target.domain.alias}/index.html">
+            <string>&lt;html&gt;&lt;head&gt;&lt;title&gt;${mgr.target.zone.name} - ${mgr.target.env.name} - ${mgr.target.domain.alias}&lt;/title&gt;&lt;/head&gt;</string>
+            <string>&lt;body&gt;&lt;h1&gt;DataPower Service Documentation&lt;/h1&gt;</string>
+            <string>&lt;h3&gt;Index Page [${mgr.target.zone.name} - ${mgr.target.env.name} - ${mgr.target.domain.alias}]&lt;/h3&gt;</string>
+            <string>&lt;p&gt;${swat.zone.label}&lt;br/&gt;</string>
+            <string>${swat.env.label}&lt;br/&gt;</string>
+            <string>${swat.domain.description}&lt;/p&gt;</string>
+            <string>&lt;ul&gt;</string>
+        </concat>
+        <!-- Running documentation task for all services, one by one -->
+        <echo message="Creating documentation for all services ..." />
+        <foreach target="39-service-documentation"
+                 list="${swat.service.list}"
+                 delimiter=","
+                 param="mgr.target.service.name"
+                 inheritall="true"
+                 inheritrefs="true" />
+
+        <foreach target="addServiceToIndexPage"
+                 list="${swat.service.list}"
+                 delimiter=","
+                 param="mgr.target.service.name"
+                 inheritall="true"
+                 inheritrefs="true" />
+
+        <concat destfile="${basedir}/dist/docs/${mgr.target.zone.name}/${mgr.target.env.name}/${mgr.target.domain.alias}/index.html"
+                append="true">
+            <string>&lt;/ul&gt;</string>
+            <string>&lt;/body&gt;</string>
+            <string>&lt;/html&gt;</string>
+        </concat>
+        <copy todir="${basedir}/dist/docs/${mgr.target.zone.name}/${mgr.target.env.name}/${mgr.target.domain.alias}/css"
+              overwrite="true">
+            <fileset dir="${swat.dp.tools}/style">
+                <include name="**/*.css" />
+                <include name="**/*.jpg" />
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- ================================= 
+          target: 30-service-deploy 
+         ================================= -->
+    <target name="30-service-deploy" depends="init,load-service-props" description="running service deployment">
+        <ant antfile="${swat.current.service.home}/build.xml"
+             target="30-service-deploy"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 31-service-deploy-with-options 
+         ================================= -->
+    <target name="31-service-deploy-with-options"
+            depends="init,load-service-props"
+            description="running service deployment with all options">
+        <ant antfile="${swat.current.service.home}/build.xml"
+             target="31-service-deploy-with-options"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 32-service-export 
+         ================================= -->
+    <target name="32-service-export" depends="init,load-service-props" description="running service export">
+        <ant antfile="${swat.current.service.home}/build.xml"
+             target="32-service-export"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 33-service-pack2compare 
+         ================================= -->
+    <target name="33-service-pack2compare" depends="init,load-service-props" description="running service export">
+        <ant antfile="${swat.current.service.home}/build.xml"
+             target="33-service-pack2compare"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 34-service-object-list-create 
+         ================================= -->
+    <target name="34-service-object-list-create"
+            depends="init,load-service-props"
+            description="running service object-list create">
+        <ant antfile="${swat.current.service.home}/build.xml"
+             target="34-service-object-list-create"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 35-service-key-generate 
+         ================================= -->
+    <target name="35-service-key-generate"
+            depends="init,load-service-props"
+            description="running service object-list create">
+        <ant antfile="${swat.current.service.home}/build.xml"
+             target="35-service-key-generate"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 36-service-key-distribute 
+         ================================= -->
+    <target name="36-service-key-distribute"
+            depends="init,load-service-props"
+            description="running service object-list create">
+        <ant antfile="${swat.current.service.home}/build.xml"
+             target="36-service-key-distribute"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 37-service-cert-distribute 
+         ================================= -->
+    <target name="37-service-cert-distribute"
+            depends="init,load-service-props"
+            description="running service object-list create">
+        <ant antfile="${swat.current.service.home}/build.xml"
+             target="37-service-cert-distribute"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 38-service-xcfg-reformat 
+         ================================= -->
+    <target name="38-service-xcfg-reformat"
+            depends="init,load-service-props"
+            description="reformatting xcfg of service project">
+        <ant antfile="${swat.current.service.home}/build.xml"
+             target="38-service-xcfg-reformat"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 39-service-project-clean 
+         ================================= -->
+    <target name="39-service-project-clean" depends="init,load-service-props" description="cleaning service project">
+        <ant antfile="${swat.current.service.home}/build.xml"
+             target="39-service-project-clean"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 39-service-documentation 
+         ================================= -->
+    <target name="39-service-documentation"
+            depends="init,load-service-props"
+            description="create service documentation">
+        <ant antfile="${swat.current.service.home}/build.xml"
+             target="39-service-documentation"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+        <!--
+    <copy todir="${basedir}/dist/docs/${mgr.target.zone.name}/${mgr.target.env.name}/${mgr.target.domain.alias}">
+      <fileset dir="${swat.current.service.home}/dist/docs/${mgr.target.env.name}">
+          <include name="**/*.html"/>
+      </fileset>
+    </copy>
+    <concat destfile="${basedir}/dist/docs/${mgr.target.zone.name}/${mgr.target.env.name}/${mgr.target.domain.alias}/index.html" append="true">
+      <string>&lt;li title='${service.summary}'&gt;</string>
+      <string>&lt;a href='${service.name}.html'&gt;${service.name}&lt;/a&gt;</string>
+      <string>&lt;/li&gt;</string>
+    </concat>
+    -->
+    </target>
+
+    <!-- ================================= 
+          target: 40-service-template-seed 
+         ================================= -->
+    <target name="40-service-template-seed" depends="init" description="running service template seed">
+        <ant antfile="${swat.dp.service.templates}/build.xml"
+             target="seed-service"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 41-service-template-clone 
+         ================================= -->
+    <target name="41-service-template-clone" depends="init" description="clone an existing service configuration">
+        <ant antfile="${swat.dp.tools}/ant/template-targets.xml"
+             target="clone-project"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 50-ops-ping-host 
+         ================================= -->
+    <target name="50-ops-ping-host" depends="init,choose-device" description="running ping on device">
+        <property name="mgr.target.domain.name" value="default" />
+        <ant antfile="${swat.dp.devices}/build.xml"
+             target="50-ops-ping-host"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+           target: 51-ops-get-cpu-usage 
+          ================================= -->
+    <target name="51-ops-get-cpu-usage" depends="init,choose-device" description="running StatusCPUUsage on device">
+        <property name="mgr.target.domain.name" value="default" />
+        <ant antfile="${swat.dp.devices}/build.xml"
+             target="51-ops-get-cpu-usage"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+           target: 52-ops-secure-backup 
+          ================================= -->
+    <target name="52-ops-secure-backup" depends="init,choose-device" description="create Secure Backup on device">
+        <property name="mgr.target.domain.name" value="default" />
+        <ant antfile="${swat.dp.devices}/build.xml"
+             target="52-ops-secure-backup"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+    </target>
+
+    <!-- ================================= 
+          target: 90-swat-clean-all-projects 
+         ================================= -->
+    <target name="90-swat-clean-all-projects" depends="init" description="--> clean all dist folders">
+        <propertyregex property="project.dir.name"
+              input="${swat.settings.project.services.prefix.pattern}"
+              regexp="(@[^@]+@)"
+              replace="*"
+              casesensitive="false" 
+              global="true"/>
+        <echo message="cleanup ${swat.dp.tools.home}" />
+        <delete verbose="true" includeemptydirs="true">
+            <fileset dir="${swat.dp.tools.home}">
+                <include name="Swat4DP/dist/**" />
+            </fileset>
+        </delete>
+        <echo message="cleanup ${swat.dp.customer.home} ..." />
+        <delete verbose="true" includeemptydirs="true">
+            <fileset dir="${swat.dp.customer.home}">
+                <include name="${swat.customer}-swat-dp-devices/dist/**" />
+                <include name="${swat.customer}-swat-dp-devices/target/**" />
+                <include name="${swat.customer}-swat-dp-services-*/dist/**" />
+                <include name="${swat.customer}-swat-dp-services-*/target/**" />
+                <include name="${project.dir.name}-*/dist/**" />
+                <include name="${project.dir.name}-*/target/**" />
+            </fileset>
+        </delete>
+    </target>
+
+    <!-- ================================= 
+          target: 95-swat-show-user-pw-properties              
+         ================================= -->
+    <target name="95-swat-show-user-pw-properties"
+            depends="init"
+            description="show all configured user specific password properties [pw|password|auth]">
+        <echo message="searching user settings in ${swat.dp.infra} ..." />
+        <showfile byline="true">
+            <regexp pattern="^[^#]*(pw|password|passwd|auth).*=" />
+            <fileset dir="${swat.dp.infra}">
+                <include name="**/*.properties" />
+            </fileset>
+        </showfile>
+    </target>
+
+    <!-- ================================= 
+          target: 93-swat-show-device-serial              
+         ================================= -->
+    <target name="93-swat-show-device-serial" depends="init" description="show all serial and entitlement numbers">
+        <echo message="searching serials in ${swat.dp.devices}} ..." />
+        <showfile byline="true">
+            <regexp pattern="^.*(serial|entitlement)=" />
+            <fileset dir="${swat.dp.devices}">
+                <include name="config/*.properties" />
+            </fileset>
+        </showfile>
+    </target>
+
+    <!-- ================================= 
+          target: 92-swat-show-device-sets              
+         ================================= -->
+    <target name="92-swat-show-device-sets" depends="init" description="show all configured devices sets">
+        <echo message="searching device sets in ${swat.dp.infra} ..." />
+        <echo message=" " />
+        <showfile byline="true">
+            <regexp pattern="^[^#]*(swat.device.list).*=" />
+            <fileset dir="${swat.dp.infra}">
+                <include name="config/device-sets/*-devices.properties" />
+            </fileset>
+        </showfile>
+    </target>
+
+    <!-- ================================= 
+          target: 91-swat-show-devices              
+         ================================= -->
+    <target name="91-swat-show-devices" depends="init" description="show all configured devices">
+        <echo message="searching devices in ${swat.dp.devices} ..." />
+        <echo message=" " />
+        <showfile byline="true">
+            <regexp pattern="^[^#]*(device.name).*=" />
+            <fileset dir="${swat.dp.devices}">
+                <include name="config/*.properties" />
+            </fileset>
+        </showfile>
+    </target>
+
+    <!-- ================================= 
+          target: 94-swat-show-env-properties              
+         ================================= -->
+    <target name="94-swat-show-env-properties" depends="init,load-env-props" description="show environment settings">
+        <echo message="searching '${mgr.target.env.name}' properties in ${swat.dp.customer.home} ..." />
+        <echo message="" />
+        <propertyregex property="service.project.prefix"
+                       input="${swat.settings.project.services.prefix.pattern}"
+                       regexp="([^@]+)@.*@"
+                       replace="\1*"
+                       casesensitive="false"
+                       global="true" />
+        <echo message="${service.project.prefix}" />
+        <showfile byline="true">
+            <regexp pattern="^[^#=]*=" />
+            <fileset dir="${swat.dp.customer.home}">
+                <include name="/${service.project.prefix}*/config/${mgr.target.env.name}.properties" />
+            </fileset>
+        </showfile>
+    </target>
+
+    <!-- ================================= 
+          target: 98-swat-encrypt-user-settings              
+         ================================= -->
+    <target name="98-swat-encrypt-user-settings"
+            depends="init"
+            description="Encrypt all passwords in the user settings file.">
+        <if>
+            <resourceexists>
+                <file file="${user.home}/swat4dp-secret.key" />
+            </resourceexists>
+            <then>
+                <echo message="key file already exists" />
+            </then>
+            <else>
+                <crypto genkey="true" keyfile="${user.home}/swat4dp-secret" />
+            </else>
+        </if>
+
+        <copy file="${swat.dp.infra}/settings/${user.name}.properties"
+              tofile="${swat.dp.infra}/settings/${user.name}.orig.${FILESTAMP}.properties" />
+        <loadproperties srcfile="${swat.dp.infra}/settings/${user.name}.properties" prefix="usersettings">
+            <filterchain>
+                <linecontainsregexp>
+                    <regexp pattern="^[^#=]*(pw|password|passwd|auth)[^=]*=[^{}]+" />
+                </linecontainsregexp>
+            </filterchain>
+        </loadproperties>
+        <echoproperties prefix="usersettings" />
+        <propertyselector property="password.property.list"
+                          delimiter=","
+                          match="^usersettings\.(.*)"
+                          select="\1"
+                          casesensitive="false" />
+        <if>
+            <isset property="password.property.list" />
+            <then>
+                <foreach list="${password.property.list}"
+                         delimiter=","
+                         target="encrypt-password"
+                         param="prop.key"
+                         inheritall="true" />
+            </then>
+        </if>
+    </target>
+
+    <!-- ================================= 
+          target: 99-swat-decrypt-user-settings              
+         ================================= -->
+    <target name="99-swat-decrypt-user-settings"
+            depends="init"
+            description="Decrypt all passwords in the user settings file.">
+        <if>
+            <not>
+                <resourceexists>
+                    <file file="${env.USERPROFILE}/swat4dp-secret.key" />
+                </resourceexists>
+            </not>
+            <then>
+                <echo message="Key file ${env.USERPROFILE}/swat4dp-secret.key does not exist!" />
+            </then>
+        </if>
+
+        <copy file="${swat.dp.infra}/settings/${user.name}.properties"
+              tofile="${swat.dp.infra}/settings/${user.name}.encrypted.${FILESTAMP}.properties" />
+        <loadproperties srcfile="${swat.dp.infra}/settings/${user.name}.properties" prefix="usersettings">
+            <filterchain>
+                <linecontainsregexp>
+                    <regexp pattern="^[^#]*(pw|password|passwd|auth)[^=]*=\{.+" />
+                </linecontainsregexp>
+            </filterchain>
+        </loadproperties>
+        <echoproperties prefix="usersettings" />
+        <propertyselector property="password.property.list"
+                          delimiter=","
+                          match="^usersettings\.(.*)"
+                          select="\1"
+                          casesensitive="false" />
+        <if>
+            <isset property="password.property.list" />
+            <then>
+                <foreach list="${password.property.list}"
+                         delimiter=","
+                         target="decrypt-password"
+                         param="prop.key"
+                         inheritall="true" />
+            </then>
+        </if>
+    </target>
+
+    <!-- ================================= 
+          target: 70-infra-create-projects              
+         ================================= -->
+    <target name="70-infra-create-projects" depends="init" description="Create the swat4dp infrastructure projects (infra and devices).">
+        <ant antfile="${swat.dp.tools}/ant/infra-targets.xml"
+             target="70-infra-create-projects"
+             inheritrefs="true"
+             useNativeBasedir="false" />
+    </target>
+
+    <!-- ================================= 
+          target: 71-infra-bootstrap
+         ================================= -->
+    <target name="71-infra-bootstrap" depends="init,choose-env,choose-device" description="Create a swat4dp domain structure in the infra project.">
+        <echo message="Basedir: ${basedir}" />
+        <ant antfile="${swat.dp.infra}/build.xml"
+             target="71-infra-bootstrap"
+             inheritrefs="true"
+             useNativeBasedir="true" />
+        <echo message="Basedir: ${basedir}" />
+    </target>
+
+    <!-- ================================= 
+          target: 59-ops-sanitize-error-report 
+         ================================= -->
+    <target name="59-ops-sanitize-error-report"
+            depends="init"
+            description="sanitize a given DataPower error report by replacing clear text passwords">
+        <antform title="DataPower Error Report and Configuration Export Sanitizer">
+            <label>Sanitize error report</label>
+            <fileSelectionProperty label="Select archive file : "
+                                   property="sanitize.archive"
+                                   directoryChooser="false"
+                                   tooltip="Select the error report archive to be sanitized." />
+            <textProperty label="Match expression:"
+                          property="sanitize.passwords"
+                          tooltip="If you do not want to use your private password property file please type in the passwords with '|' separated." />
+            <controlbar>
+                <button label="Cancel" type="cancel" target="cancel" />
+                <button label="Ok" type="ok" />
+            </controlbar>
+        </antform>
+        <fail unless="sanitize.archive" message="Please select a file first." />
+        <echo message="error report archive: ${sanitize.archive}" />
+        <dirname property="sanitize.targetdir" file="${sanitize.archive}" />
+        <!-- propertyregex property="error.report.targetfile" input="${sanitize.archive}" regexp=".*(error-report\.[0-9A-B]+\.[0-9]{14,17}[A-Z]{4})\.txt\.gz" 
+            select="\1" casesensitive="false" / -->
+        <propertyregex property="sanitize.targetfile"
+                       input="${sanitize.archive}"
+                       regexp=".*\\([a-zA-Z_0-9-.]+)(\.gz|\.zip)"
+                       select="\1"
+                       casesensitive="false" />
+        <propertyregex property="sanitize.archive.type"
+                       input="${sanitize.archive}"
+                       regexp=".*\\([a-zA-Z_0-9-.]+)\.(gz|zip)"
+                       select="\2"
+                       casesensitive="false" />
+        <fail unless="sanitize.targetfile" message="Could not determine file name." />
+        <!-- unpack the archive -->
+        <delete dir="${basedir}/sanitized" />
+        <mkdir dir="${basedir}/sanitized" />
+        <if>
+            <equals arg1="${sanitize.archive.type}" arg2="gz" casesensitive="false" />
+            <then>
+                <gunzip src="${sanitize.archive}" dest="${basedir}/sanitized" />
+            </then>
+            <else>
+                <unzip src="${sanitize.archive}" dest="${basedir}/sanitized" />
+            </else>
+        </if>
+        <if>
+            <and>
+                <isset property="sanitize.passwords" />
+                <length string="${sanitize.passwords}" trim="true" when="greater" length="7" />
+            </and>
+            <then>
+                <echo message="using provided password list instead of the property file '${basedir}/../${swat.customer}-swat-dp-infra/settings/${user.name}.properties'" />
+                <antcall target="sanitizeTextFile">
+                    <param name="password-property" value="sanitize.passwords" />
+                </antcall>
+            </then>
+            <else>
+                <!-- load passwords from personal settings file -->
+                <loadproperties srcFile="${basedir}/../${swat.customer}-swat-dp-infra/settings/${user.name}.properties"
+                                prefix="sanitizepw">
+                    <filterchain>
+                        <linecontains>
+                            <contains value=".pw" />
+                        </linecontains>
+                    </filterchain>
+                </loadproperties>
+                <!-- store property names in a list -->
+                <propertyselector property="password-property-list"
+                                  delimiter=","
+                                  match="sanitizepw\..*"
+                                  casesensitive="false" />
+                <echo message="password-property-list: ${password-property-list}" />
+                <!-- loop over the password-property-list and call the sanitizeTextFile target to replace the password defined 
+                    by password-property -->
+                <foreach list="${password-property-list}"
+                         delimiter=","
+                         target="sanitizeTextFile"
+                         param="password-property"
+                         inheritall="true" />
+            </else>
+        </if>
+        <!-- pack again -->
+        <zip destfile="${sanitize.targetdir}/${sanitize.targetfile}.sanitized.zip">
+            <fileset dir="${basedir}/sanitized">
+                <exclude name="**/*.zip" />
+                <exclude name="**/*.gz" />
+            </fileset>
+        </zip>
+        <!-- clean up -->
+        <delete dir="${basedir}/sanitized" />
+    </target>
+
+
+    <!-- ================================= 
+          target: 60-mvn-deploy-artifact     
+         ================================= -->
+    <target name="60-mvn-deploy-artifact"
+            depends="init,load-service-props,choose-deployment-policy"
+            description="--> deploy DataPower Maven artifact">
+
+        <property name="version" value="${project.version}" />
+
+        <echoproperties prefix="swat" />
+
+        <property name="nexus.search.url" value="${swat.nexus.search.url}${swat.current.service}" />
+        <property name="nexus.tmp.dir" value="${basedir}/nexus" />
+        <delete dir="${nexus.tmp.dir}" />
+        <mkdir dir="${nexus.tmp.dir}" />
+        <property name="nexus.search.result" value="${nexus.tmp.dir}/nexus-serach-result.html" />
+
+        <exec executable="${curl.exec}">
+            <arg value="${nexus.search.url}" />
+            <arg value="-A" />
+            <arg value="Mozilla/5.0 (Windows NT 5.1; rv:25.0) Gecko/20100101 Firefox/25.0" />
+            <arg value="-H" />
+            <arg value="Accept: text/xml,application/xhtml+xml,application/xml" />
+            <arg value="-o${nexus.search.result}" />
+        </exec>
+
+        <xmltask source="${nexus.search.result}" failWithoutMatch="true">
+            <copy path="//artifact[artifactId/text()='${swat.current.service}' and classifier/text()='${swat.env.name}']//version/text()"
+                  propertySeparator=","
+                  property="nexus.result.artifact.versions"
+                  append="true" />
+        </xmltask>
+
+        <antform title="DataPower Deployment - Select Maven Artifact Version">
+            <label>Choose the version to be deployed for artifactId=${swat.current.service}, classifier=${swat.env.name}.</label>
+            <selectionproperty label="Select Maven artifact version : "
+                               property="deploy.artifact.version"
+                               tooltip="Select the artifact version."
+                               values="${nexus.result.artifact.versions}" />
+            <controlbar>
+                <button label="Cancel" type="cancel" target="cancel" />
+                <button label="Ok" type="ok" />
+            </controlbar>
+        </antform>
+
+        <xmltask source="${nexus.search.result}" failWithoutMatch="true">
+            <copy path="//artifact[artifactId/text()='${swat.current.service}' and classifier/text()='${swat.env.name}' and version/text()='${deploy.artifact.version}']//artifactLink/text()"
+                  property="nexus.result.artifact.link" />
+        </xmltask>
+
+        <mkdir dir="${swat.current.service.home}\target\deploy" />
+
+        <property name="nexus.artifact.file"
+                  value="${swat.current.service.home}\target\deploy\${swat.current.service}-${deploy.artifact.version}-${swat.env.name}.zip" />
+
+        <exec executable="${curl.exec}">
+            <arg value="-L" />
+            <arg value="${nexus.result.artifact.link}" />
+            <arg value="-o" />
+            <arg value="${nexus.artifact.file}" />
+        </exec>
+
+        <if>
+            <length file="${nexus.artifact.file}" when="greater" length="0" />
+            <then>
+                <property name="deploy.file" value="${nexus.artifact.file}" />
+            </then>
+        </if>
+
+        <fail message="No configuration/artifact file has been selected for deployment!">
+            <condition>
+                <or>
+                    <not>
+                        <isset property="deploy.file" />
+                    </not>
+                    <length string="${deploy.file}" when="less" length="3" />
+                    <not>
+                        <length file="${deploy.file}" when="greater" length="0" />
+                    </not>
+                </or>
+            </condition>
+        </fail>
+
+        <ant antfile="${swat.current.service.home}/build.xml"
+             target="artifact-deploy"
+             inheritrefs="true"
+             useNativeBasedir="true">
+            <property name="env" value="${swat.env.name}" />
+            <property name="artifact.id" value="${swat.current.service}" />
+            <property name="SVCVERSION" value="${deploy.artifact.version}" />
+            <property name="deploy.policy" value="${mgr.target.deployment-policy.name}" />
+        </ant>
+
+    </target>
+
+    <!-- ================================= 
+          target: hsm-exchange-kwk-on-device-set     
+         ================================= -->
+    <target name="hsm-exchange-kwk-on-device-set" depends="declare,choose-device-set" description="put the two devices of a device-set into the same HSM domain">
+        <exchange-hsm-kwk-on-device-set-macro device-set="${mgr.target.device-set.name}" />
+    </target>
+
+    <!-- ================================= 
+          target: hsm-exchange-kwk-between-two-devices     
+         ================================= -->
+
+    <target name="hsm-exchange-kwk-between-two-devices" depends="declare,choose-multi-device" description="put the two selected devices into the same HSM domain">
+        <exchange-hsm-kwk-macro source-device="${source.device.name}" destination-device="${destination.device.name}" />
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: sanitizeTextFile 
+         - - - - - - - - - - - - - - - - - -->
+    <target name="sanitizeTextFile">
+        <echo message="sanitize with password-property '${password-property}'" />
+        <propertycopy name="password-to-be-replaced" from="${password-property}" />
+        <!-- ATTENTION: this echo statement is for debugging only -->
+        <!-- echo message="replacing password ${password-to-be-replaced} with xxxxxxxx" / -->
+        <replaceregexp byline="true">
+            <regexp pattern="${password-to-be-replaced}" />
+            <substitution expression="xxxxxxxx" />
+            <fileset dir="${basedir}/sanitized">
+                <exclude name="*.zip" />
+                <exclude name="*.gz" />
+            </fileset>
+        </replaceregexp>
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: addServiceToIndexPage                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="addServiceToIndexPage" depends="init,load-service-props">
+
+
+        <echo message="addServiceToIndexPage: ${swat.current.service.home} - ${mgr.target.service.name}" />
+        <copy todir="${basedir}/dist/docs/${mgr.target.zone.name}/${mgr.target.env.name}/${mgr.target.domain.alias}">
+            <fileset dir="${swat.current.service.home}/dist/docs/${env.name}">
+                <include name="*.html" />
+            </fileset>
+        </copy>
+        <concat destfile="${basedir}/dist/docs/${mgr.target.zone.name}/${mgr.target.env.name}/${mgr.target.domain.alias}/index.html"
+                append="true">
+            <string>&lt;li title='${service.summary}'&gt;</string>
+            <string>&lt;a href='${service.name}.html'&gt;${service.name}&lt;/a&gt;</string>
+            <string>&lt;/li&gt;</string>
+        </concat>
+
+    </target>
+
+</project>
